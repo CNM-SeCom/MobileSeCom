@@ -1,6 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions, Image,ScrollView, TextInput } from 'react-native'
 import React, {useEffect, useState} from 'react'
-import Header from './HeaderStack';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faHome, faGraduationCap, faHeart, faBriefcase, faArrowAltCircleLeft} from '@fortawesome/free-solid-svg-icons';
 import { Modal, Portal, PaperProvider } from 'react-native-paper';
@@ -13,6 +12,7 @@ const width = Dimensions.get('window').width;
 const UpdateInfo = ( ) => {
 
   const mode = useSelector((state) => state.mode.mode);
+  const user = useSelector((state) => state.user.user);
   const colors = useSelector((state) => {
     switch (mode) {
       case 'dark':

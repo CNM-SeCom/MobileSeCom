@@ -2,7 +2,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  mode: 'default', // default, dark, light
+  mode: 'dark', // default, dark, light
 };
 
 const modeSlice = createSlice({
@@ -16,5 +16,4 @@ const modeSlice = createSlice({
 });
 
 export const { toggleMode } = modeSlice.actions;
-
 export default modeSlice.reducer;

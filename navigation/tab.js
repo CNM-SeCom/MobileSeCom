@@ -5,6 +5,7 @@ import Chat from '../screens/Chat';
 import Settings from '../screens/Setting';
 import TestTabView from '../screens/TabViewChat';
 import Test from '../screens/Test';
+// import VideoCall from '../screens/VideoCall';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faHome,faComment, faUser, faPhone , faCamera,faBars} from '@fortawesome/free-solid-svg-icons';
@@ -93,6 +94,16 @@ const colors = useSelector((state) => {
             options={{
                 tabBarIcon: ({ color }) => (
                   <FontAwesomeIcon icon={faCamera} size={25} color={color} />
+                ),
+                tabBarShowLabel: false,
+            }}
+        /> */}
+        {/* <Tab.Screen
+            name="VideoCall"
+            component={VideoCall}
+            options={{
+                tabBarIcon: ({ color }) => (
+                  <FontAwesomeIcon icon={faPhone} size={25} color={color} />
                 ),
                 tabBarShowLabel: false,
             }}

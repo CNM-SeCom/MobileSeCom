@@ -14,6 +14,7 @@ const width = Dimensions.get('window').width;
 const Bio = () => {
   
     const mode = useSelector((state) => state.mode.mode);
+    const user = useSelector((state) => state.user.user);
     const colors = useSelector((state) => {
       switch (mode) {
         case 'dark':
@@ -45,26 +46,26 @@ const navigation = useNavigation();
           <Image source={require('../assets/LOL/cover/3.jpg')} style={{width: '100%', height: '100%'}} />
         </View>
         <View style={styles.avatar}>
-          <Image source={require('../assets/LOL/cover/3.jpg')} style={{width: '100%', height: '100%'}} />
+          <Image source={{ uri: user.avatar }} style={{ width: '100%', height: '100%' }} />
         </View>
         <View style={[
           {backgroundColor: colors.background},
           styles.profile]}>
           <Text style={[
             {color: colors.text},
-            styles.name]}>Nguyen Van A</Text>
+            styles.name]}>{user.name}</Text>
           <Text style={[
             {color: colors.text},
-            styles.profileText]}>Male</Text>
+            styles.profileText]}>Giới tính : {user.male}</Text>
           <Text style={[
             {color: colors.text},
-            styles.profileText]}>Address</Text>
+            styles.profileText]}>Địa chỉ : {user.address}</Text>
           <Text style={[
             {color: colors.text},
-            styles.profileText]}>Phone</Text>
+            styles.profileText]}>Phone : {user.phone}</Text>
           <Text style={[
             {color: colors.text},
-            styles.profileText]}>Email</Text>
+            styles.profileText]}>Email : {user.email}</Text>
           <TouchableOpacity 
           onPress={() => navigation.navigate('EditProfile')}
           style={styles.editProfileButton}>
@@ -101,7 +102,7 @@ export default Bio
 
 const styles = StyleSheet.create({
   container: {
-    width: width,
+    width: '100%',
     height: height,
   },
   bioContainer: {

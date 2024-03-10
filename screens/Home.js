@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
       },
       scrollContainer: {
-        width: width,
+        width: '100%',
         height: height - 100,
         backgroundColor: '#C4B8E6',
         alignItems: 'center',

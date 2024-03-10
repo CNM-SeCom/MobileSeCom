@@ -1,19 +1,25 @@
 import React, { useEffect } from 'react';
 import { List } from 'react-native-paper';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faPalette, faPaintbrush } from '@fortawesome/free-solid-svg-icons';
+import { faPalette, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { Switch } from 'react-native-paper';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet,Text } from 'react-native';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleMode } from '../redux/modeSlice';
 import { setThemeColors } from '../redux/themeSlice';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { setAccount } from '../redux/accountSlice';
+import { useNavigation } from '@react-navigation/native';
 
 const Setting = () => {
+  const navigation = useNavigation();
+
   const [expanded, setExpanded] = React.useState(true);
   const handlePress = () => setExpanded(!expanded);
 
-  const [isDarkMode, setIsDarkMode] = React.useState(false);
+
+  const [isDarkMode, setIsDarkMode] = React.useState(true);
   const onToggleDarkMode = () => {
     setIsDarkMode(!isDarkMode)
     setIsLightMode(false)
@@ -29,7 +35,7 @@ const Setting = () => {
     handleModeChange('light')
   };
 
-  const [isDefaultMode, setIsDefaultMode] = React.useState(true);
+  const [isDefaultMode, setIsDefaultMode] = React.useState(false);
   const onToggleDefaultMode = () => {
     setIsDefaultMode(!isDefaultMode)
     setIsLightMode(false)
@@ -58,9 +64,19 @@ const Setting = () => {
     dispatch(toggleMode(newMode));
   };
 
+  const account = useSelector(account => account.account.account);
+  console.log("account on log");
+  console.log(account);
+
+  const handleLogout = () => {
+    dispatch(setAccount(null)); 
+    navigation.navigate('Login');
+  };
+
   return (
    <View style={[styles.container, { backgroundColor: colors.background }]}>
-     <List.Section title="Setting">
+     <List.Section 
+     title="Setting">
       <List.Accordion
         title="Color Theme"
         expanded={expanded}
@@ -112,6 +128,18 @@ const Setting = () => {
         />
       </List.Accordion>
     </List.Section>
+    <TouchableOpacity 
+    onPress={handleLogout}
+    style={[
+      {backgroundColor : colors.background},
+      styles.logOutButton]}>
+      <Text style={[
+        {color: colors.text},
+        styles.textLogout]}>
+        Logout
+      </Text>
+      <FontAwesomeIcon style={styles.textLogout} icon={faRightFromBracket} size={25} color={colors.text}/>
+    </TouchableOpacity>
    </View>
   );
 };
@@ -134,4 +162,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     paddingLeft: 30,
   },
+  textLogout : {
+    fontSize : 20,
+    alignSelf : 'center',
+  },
+  logOutButton : {
+    width : '100%',
+    height : 50,
+    borderRadius : 10,
+    justifyContent : 'space-between',
+    flexDirection : 'row',
+    paddingLeft : 20,
+    paddingRight : 20,
+    borderTopWidth : 1,
+    borderColor : 'white',
+    
+  }
 });

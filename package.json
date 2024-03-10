@@ -27,6 +27,7 @@
     "@zegocloud/zego-uikit-rn": "^2.6.0",
     "agora-react-native-rtm": "^1.5.1",
     "agora-rn-uikit": "^5.0.2",
+    "axios": "^1.6.7",
     "core-js": "^3.23.3",
     "emoji-mart": "^5.5.2",
     "firebase": "^10.7.1",

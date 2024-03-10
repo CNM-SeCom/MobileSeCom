@@ -9,6 +9,8 @@ import Conversation from '../screens/Conversation';
 import EditProfile from '../screens/EditProfile';
 import Search from '../screens/Search';
 import ChooseImage from '../screens/ChooseImage';
+import Register from '../screens/Register';
+
 // import VideoCall from '../screens/VideoCall';
 
 const Stack = createStackNavigator();
@@ -25,7 +27,7 @@ function MyStack() {
       <Stack.Screen name="TabHome" component={TabHome} options={{header: props => <Header {...props} />}}/>
       <Stack.Screen name="Search" component={Search} options={{headerShown : false}}/>
       <Stack.Screen name="ChooseImage" component={ChooseImage} options={{headerShown : false}}/>
-      {/* <Stack.Screen name="VideoCall" component={VideoCall} options={{headerShown : false}}/> */}
+      <Stack.Screen name="Register" component={Register} options={{headerShown : false}}/>   
     </Stack.Navigator>
   );
 }
