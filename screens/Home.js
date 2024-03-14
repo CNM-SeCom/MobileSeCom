@@ -86,7 +86,6 @@ const Home = ({ navigation }) => {
           if (add) {
             console.log('Add');
             console.log('ChatData sau khi cập nhật:', chatData);
-            setRefresh(!refresh);
             console.log(refresh);
           }else {
             console.log('Not Add');
