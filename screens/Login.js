@@ -11,24 +11,29 @@ import { View,
         } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import { Provider, useSelector, useDispatch } from 'react-redux';
+import {  useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
-import { setAccount } from '../redux/accountSlice';
+import { setToken } from '../redux/tokenSlice';
+
 import { setUser } from '../redux/userSlice';
 import { Modal, Portal, PaperProvider } from 'react-native-paper';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faFaceSadTear } from '@fortawesome/free-solid-svg-icons'  
+import {set_IdUser, getIdUser} from '../data/idUser';
 
 const {width, height} = Dimensions.get('window');
 
+
 const LoginScreen = () => {
-  const account = useSelector(account => account.account);
+  const user = useSelector((state) => state.user.user);
+  const token = useSelector((state) => state.token.token);
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const ip = '192.168.130.78'
 
   const [visible, setVisible] = React.useState(false);
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('0399889699');
+  const [password, setPassword] = useState('aaaaaaaaA1@');
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [notification, setNotification] = useState('');
 
@@ -48,30 +53,30 @@ const LoginScreen = () => {
       setNotification('Vui lòng nhập đầy đủ thông tin');
       showModal();
       return;
-    } else {
+    }
+    else {
       const data = {
         phone: phone,
         pass: password
       }
-      // console.log(data);s
-      axios.post('http://192.168.1.7:3000/login', data)
+      // console.log(data);
+      axios.post('http://'+ip+':3000/login', data)
         .then((response) => {
-          console.log('Response: ', response.data);
           if (response.data.error) {
-            setNotification(response.data.error);
-            showModal();
-          } else {
-            dispatch(setAccount(response.data.account));
+            setNotification(response.data.message);
+            showModal();}
+
+          else {
             dispatch(setUser(response.data.user));
-            console.log('Account: ', response.data.account);
-            console.log('User: ', response.data.user);
-            console.log('đang đăng nhập thành công');
+            dispatch(setToken(response.data.token));
+            set_IdUser(response.data.user.idUser);
             navigation.navigate('TabHome');
           }
         })
         .catch((error) => {
           console.log('Error: ', error);
-          setNotification('Tài khoản hoặc mật khẩu không đúng');
+          console.log('Error: ', error.response.data.message);
+          setNotification(error.response.data.message);
           showModal();
         })
     }
@@ -104,6 +109,7 @@ const hideModal = () => setVisible(false)
               onChangeText={setPhone}
               placeholder = 'Phone number'
               placeholderTextColor = '#00000080'
+              value="0399889699"
               style={styles.inputField} />
           </View>
           <View style={styles.inputPasswordContainer}>
@@ -112,6 +118,7 @@ const hideModal = () => setVisible(false)
               placeholderTextColor = '#00000080'
               style={styles.inputField} 
               secureTextEntry={!isShowPassword}
+              value="aaaaaaaaA1@"
               onChangeText={setPassword}
               />
            <TouchableOpacity style={{
@@ -137,7 +144,9 @@ const hideModal = () => setVisible(false)
         </View>
       </View>
       <View style={styles.forgotContainer}>
-          <TouchableOpacity>
+          <TouchableOpacity
+          onPress={()=>{navigation.navigate('ForgotPass')}}
+          >
             <Text style={{
               fontSize : 15,
               color : '#ffffff',

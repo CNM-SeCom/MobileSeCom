@@ -1,26 +1,25 @@
 import { StyleSheet, Text, View, Dimensions, Image, ScrollView } from 'react-native'
-import React,{ useLayoutEffect }  from 'react'
+import React,{ useLayoutEffect, useEffect, useState }  from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faHome, 
-         faTv, 
-         faComment, 
-         faCirclePlus, 
-         faMagnifyingGlass ,
-         faUserGroup,
-         faHeartCrack,
-         faBell,
-         faBars,
-        } from '@fortawesome/free-solid-svg-icons';
 import Post from '../components/Post'
 import listPost from '../data/ListPost'
 import listUser from '../data/List_user'
-
+import WS from 'react-native-websocket'
+import axios from 'axios';
+import ChatData from '../data/dataChat';
 import { useSelector, useDispatch } from 'react-redux';
+import { setChatData } from '../redux/chatDataSlice'
+
+
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
 const Home = ({ navigation }) => {
+
+  const user = useSelector((state) => state.user.user);
+  const [messages, setMessages] = useState([]);
+  const dispatch = useDispatch();
 
   const mode = useSelector((state) => state.mode.mode);
   const colors = useSelector((state) => {
@@ -41,12 +40,23 @@ const Home = ({ navigation }) => {
     });
   }, [navigation]);
 
+useEffect(() => {
+  console.log("ahihi")
+},[messages])
   return (
     <View style={[
       {backgroundColor : colors.background},
       styles.container]}>
       <View style={styles.scrollContainer}>
-            <ScrollView
+        {messages.map((item, index)= () => {
+          return(
+          <View>
+            <Text>{item._id}</Text>
+          </View>
+          )
+          
+        })}
+            {/* <ScrollView
               lazyLoad={true}
               scrollEventThrottle={90}
               contentContainerStyle={styles.wrapperPost}
@@ -65,9 +75,26 @@ const Home = ({ navigation }) => {
                     />
                 ))
               }
-            </ScrollView>
+            </ScrollView> */}
+            <View>
+      
+      <WS
+        ref={ref => { this.ws = ref }}
+        url="ws://192.168.130.78:3001/?idUser=1231"
+        onOpen={() => {
+          console.log('Open!');
+          this.ws.send('Hello');
+        }}
+        onMessage={(msg) => {
+              setMessages(JSON.parse(msg.data));
+        }}
+        onError={console.log}
+        onClose={console.log}
+      />
+      
       </View>
-    </View>
+      </View>
+      </View>
   )
 }
 

@@ -4,15 +4,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPalette, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { Switch } from 'react-native-paper';
 import { View, StyleSheet,Text } from 'react-native';
+import axios from 'axios';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleMode } from '../redux/modeSlice';
+import { setToken } from '../redux/tokenSlice';
 import { setThemeColors } from '../redux/themeSlice';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { setAccount } from '../redux/accountSlice';
+import { setUser } from '../redux/userSlice';
 import { useNavigation } from '@react-navigation/native';
 
 const Setting = () => {
+
+
   const navigation = useNavigation();
 
   const [expanded, setExpanded] = React.useState(true);
@@ -42,8 +46,20 @@ const Setting = () => {
     setIsDarkMode(false)
     handleModeChange('default')
   };
-
+  
   const mode = useSelector((state) => state.mode.mode);
+  const token = useSelector((state) => state.token.token);
+
+  console.log("token on setting");
+  console.log(token);
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token.accessToken}` // Thêm token vào tiêu đề Authorization
+    }
+  };
+
+
   const colors = useSelector((state) => {
     switch (mode) {
       case 'dark':
@@ -64,13 +80,14 @@ const Setting = () => {
     dispatch(toggleMode(newMode));
   };
 
-  const account = useSelector(account => account.account.account);
-  console.log("account on log");
-  console.log(account);
+  const user = useSelector((state) => state.user.user);
+  console.log("user on log");
+  console.log(user);
 
   const handleLogout = () => {
-    dispatch(setAccount(null)); 
-    navigation.navigate('Login');
+    dispatch(setUser(null));
+    axios.post('http://192.168.130.78:3000/logout', {idUser: user.idUser}, config)
+    navigation.replace('Login');
   };
 
   return (

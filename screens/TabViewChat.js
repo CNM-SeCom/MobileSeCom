@@ -42,6 +42,7 @@ export default function TabViewExample() {
       initialLayout={{ width: layout.width }}
       tabBarPosition='top'
       pagerStyle={{backgroundColor: 'red'}}
+      
     />
   );
 }

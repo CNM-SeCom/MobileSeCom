@@ -1,21 +1,29 @@
-import React, { useCallback, useState, useLayoutEffect } from 'react';
+import React, { useCallback, useState, useLayoutEffect, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { GiftedChat , Composer } from 'react-native-gifted-chat';
 import { Avatar } from 'react-native-elements';
 import { faPhone,faCamera, faInfo, faCircleInfo, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-import ChatData from '../data/dataChat';
+import ChatDataHash from '../data/dataChat';
 import { Icon } from 'react-native-elements'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import WS from 'react-native-websocket'
+import axios from 'axios';
+import { useSelector, useDispatch } from 'react-redux';
+import { setChatData } from '../redux/chatDataSlice'
 
 const { width, height } = Dimensions.get('screen');
 
 const Chat = ({ navigation }) => {
 
+    const chatData = useSelector((state) => state.chatData.chatData);
+    console.log("chattttttttttttttttttt")
+
+
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-    const [messages, setMessages] = useState(ChatData);
-    const signOutNow = () => {
-   
-    }
+    const [messages, setMessages] = useState([chatData]);
+    console.log(typeof messages);
+    console.log(messages);
+ 
     useLayoutEffect(() => {
         navigation.setOptions({
           headerShown: true,
@@ -53,15 +61,18 @@ const Chat = ({ navigation }) => {
             </View>
           ),
         });
-      }, [navigation]);
+      }, [navigation, messages]);
 
     const onSend = useCallback((messages = []) => {
-        setMessages(previousMessages => GiftedChat.append(messages, previousMessages))
-    }, []);
 
+        setMessages(previousMessages => GiftedChat.append(messages, previousMessages))
+    }, [messages]);
+    useEffect(() => {
+      setMessages([chatData]);
+    }, [chatData]); // Theo dõi sự thay đổi của ChatData
     return (
        <View style={styles.container}>
-     <GiftedChat
+     {/* <GiftedChat
         user={{
             _id: 1,
             name: 'Người Gửi 1',
@@ -107,7 +118,15 @@ const Chat = ({ navigation }) => {
             );
           }}
           
-      />
+      /> */}
+      {
+        messages.map((item, index) => () => {
+          <View>
+            <Text>{item._id}</Text>
+          </View>
+        })
+
+      }
        </View>
     );
 }

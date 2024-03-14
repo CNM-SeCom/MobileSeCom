@@ -10,6 +10,7 @@ import EditProfile from '../screens/EditProfile';
 import Search from '../screens/Search';
 import ChooseImage from '../screens/ChooseImage';
 import Register from '../screens/Register';
+import ForgotPass from '../screens/ForgotPass';
 
 // import VideoCall from '../screens/VideoCall';
 
@@ -20,7 +21,7 @@ function MyStack() {
     <Stack.Navigator
     
     screenOptions={{headerShown : true}}>
-      <Stack.Screen name="Intro" component={Intro} options={{headerShown : false}}/>
+      {/* <Stack.Screen name="Intro" component={Intro} options={{headerShown : false}}/> */}
       <Stack.Screen name="Login" component={Login} options={{headerShown : false}}/>
       <Stack.Screen name="Conversation" component={Conversation} />
       <Stack.Screen name="EditProfile" component={EditProfile} />
@@ -28,6 +29,7 @@ function MyStack() {
       <Stack.Screen name="Search" component={Search} options={{headerShown : false}}/>
       <Stack.Screen name="ChooseImage" component={ChooseImage} options={{headerShown : false}}/>
       <Stack.Screen name="Register" component={Register} options={{headerShown : false}}/>   
+      <Stack.Screen name="ForgotPass" component={ForgotPass} options={{headerShown : false}}/>
     </Stack.Navigator>
   );
 }

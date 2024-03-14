@@ -6,6 +6,7 @@ import Settings from '../screens/Setting';
 import TestTabView from '../screens/TabViewChat';
 import Test from '../screens/Test';
 // import VideoCall from '../screens/VideoCall';
+import WS from 'react-native-websocket';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faHome,faComment, faUser, faPhone , faCamera,faBars} from '@fortawesome/free-solid-svg-icons';
@@ -34,6 +35,7 @@ const colors = useSelector((state) => {
 
   return (
     <Tab.Navigator 
+    
     screenOptions={{
       tabBarStyle: { backgroundColor: colors.background},      
       tabBarActiveTintColor: colors.iconActive,
@@ -108,7 +110,10 @@ const colors = useSelector((state) => {
                 tabBarShowLabel: false,
             }}
         /> */}
+      
     </Tab.Navigator>
+    
+    
   );
 }
 

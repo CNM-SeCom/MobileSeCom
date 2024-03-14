@@ -3,6 +3,8 @@ import modeReducer from './modeSlice';
 import themeReducer from './themeSlice';
 import accountReducer from './accountSlice';
 import userReducer from './userSlice';
+import tokenReducer from './tokenSlice';
+import chatDataReducer from './chatDataSlice';
 
 const store = configureStore({
   reducer: {
@@ -10,6 +12,8 @@ const store = configureStore({
     theme: themeReducer,
     account: accountReducer,
     user: userReducer,
+    token: tokenReducer,
+    chatData: chatDataReducer,
   },
 });
 

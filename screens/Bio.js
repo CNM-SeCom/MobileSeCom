@@ -3,6 +3,8 @@ import React from 'react'
 import Post from '../components/Post'
 import listPost from '../data/ListPost'
 import listUser from '../data/dataUser'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { faEdit } from '@fortawesome/free-solid-svg-icons'
 
 import {useNavigation} from '@react-navigation/native';
 
@@ -35,28 +37,56 @@ const navigation = useNavigation();
     scrollEventThrottle={90}
     contentContainerStyle={styles.wrapperPost}
     style={styles.container}>
-       <View style={styles.scrollContainer}>
+       {
+        user ?
+        <View style={styles.scrollContainer}>
        <View style={{
         width: width,
       }}>
       <View style={[
-        {backgroundColor: colors.background},
+        // {backgroundColor: colors.background},
         styles.bioContainer]}>
         <View style={styles.coverImage}>
-          <Image source={require('../assets/LOL/cover/3.jpg')} style={{width: '100%', height: '100%'}} />
+
+          {/* <Image source={require('../assets/LOL/cover/3.jpg')} style={{width: '100%', height: '100%'}} /> */}
         </View>
         <View style={styles.avatar}>
-          <Image source={{ uri: user.avatar }} style={{ width: '100%', height: '100%' }} />
+          {
+            !user ?
+            null
+        
+            :
+            <Image
+            style={styles.avatar}
+            source={{uri: user.avatar}}
+            />
+          }
         </View>
         <View style={[
-          {backgroundColor: colors.background},
+          // {backgroundColor: colors.background},
           styles.profile]}>
+            <View style={{
+              flexDirection: 'row',
+              alignSelf: 'center',
+              marginHorizontal: 10,
+              width: '100%',
+            }}>
+              <Text style={[
+              {color: colors.text},
+              styles.name]}>{user.name}</Text>
+            </View>
+          <View
+            style={{
+              width: '100%',
+              height: 'fit-content',
+              padding: 10,
+              borderTopWidth: 1,
+              borderBottomWidth: 1,
+              borderColor: colors.text,
+            }}>
           <Text style={[
             {color: colors.text},
-            styles.name]}>{user.name}</Text>
-          <Text style={[
-            {color: colors.text},
-            styles.profileText]}>Giới tính : {user.male}</Text>
+            styles.profileText]}>Giới tính : {user.gender}</Text>
           <Text style={[
             {color: colors.text},
             styles.profileText]}>Địa chỉ : {user.address}</Text>
@@ -66,6 +96,7 @@ const navigation = useNavigation();
           <Text style={[
             {color: colors.text},
             styles.profileText]}>Email : {user.email}</Text>
+          </View>
           <TouchableOpacity 
           onPress={() => navigation.navigate('EditProfile')}
           style={styles.editProfileButton}>
@@ -93,7 +124,9 @@ const navigation = useNavigation();
                 ))
               }
             </View>
-      </View>
+      </View>:
+      null
+       }
     </ScrollView>
   )
 }
@@ -106,13 +139,17 @@ const styles = StyleSheet.create({
     height: height,
   },
   bioContainer: {
-    width: width,
+    width: '98%',
+    alignSelf: 'center',
+    paddingTop: 10,
   },
   coverImage: {
-    width: width,
+    width: '98%',
     height: 200,
     alignItems: 'center',
     justifyContent: 'center',
+    alignSelf: 'center',
+    backgroundColor: 'gray',
   },
   avatar: {
     overflow: 'hidden',
@@ -127,10 +164,11 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   profile: {
-    width: width,
+    width: '98%',
     height: 'fit-content',
     paddingTop: 60,
     paddingBottom: 20,
+    alignSelf: 'center',
   },
   name : {
     fontSize: 20,
