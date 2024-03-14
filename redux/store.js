@@ -5,6 +5,7 @@ import accountReducer from './accountSlice';
 import userReducer from './userSlice';
 import tokenReducer from './tokenSlice';
 import chatDataReducer from './chatDataSlice';
+import messageReducer from './messageSlice';
 
 const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ const store = configureStore({
     user: userReducer,
     token: tokenReducer,
     chatData: chatDataReducer,
+    message: messageReducer,
   },
 });
 

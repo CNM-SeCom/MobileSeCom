@@ -86,7 +86,7 @@ const Setting = () => {
 
   const handleLogout = () => {
     dispatch(setUser(null));
-    axios.post('http://192.168.130.78:3000/logout', {idUser: user.idUser}, config)
+    axios.post('http://192.168.1.54:3000/logout', {idUser: user.idUser}, config)
     navigation.replace('Login');
   };
 

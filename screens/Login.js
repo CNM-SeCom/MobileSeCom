@@ -29,7 +29,7 @@ const LoginScreen = () => {
   const token = useSelector((state) => state.token.token);
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const ip = '192.168.130.78'
+  const ip = '192.168.1.54'
 
   const [visible, setVisible] = React.useState(false);
   const [phone, setPhone] = useState('0399889699');

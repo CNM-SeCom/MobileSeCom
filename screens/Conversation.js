@@ -16,11 +16,9 @@ const { width, height } = Dimensions.get('screen');
 const Chat = ({ navigation }) => {
 
     const chatData = useSelector((state) => state.chatData.chatData);
-    console.log("chattttttttttttttttttt")
-
 
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-    const [messages, setMessages] = useState([chatData]);
+    const [messages, setMessages] = useState(chatData ?? []);
     console.log(typeof messages);
     console.log(messages);
  
@@ -72,18 +70,18 @@ const Chat = ({ navigation }) => {
     }, [chatData]); // Theo dõi sự thay đổi của ChatData
     return (
        <View style={styles.container}>
-     {/* <GiftedChat
-        user={{
-            _id: 1,
-            name: 'Người Gửi 1',
-            avatar: require('../assets/logo1.png'),
-            }}
+     <GiftedChat
+        // user={{
+        //     _id: 1,
+        //     name: 'Người Gửi 1',
+        //     avatar: require('../assets/logo1.png'),
+        //     }}
         style={{ flex: 1, backgroundColor: 'pink', width: '100%' }}
         messagesContainerStyle={{
           backgroundColor: '#fff',
           width: width,
         }}
-        messages={messages}
+        messages={chatData}
         showAvatarForEveryMessage={true}
         onSend={(newMessages) => onSend(newMessages)}
         inverted={false}
@@ -118,15 +116,7 @@ const Chat = ({ navigation }) => {
             );
           }}
           
-      /> */}
-      {
-        messages.map((item, index) => () => {
-          <View>
-            <Text>{item._id}</Text>
-          </View>
-        })
-
-      }
+      />
        </View>
     );
 }

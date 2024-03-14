@@ -8,18 +8,18 @@ import WS from 'react-native-websocket'
 import axios from 'axios';
 import ChatData from '../data/dataChat';
 import { useSelector, useDispatch } from 'react-redux';
-import { setChatData } from '../redux/chatDataSlice'
-
+import { setChatData, addChatData } from '../redux/chatDataSlice'
+import { setMessages, addMessage } from '../redux/messageSlice'
 
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
 const Home = ({ navigation }) => {
-
   const user = useSelector((state) => state.user.user);
-  const [messages, setMessages] = useState([]);
   const dispatch = useDispatch();
+  const chatData = useSelector((state) => state.chatData.chatData);  
+  const [refresh, setRefresh] = useState(false);
 
   const mode = useSelector((state) => state.mode.mode);
   const colors = useSelector((state) => {
@@ -38,25 +38,20 @@ const Home = ({ navigation }) => {
       headerShown: true,
      
     });
-  }, [navigation]);
+  }, [navigation,refresh]);
 
-useEffect(() => {
-  console.log("ahihi")
-},[messages])
+  useEffect(() => {
+    console.log('ChatData:', chatData);
+    console.log('Refresh:', refresh);
+  }, [chatData,refresh]);
+  //hàm load lại màn hình và lấy dữ liệu mới sau khi thêm chatData
+
   return (
     <View style={[
       {backgroundColor : colors.background},
       styles.container]}>
       <View style={styles.scrollContainer}>
-        {messages.map((item, index)= () => {
-          return(
-          <View>
-            <Text>{item._id}</Text>
-          </View>
-          )
-          
-        })}
-            {/* <ScrollView
+            <ScrollView
               lazyLoad={true}
               scrollEventThrottle={90}
               contentContainerStyle={styles.wrapperPost}
@@ -75,18 +70,28 @@ useEffect(() => {
                     />
                 ))
               }
-            </ScrollView> */}
+            </ScrollView>
             <View>
       
       <WS
         ref={ref => { this.ws = ref }}
-        url="ws://192.168.130.78:3001/?idUser=1231"
+        url="ws://192.168.1.54:3001/?idUser=1231"
         onOpen={() => {
           console.log('Open!');
-          this.ws.send('Hello');
         }}
         onMessage={(msg) => {
-              setMessages(JSON.parse(msg.data));
+          let data = JSON.parse(msg.data);
+          data.user.avatar = require('../assets/logo1.png');
+          const add = dispatch(addChatData(data));
+          if (add) {
+            console.log('Add');
+            console.log('ChatData sau khi cập nhật:', chatData);
+            setRefresh(!refresh);
+            console.log(refresh);
+          }else {
+            console.log('Not Add');
+          }
+       
         }}
         onError={console.log}
         onClose={console.log}
