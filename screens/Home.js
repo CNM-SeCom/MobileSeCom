@@ -19,7 +19,6 @@ const Home = ({ navigation }) => {
   const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
   const chatData = useSelector((state) => state.chatData.chatData);  
-  const [refresh, setRefresh] = useState(false);
 
   const mode = useSelector((state) => state.mode.mode);
   const colors = useSelector((state) => {
@@ -38,12 +37,11 @@ const Home = ({ navigation }) => {
       headerShown: true,
      
     });
-  }, [navigation,refresh]);
+  }, [navigation]);
 
   useEffect(() => {
     console.log('ChatData:', chatData);
-    console.log('Refresh:', refresh);
-  }, [chatData,refresh]);
+  }, [chatData]);
   //hàm load lại màn hình và lấy dữ liệu mới sau khi thêm chatData
 
   return (
@@ -86,7 +84,6 @@ const Home = ({ navigation }) => {
           if (add) {
             console.log('Add');
             console.log('ChatData sau khi cập nhật:', chatData);
-            console.log(refresh);
           }else {
             console.log('Not Add');
           }

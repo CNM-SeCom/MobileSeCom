@@ -65,12 +65,26 @@ const LoginScreen = () => {
           if (response.data.error) {
             setNotification(response.data.message);
             showModal();}
-
           else {
             dispatch(setUser(response.data.user));
+            console.log(response.data.token);
             dispatch(setToken(response.data.token));
             set_IdUser(response.data.user.idUser);
             navigation.navigate('TabHome');
+            //sau 9p thì gọi update token để duy trì token
+            setTimeout(() => {
+              const data = {
+                token: response.data.token.refreshToken
+              }
+              axios.post('http://'+ip+':3000/updateAccessToken', data)
+                .then((response) => {
+                  console.log('Update token: ', response.data);
+                  dispatch(setToken(response.data.token));
+                })
+                .catch((error) => {
+                  console.log('Error: ', error);
+                })
+            }, 540000);
           }
         })
         .catch((error) => {

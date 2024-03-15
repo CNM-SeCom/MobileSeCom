@@ -1,26 +1,69 @@
 import React, { useCallback, useState, useLayoutEffect, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
-import { GiftedChat , Composer } from 'react-native-gifted-chat';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions,PermissionsAndroid,Image } from 'react-native';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { GiftedChat , Composer, Send } from 'react-native-gifted-chat';
 import { Avatar } from 'react-native-elements';
 import { faPhone,faCamera, faInfo, faCircleInfo, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import ChatDataHash from '../data/dataChat';
+import { IconButton } from 'react-native-paper';
 import { Icon } from 'react-native-elements'
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import WS from 'react-native-websocket'
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { setChatData } from '../redux/chatDataSlice'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { faImage } from '@fortawesome/free-solid-svg-icons';
 
 const { width, height } = Dimensions.get('screen');
 
 const Chat = ({ navigation }) => {
 
     const chatData = useSelector((state) => state.chatData.chatData);
+    const [imageMessage, setImageMessage] = useState([]);
+
+    //render nút picker ảnh
+    renderCustomActions = (props) => {
+      return (
+        <TouchableOpacity
+          style={styles.iconpicker}
+          icon="image"
+          onPress={
+            () => {
+              this.handlePickPicture();
+            }
+          }
+        >
+          <FontAwesomeIcon icon={faImage} size={20} color="#009688" style={styles.iconpicker} />
+        </TouchableOpacity>
+      );
+    }
+
+    handlePickPicture = () => {
+      console.log('Pick picture');
+      openGalleryAvatar();
+
+    }
+
+    const openGalleryAvatar = async () => {
+      try {
+        const checkPermission = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE);
+        if(checkPermission === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('Permission Granted');
+          const RESULTS = await launchImageLibrary({mediaType : 'photo'});
+          console.log(RESULTS.assets[0].uri);
+          imageMessage.push(RESULTS.assets[0].uri);
+          //load lại màn hình
+          setImageMessage([...imageMessage]);
+        }else {
+          console.log('Permission Denied');
+        }
+      } catch (error) {
+          console.log(error);
+      }
+    }
 
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [messages, setMessages] = useState(chatData ?? []);
-    console.log(typeof messages);
-    console.log(messages);
  
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -62,20 +105,19 @@ const Chat = ({ navigation }) => {
       }, [navigation, messages]);
 
     const onSend = useCallback((messages = []) => {
-
+        if(imageMessage){
+          messages[0].image = imageMessage;
+          setImageMessage([]);
+        }
         setMessages(previousMessages => GiftedChat.append(messages, previousMessages))
-    }, [messages]);
+    }, [messages, imageMessage]);
     useEffect(() => {
+      console.log('imageMessage', imageMessage);
       setMessages([chatData]);
-    }, [chatData]); // Theo dõi sự thay đổi của ChatData
+    }, [chatData, imageMessage]); 
     return (
        <View style={styles.container}>
      <GiftedChat
-        // user={{
-        //     _id: 1,
-        //     name: 'Người Gửi 1',
-        //     avatar: require('../assets/logo1.png'),
-        //     }}
         style={{ flex: 1, backgroundColor: 'pink', width: '100%' }}
         messagesContainerStyle={{
           backgroundColor: '#fff',
@@ -85,7 +127,8 @@ const Chat = ({ navigation }) => {
         showAvatarForEveryMessage={true}
         onSend={(newMessages) => onSend(newMessages)}
         inverted={false}
-        alwaysShowSend={true}
+        alwaysShowSend={true}  
+        renderActions={this.renderCustomActions}     
         renderBubble={(props) => {
           return (
             <View style={[styles.bubble,{
@@ -98,11 +141,7 @@ const Chat = ({ navigation }) => {
                 borderBottomRightRadius: props.position === 'left' ? 10 : 0,
                 borderTopLeftRadius: 10,
                 borderTopRightRadius: 10,
-                
             }]}>
-              <View style={styles.content}>
-                <Text style={styles.text}>{props.currentMessage.text}</Text>
-              </View>
            </View>
           );
         }}
@@ -117,7 +156,20 @@ const Chat = ({ navigation }) => {
           }}
           
       />
+        <View style={{
+          flexDirection: 'row',
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          width: '100%',
+          backgroundColor: 'white',
+          borderTopWidth: 1,
+        }}>
+          {imageMessage.length > 0 && imageMessage.map((item, index) => (
+              <Image key={index} source={{ uri: item }} style={{ width : 50, height : 50, margin : 5 }} />
+            ))}
+        </View>
        </View>
+       
     );
 }
 
@@ -171,5 +223,12 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginRight: 20,
       },
-    
+      iconpicker : {
+        width: 40,
+        height: 40,
+        backgroundColor: 'white',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 20,
+      }
 });

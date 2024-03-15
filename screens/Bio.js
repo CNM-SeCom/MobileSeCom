@@ -54,10 +54,9 @@ const navigation = useNavigation();
           {
             !user ?
             null
-        
             :
             <Image
-            style={styles.avatar}
+            style={{width: '100%', height: '100%'}}
             source={{uri: user.avatar}}
             />
           }
@@ -70,6 +69,7 @@ const navigation = useNavigation();
               alignSelf: 'center',
               marginHorizontal: 10,
               width: '100%',
+              justifyContent: 'center',
             }}>
               <Text style={[
               {color: colors.text},
@@ -84,12 +84,17 @@ const navigation = useNavigation();
               borderBottomWidth: 1,
               borderColor: colors.text,
             }}>
-          <Text style={[
-            {color: colors.text},
-            styles.profileText]}>Giới tính : {user.gender}</Text>
-          <Text style={[
-            {color: colors.text},
-            styles.profileText]}>Địa chỉ : {user.address}</Text>
+          {
+            user.gender == 0 ?
+            <Text style={[
+              {color: colors.text},
+              styles.profileText]}>Giới tính : Nam</Text>
+            :
+            <Text style={[
+              {color: colors.text},
+              styles.profileText]}>Giới tính : Nữ</Text>
+
+          }
           <Text style={[
             {color: colors.text},
             styles.profileText]}>Phone : {user.phone}</Text>

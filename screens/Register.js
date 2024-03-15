@@ -3,6 +3,7 @@ import { View, StyleSheet, Image , TouchableOpacity, Text} from 'react-native'
 import { Input, Button } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
 import { TextInput } from 'react-native-paper';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 
 const Register = () => {
@@ -15,6 +16,12 @@ const Register = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [gender, setGender] = useState(0);
     const [active, setActive] = useState(true);
+    const [isShowPassword, setIsShowPassword] = useState(false);
+
+
+    handleShowPassword = () => {
+        setIsShowPassword(!isShowPassword);
+      };
 
 
     const register = () => {
@@ -81,20 +88,45 @@ const Register = () => {
                  mode="outlined"
                  label="Tên người dùng"
                  style={styles.input}
-                onChangeText={(text) => setName(text)}
+                 onChangeText={(text) => setName(text)}
                 />
+                <View>
                 <TextInput
                     mode="outlined"
                     label="Mật khẩu"
                     style={styles.input}
+                    secureTextEntry={!isShowPassword}
                     onChangeText={(text) => setPassword(text)}
                 />
+                <TouchableOpacity style={{
+                        position : 'absolute',
+                        right : 10,
+                        top : 30,
+                        backgroundColor : 'white',
+                        }}
+                        onPress={handleShowPassword}
+                        >
+                <Ionicons name="eye-outline" size={24} color="#000" />
+                </TouchableOpacity>
+                </View>
+                <View>
                 <TextInput
                     mode="outlined"
-                    label="Xác nhận lại mật khẩu"
+                    label="Nhập lại mật khẩu"
                     style={styles.input}
+                    secureTextEntry={!isShowPassword}
                     onChangeText={(text) => setConfirmPassword(text)}
                 />
+                <TouchableOpacity style={{
+                        position : 'absolute',
+                        right : 10,
+                        top : 30,
+                        }}
+                        onPress={handleShowPassword}
+                        >
+                <Ionicons name="eye-outline" size={24} color="#000" />
+                </TouchableOpacity>
+                </View>
                 <View style={styles.genderContainer}>
                    {
                           active ? 
