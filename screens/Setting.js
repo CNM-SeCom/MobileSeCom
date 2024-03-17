@@ -13,6 +13,7 @@ import { setThemeColors } from '../redux/themeSlice';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { setUser } from '../redux/userSlice';
 import { useNavigation } from '@react-navigation/native';
+import ip from '../data/ip';
 
 const Setting = () => {
 
@@ -49,10 +50,15 @@ const Setting = () => {
   
   const mode = useSelector((state) => state.mode.mode);
   const token = useSelector((state) => state.token.token);
+  const user = useSelector((state) => state.user.user);
 
   console.log("token on setting");
   console.log(token);
-  const config = {
+  console.log('====================================');
+  console.log('');
+  console.log('====================================');
+
+  let config = {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token.accessToken}` // Thêm token vào tiêu đề Authorization
@@ -74,21 +80,31 @@ const Setting = () => {
 
   useEffect(() => {
     dispatch(setThemeColors(colors));
-  }, [mode, dispatch, colors]);
+  }, [mode, dispatch, colors, user]);
 
   const handleModeChange = (newMode) => {
     dispatch(toggleMode(newMode));
   };
 
-  const user = useSelector((state) => state.user.user);
   console.log("user on log");
   console.log(user);
 
   const handleLogout = () => {
-    dispatch(setUser(null));
-    axios.post('http://192.168.1.54:3000/logout', {idUser: user.idUser}, config)
-    navigation.replace('Login');
+    axios.post('http://'+ip+':3000/logout', { idUser: user.idUser }, config)
+      .then((response) => {
+        console.log('====================================');
+        console.log(response.data);
+        console.log('====================================');
+        dispatch(setToken({}));
+        dispatch(setUser({}));
+        navigation.navigate('Login');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
+
+
 
   return (
    <View style={[styles.container, { backgroundColor: colors.background }]}>

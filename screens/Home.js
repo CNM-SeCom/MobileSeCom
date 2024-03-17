@@ -10,7 +10,8 @@ import ChatData from '../data/dataChat';
 import { useSelector, useDispatch } from 'react-redux';
 import { setChatData, addChatData } from '../redux/chatDataSlice'
 import { setMessages, addMessage } from '../redux/messageSlice'
-
+import { setUser } from '../redux/userSlice'
+import ip from '../data/ip'
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -18,7 +19,8 @@ const width = Dimensions.get('window').width;
 const Home = ({ navigation }) => {
   const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
-  const chatData = useSelector((state) => state.chatData.chatData);  
+  const chatData = useSelector((state) => state.chatData.chatData); 
+  const token = useSelector((state) => state.token.token); 
 
   const mode = useSelector((state) => state.mode.mode);
   const colors = useSelector((state) => {
@@ -32,6 +34,8 @@ const Home = ({ navigation }) => {
     }
   });
 
+
+  
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
@@ -43,6 +47,31 @@ const Home = ({ navigation }) => {
     console.log('ChatData:', chatData);
   }, [chatData]);
   //hàm load lại màn hình và lấy dữ liệu mới sau khi thêm chatData
+
+  
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token.accessToken}`
+      }
+    };
+  
+    //logout
+    const handleLogout = () => {
+      axios.post('http://'+ip+':3000/logout', { idUser: user.idUser }, config)
+        .then((response) => {
+          console.log('====================================');
+          console.log(response.data);
+          console.log('====================================');
+          dispatch(setUser({}));
+          navigation.navigate('Login');
+        })
+        .catch((error) => {
+          console.log('====================================');
+          console.log(error);
+          console.log('====================================');
+        });
+    };
 
   return (
     <View style={[
@@ -73,13 +102,16 @@ const Home = ({ navigation }) => {
       
       <WS
         ref={ref => { this.ws = ref }}
-        url="ws://192.168.1.54:3001/?idUser=1231"
+        url={`ws://${ip}:3001/?idUser=`+user.idUser}
+        
         onOpen={() => {
           console.log('Open!');
         }}
         onMessage={(msg) => {
           let data = JSON.parse(msg.data);
+          //ảnh sẽ gắn mặc định
           data.user.avatar = require('../assets/logo1.png');
+          console.log('Data:', data);
           const add = dispatch(addChatData(data));
           if (add) {
             console.log('Add');
@@ -90,7 +122,10 @@ const Home = ({ navigation }) => {
        
         }}
         onError={console.log}
-        onClose={console.log}
+        onClose={() => {
+          console.log("mmb")
+          handleLogout();
+        }}
       />
       
       </View>

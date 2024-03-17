@@ -1,20 +1,32 @@
 import { StyleSheet, Text, View, FlatList,TouchableOpacity, TextInput , Dimensions} from 'react-native'
-import React,{ useLayoutEffect, useState }  from 'react'
+import React,{ useLayoutEffect, useState, useEffect }  from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faPen, faMagnifyingGlass, faUser } from '@fortawesome/free-solid-svg-icons';
 import ConversationUnit from '../components/ConversationUnit';
 import DataUser from '../data/dataUser';
 import Avatar from '../components/Avatar';
 import DataChat from '../data/dataChat';
+import axios from 'axios';
+import ip from '../data/ip';
+import { useSelector,useDispatch } from 'react-redux';
+import { setChatData } from '../redux/chatDataSlice';
+import { setChatId } from '../redux/chatIdSlice';
+import { useNavigation } from '@react-navigation/native';
 
-import { useSelector } from 'react-redux';
 
 const heigh = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
-const Chat = ({navigation}) => {
-
+const Chat = () => {
+  const user = useSelector((state) => state.user.user);
   const mode = useSelector((state) => state.mode.mode);
+  const token = useSelector((state) => state.token.token);
+  const chatId = useSelector((state) => state.chatId.chatId);
+  const [messages, setMessagess] = useState([]);
+  const navigation = useNavigation();
+  
+
+  const dispatch = useDispatch();
   const colors = useSelector((state) => {
     switch (mode) {
       case 'dark':
@@ -26,6 +38,45 @@ const Chat = ({navigation}) => {
     }
   }
   );
+
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token.accessToken}` // Thêm token vào tiêu đề Authorization
+
+    }
+  };
+  //load hoi thoai
+  const [messageData, setMessageData] = useState([]);
+  const getChatData = () => {
+    axios.post('http://'+ip+':3000/getChatByUserId',{
+      idUser: user.idUser
+  }, config)
+    .then((response) => {
+      setMessageData(response.data.data); 
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }
+  // load tin nhan
+  const loadMessageData = (id) => {
+    console.log('id',id);
+    axios.post('http://'+ip+':3000/getMessageByChatId',{
+      chatId: id
+    }).then((response) => {
+      dispatch(setChatData(response.data.data));
+      navigation.navigate('Conversation');
+      console.log(response.data.data);
+    }).catch((error) => {
+      console.log(error);
+    });
+  }
+
+  useEffect(() => {
+    getChatData();
+  }
+  ,[]);
 
   return (
     <View style={[
@@ -73,16 +124,29 @@ const Chat = ({navigation}) => {
           alignItems: 'center',
       }}>
         <FlatList
-          data={DataChat}
-          renderItem={({item}) => (
-            <ConversationUnit
-              name={item.user.name}
-              avatar={item.user.avatar}
-              newMess={item.text}
-            />
-          )}
-          keyExtractor={item => item._id}
+  data={messageData}
+  renderItem={({ item }) => {
+    // Lặp qua mảng participant để tìm đối tượng participant không phải là user hiện tại
+    dispatch(setChatId(item.id));
+    const otherParticipant = item.participants.find(element => element.idUser !== user.idUser);
+    
+    if (otherParticipant) {
+      return (
+        <ConversationUnit
+          image={require('../assets/logo1.png')}
+          name={otherParticipant.name}
+          newMess={otherParticipant.lastMessage}
+          onPress={() =>loadMessageData(item.id) }
         />
+      );
+    } else {
+      // Trường hợp không tìm thấy participant khác, trả về null hoặc JSX tùy thuộc vào yêu cầu của bạn
+      return null;
+    }
+  }}
+  keyExtractor={item => item._id}
+/>
+
       </View>
     </View>
   )

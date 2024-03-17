@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useLayoutEffect, useEffect } from 'react';
+import React, { useCallback, useState, useLayoutEffect, useEffect, useRef, forwardRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions,PermissionsAndroid,Image } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { GiftedChat , Composer, Send } from 'react-native-gifted-chat';
@@ -10,9 +10,11 @@ import { Icon } from 'react-native-elements'
 import WS from 'react-native-websocket'
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
-import { setChatData } from '../redux/chatDataSlice'
+import { setChatData,addChatData } from '../redux/chatDataSlice'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faImage } from '@fortawesome/free-solid-svg-icons';
+import chatId from '../redux/chatIdSlice';
+
 
 const { width, height } = Dimensions.get('screen');
 
@@ -20,6 +22,11 @@ const Chat = ({ navigation }) => {
 
     const chatData = useSelector((state) => state.chatData.chatData);
     const [imageMessage, setImageMessage] = useState([]);
+    // const [messagess, setMessagess] = useState(ChatDataHash);
+    const [messages, setMessages] = useState(chatData);
+
+    const dispatch = useDispatch();
+
 
     //render nút picker ảnh
     renderCustomActions = (props) => {
@@ -37,6 +44,8 @@ const Chat = ({ navigation }) => {
         </TouchableOpacity>
       );
     }
+
+
 
     handlePickPicture = () => {
       console.log('Pick picture');
@@ -62,8 +71,6 @@ const Chat = ({ navigation }) => {
       }
     }
 
-    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-    const [messages, setMessages] = useState(chatData ?? []);
  
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -102,37 +109,60 @@ const Chat = ({ navigation }) => {
             </View>
           ),
         });
-      }, [navigation, messages]);
+      }, [navigation]);
 
-    const onSend = useCallback((messages = []) => {
-        if(imageMessage){
-          messages[0].image = imageMessage;
-          setImageMessage([]);
-        }
-        setMessages(previousMessages => GiftedChat.append(messages, previousMessages))
-    }, [messages, imageMessage]);
+      let [messageIdCounter, setMessageIdCounter] = useState(0); // Khai báo biến đếm ID cho tin nhắn
+
+const onSend = useCallback((messages = []) => {
+    const newMessages = messages.map(message => {
+        messageIdCounter++; // Tăng giá trị của biến đếm
+        return {
+            ...message,
+            _id: messageIdCounter // Gán ID tăng dần cho tin nhắn mới
+        };
+    });
+    setMessages(previousMessages => GiftedChat.append(newMessages, previousMessages));
+    dispatch(addChatData({
+      ...newMessages[0],
+      createdAt: newMessages[0].createdAt.toISOString() // Chuyển đổi createdAt thành chuỗi có thể tuần tự hóa
+  }));
+  }, [messageIdCounter]);
+
+      
+    //load lại màn hình khi có tin nhắn mới
     useEffect(() => {
       console.log('imageMessage', imageMessage);
       setMessages([chatData]);
     }, [chatData, imageMessage]); 
     return (
        <View style={styles.container}>
-     <GiftedChat
-        style={{ flex: 1, backgroundColor: 'pink', width: '100%' }}
+      <GiftedChat
+        user={{
+            _id: 1,
+            name: 'Người Gửi 1',
+            avatar: require('../assets/logo1.png'),
+            }}
+        style={{ flex: 1, width: '100%' }}
         messagesContainerStyle={{
-          backgroundColor: '#fff',
+          backgroundColor: 'black',
           width: width,
         }}
         messages={chatData}
         showAvatarForEveryMessage={true}
         onSend={(newMessages) => onSend(newMessages)}
         inverted={false}
-        alwaysShowSend={true}  
-        renderActions={this.renderCustomActions}     
+        alwaysShowSend={true}
+        renderActions={renderCustomActions}
+        renderMessageImage={(props) => {
+          return (
+            <Image source={{ uri: props.currentMessage.image }} style={{ width: 200, height: 200 }} />
+          );
+        }
+        }
         renderBubble={(props) => {
           return (
             <View style={[styles.bubble,{
-                backgroundColor: props.position === 'left' ? '#fff' : '#009688',
+                backgroundColor: props.position === 'left' ? 'white' : '#009688',
                 marginLeft: props.position === 'left' ? 10 : 50,
                 marginRight: props.position === 'left' ? 50 : 10,
                 marginBottom: 10,
@@ -141,13 +171,19 @@ const Chat = ({ navigation }) => {
                 borderBottomRightRadius: props.position === 'left' ? 10 : 0,
                 borderTopLeftRadius: 10,
                 borderTopRightRadius: 10,
+                
             }]}>
+              <View style={styles.content}>
+                <Text style={styles.text}>{props.currentMessage.text}</Text>
+              </View>
            </View>
           );
         }}
         renderAvatar={(props) => {
             const avatarSource = typeof props.currentMessage.user.avatar === 'string'
+              // ? { uri: require('../assets/logo1.png') }
               ? { uri: props.currentMessage.user.avatar }
+
               : props.currentMessage.user.avatar;
           
             return (
@@ -161,9 +197,10 @@ const Chat = ({ navigation }) => {
           justifyContent: 'flex-start',
           alignItems: 'center',
           width: '100%',
-          backgroundColor: 'white',
+          backgroundColor: 'black',
           borderTopWidth: 1,
         }}>
+
           {imageMessage.length > 0 && imageMessage.map((item, index) => (
               <Image key={index} source={{ uri: item }} style={{ width : 50, height : 50, margin : 5 }} />
             ))}
@@ -183,7 +220,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     bubble: {
-        backgroundColor: 'red',
         borderRadius: 10,
         flexDirection: 'row',
         alignSelf: 'flex-start',
@@ -200,6 +236,7 @@ const styles = StyleSheet.create({
       },
       content: {
         padding: 10,
+        maxWidth: 250,
       },
       text: {
         fontSize: 16,

@@ -6,6 +6,8 @@ import { faCamera, faImages } from '@fortawesome/free-solid-svg-icons'
 import { useNavigation } from '@react-navigation/native'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { Modal, Portal, PaperProvider } from 'react-native-paper';
+import { useRoute } from '@react-navigation/native'
+
 
 
 const width = Dimensions.get('window').width;
@@ -20,6 +22,12 @@ const [imageGallery, setImageGallery] = useState(null);
 const [avatar, setAvatar] = useState(null);
 const [coverImage, setCoverImage] = useState(null);
 const [visible, setVisible] = useState(false);
+
+const dataUpdate = {
+  avatar: avatar,
+  coverImage: coverImage,
+
+}
 
 const [savedAvatar, setSavedAvatar] = useState(false);
 const [savedCoverImage, setSavedCoverImage] = useState(false);
@@ -136,7 +144,9 @@ const [savedCoverImage, setSavedCoverImage] = useState(false);
       // Khi savedAvatar thay đổi, component sẽ được kích hoạt lại
     }, [savedAvatar, savedCoverImage, avatar, coverImage, image, imageGallery]);
     
-    const showModal = () => setVisible(true);
+    const showModal = () => {
+      setVisible(true);
+    }
     const hideModal = () => setVisible(false);
 
   return (
@@ -179,6 +189,7 @@ const [savedCoverImage, setSavedCoverImage] = useState(false);
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
+                disabled={avatar === null ? true : false}
                 style={[styles.saveButton, { backgroundColor: 'white' }]}
                 // onPress={() => navigation.goBack()}
                 onPress={saveAvatar}
@@ -218,6 +229,7 @@ const [savedCoverImage, setSavedCoverImage] = useState(false);
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
+                disabled={coverImage === null ? true : false}
                 style={[styles.saveButton, { backgroundColor: 'white' }]}
                 onPress={saveCoverImage}
               >
@@ -247,7 +259,7 @@ const [savedCoverImage, setSavedCoverImage] = useState(false);
             styles.buttonInModal]}            
             onPress={() => {
               hideModal();
-              navigation.goBack();
+              navigation.navigate('EditProfile', {dataUpdate});
             }}          
           >
             <Text>Save and close</Text>

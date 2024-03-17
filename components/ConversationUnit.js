@@ -10,7 +10,7 @@ const width = Dimensions.get('window').width;
 
 const ConversationUnit = (props) => {
 
-    const {image, name, newMess} = props;
+    const {image, name, newMess, onPress} = props;
 
 const navigation = useNavigation();
 
@@ -29,7 +29,7 @@ const colors = useSelector((state) => {
 
   return (
     <TouchableOpacity 
-    onPress={() => navigation.navigate('Conversation')}
+    onPress={() => onPress()} 
     style={[
         {backgroundColor : colors.background},
         styles.container]}>

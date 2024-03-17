@@ -47,7 +47,7 @@ const Register = () => {
                 name: name,
             }
             console.log(data);
-            axios.post('http://192.168.130.78:3000/create', data)
+            axios.post('http://192.168.60.78:3000/create', data)
             .then((response) => {
                 alert('Account Created Successfully');
                 navigate.navigate('Login');

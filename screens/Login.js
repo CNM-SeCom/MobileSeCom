@@ -20,6 +20,7 @@ import { Modal, Portal, PaperProvider } from 'react-native-paper';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faFaceSadTear } from '@fortawesome/free-solid-svg-icons'  
 import {set_IdUser, getIdUser} from '../data/idUser';
+import ip from '../data/ip';
 
 const {width, height} = Dimensions.get('window');
 
@@ -29,7 +30,6 @@ const LoginScreen = () => {
   const token = useSelector((state) => state.token.token);
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const ip = '192.168.1.54'
 
   const [visible, setVisible] = React.useState(false);
   const [phone, setPhone] = useState('0399889699');
@@ -71,20 +71,23 @@ const LoginScreen = () => {
             dispatch(setToken(response.data.token));
             set_IdUser(response.data.user.idUser);
             navigation.navigate('TabHome');
-            //sau 9p thì gọi update token để duy trì token
+            // sau 9p thì gọi update token để duy trì token
             setTimeout(() => {
               const data = {
-                token: response.data.token.refreshToken
+                refreshToken: response.data.token.refreshToken,
+                idUser: response.data.user.idUser
               }
+              console.log('data update token: ', data);
               axios.post('http://'+ip+':3000/updateAccessToken', data)
                 .then((response) => {
                   console.log('Update token: ', response.data);
-                  dispatch(setToken(response.data.token));
+                  dispatch(setToken(response.data));
                 })
                 .catch((error) => {
+                  console.log('lỗi update token');
                   console.log('Error: ', error);
                 })
-            }, 540000);
+            }, 5400000);
           }
         })
         .catch((error) => {
