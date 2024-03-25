@@ -26,8 +26,11 @@ const {width, height} = Dimensions.get('window');
 
 
 const LoginScreen = () => {
+  
   const user = useSelector((state) => state.user.user);
   const token = useSelector((state) => state.token.token);
+  // const [refreshToken, setRefreshToken] = useState('');
+  // const [idUser, setIdUser] = useState('');
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
@@ -48,7 +51,32 @@ const LoginScreen = () => {
     }).start();
   },[animetionLogo])
 
-  function login(phone, password) {
+function updateToken(refreshToken, idUser) {
+  setTimeout(() => {
+    const data = {
+      refreshToken: refreshToken,
+      idUser: idUser
+    }
+    console.log('data update token: ', data);
+    axios.post('http://'+ip+':3000/updateAccessToken', data)
+      .then((response) => {
+        console.log('Update token: ', response.data);
+        dispatch(setToken(response.data));
+        if(user !== null) {
+          updateToken(response.data.refreshToken, idUser)
+        }
+      })
+      .catch((error) => {
+        console.log('lỗi update token');
+        console.log('Error: ', error);
+      })
+     
+  }, 540000);
+
+
+}
+
+ async function login(phone, password) {
     if (phone === '' || password === '') {
       setNotification('Vui lòng nhập đầy đủ thông tin');
       showModal();
@@ -60,7 +88,7 @@ const LoginScreen = () => {
         pass: password
       }
       // console.log(data);
-      axios.post('http://'+ip+':3000/login', data)
+     await axios.post('http://'+ip+':3000/login', data)
         .then((response) => {
           if (response.data.error) {
             setNotification(response.data.message);
@@ -69,25 +97,10 @@ const LoginScreen = () => {
             dispatch(setUser(response.data.user));
             console.log(response.data.token);
             dispatch(setToken(response.data.token));
-            set_IdUser(response.data.user.idUser);
+            set_IdUser(response.data.user.idUser)
             navigation.navigate('TabHome');
             // sau 9p thì gọi update token để duy trì token
-            setTimeout(() => {
-              const data = {
-                refreshToken: response.data.token.refreshToken,
-                idUser: response.data.user.idUser
-              }
-              console.log('data update token: ', data);
-              axios.post('http://'+ip+':3000/updateAccessToken', data)
-                .then((response) => {
-                  console.log('Update token: ', response.data);
-                  dispatch(setToken(response.data));
-                })
-                .catch((error) => {
-                  console.log('lỗi update token');
-                  console.log('Error: ', error);
-                })
-            }, 5400000);
+            updateToken(response.data.token.refreshToken, response.data.user.idUser);
           }
         })
         .catch((error) => {

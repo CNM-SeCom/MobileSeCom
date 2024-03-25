@@ -14,12 +14,19 @@ import { setChatData,addChatData } from '../redux/chatDataSlice'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faImage } from '@fortawesome/free-solid-svg-icons';
 import chatId from '../redux/chatIdSlice';
+import { useRoute } from '@react-navigation/native';
+
 
 
 const { width, height } = Dimensions.get('screen');
 
 const Chat = ({ navigation }) => {
 
+    const route = useRoute();
+  
+    const name = route.params.username;
+
+console.log(name)
     const chatData = useSelector((state) => state.chatData.chatData);
 
     const [imageMessage, setImageMessage] = useState([]);
@@ -83,7 +90,7 @@ const Chat = ({ navigation }) => {
                     marginLeft: 40,
                 }}>
                     <Avatar rounded source={require('../assets/logo2.png')} />
-                    <Text style={styles.headerText}>{chatData[0].user.name}</Text>
+                    <Text style={styles.headerText}>{name}</Text>
                 </View>
                 <View style={{
                     position: 'absolute',

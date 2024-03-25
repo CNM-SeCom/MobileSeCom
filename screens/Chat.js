@@ -18,6 +18,7 @@ const heigh = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
 const Chat = () => {
+
   const user = useSelector((state) => state.user.user);
   const mode = useSelector((state) => state.mode.mode);
   const token = useSelector((state) => state.token.token);
@@ -45,7 +46,6 @@ const Chat = () => {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token.accessToken}` // Thêm token vào tiêu đề Authorization
-
     }
   };
   //load hoi thoai
@@ -63,12 +63,13 @@ const Chat = () => {
     });
   }
   // load tin nhan
-  const loadMessageData = (id, navigation) => {
+  const loadMessageData = (id, navigation, name) => {
     axios.post('http://'+ip+':3000/getMessageByChatId',{
       chatId: id
     }).then((response) => {
       dispatch(setChatData(response.data.data));
-      navigation.navigate('Conversation');
+      console.log(name)
+      navigation.navigate('Conversation', {username: name});
       console.log(response.data.data);
     }).catch((error) => {
       console.log(error);
@@ -152,7 +153,7 @@ const Chat = () => {
                     image={require('../assets/logo1.png')}
                     name={otherParticipant.name}
                     newMess={messageData[0].lastMessage}
-                    onPress={() => loadMessageData(item.id, navigation)}
+                    onPress={() => loadMessageData(item.id, navigation,otherParticipant.name)}
                   />
                 );
               } else {

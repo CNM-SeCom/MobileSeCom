@@ -122,12 +122,9 @@ const Home = ({ navigation }) => {
           }else {
             console.log('Not Add');
           }
-       
         }}
         onError={console.log}
         onClose={() => {
-          console.log("mmb")
-          handleLogout();
         }}
       /> : null
       }
