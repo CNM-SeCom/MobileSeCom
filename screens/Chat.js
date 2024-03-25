@@ -21,10 +21,12 @@ const Chat = () => {
   const user = useSelector((state) => state.user.user);
   const mode = useSelector((state) => state.mode.mode);
   const token = useSelector((state) => state.token.token);
-  const chatId = useSelector((state) => state.chatId.chatId);
+  // const chatId = useSelector((state) => state.chatId.chatId);
+  const [chatId, setChatId] = useState('');
   const [messages, setMessagess] = useState([]);
   const navigation = useNavigation();
   
+  const [loading, setLoading] = useState(true);
 
   const dispatch = useDispatch();
   const colors = useSelector((state) => {
@@ -48,6 +50,7 @@ const Chat = () => {
   };
   //load hoi thoai
   const [messageData, setMessageData] = useState([]);
+
   const getChatData = () => {
     axios.post('http://'+ip+':3000/getChatByUserId',{
       idUser: user.idUser
@@ -60,8 +63,7 @@ const Chat = () => {
     });
   }
   // load tin nhan
-  const loadMessageData = (id) => {
-    console.log('id',id);
+  const loadMessageData = (id, navigation) => {
     axios.post('http://'+ip+':3000/getMessageByChatId',{
       chatId: id
     }).then((response) => {
@@ -75,9 +77,19 @@ const Chat = () => {
 
   useEffect(() => {
     getChatData();
-  }
-  ,[]);
+    setLoading(false);
+    // dispatch(setChatId(chatId))
+  }, [chatId]);
 
+  useEffect(() => {
+    if (user && messageData.length > 0) {
+      const otherParticipant = messageData[0].participants.find(element => element.idUser !== user.idUser);
+      if (otherParticipant) {
+        setChatId(messageData[0].id);
+      }
+    }
+  }, [user, messageData]);
+  
   return (
     <View style={[
       {backgroundColor : colors.background},
@@ -109,12 +121,12 @@ const Chat = () => {
         {backgroundColor : colors.background},
         styles.users]}>
       <FlatList
-        data={DataUser}
+        data={messageData}
         showsHorizontalScrollIndicator = {false}
         renderItem={({item}) => (
-            <Avatar  />
+            <Avatar />
         )}
-        keyExtractor={item => item.userId}
+        keyExtractor={messageData => messageData.id}
         horizontal={true}
       />
       </View>
@@ -123,29 +135,35 @@ const Chat = () => {
           height: heigh * 0.6,
           alignItems: 'center',
       }}>
-        <FlatList
-  data={messageData}
-  renderItem={({ item }) => {
-    // Lặp qua mảng participant để tìm đối tượng participant không phải là user hiện tại
-    dispatch(setChatId(item.id));
-    const otherParticipant = item.participants.find(element => element.idUser !== user.idUser);
-    
-    if (otherParticipant) {
-      return (
-        <ConversationUnit
-          image={require('../assets/logo1.png')}
-          name={otherParticipant.name}
-          newMess={otherParticipant.lastMessage}
-          onPress={() =>loadMessageData(item.id) }
+        {
+          loading ? <Text>Loading...</Text> : 
+          <FlatList
+          data={messageData}
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => {
+            // Lặp qua mảng participants để tìm người tham gia khác người dùng hiện tại
+            // dispatch(setChatId(item.id));
+            // setChatId(item.id)
+            if (user) {
+              const otherParticipant = item.participants.find(element => element.idUser !== user.idUser);
+              if (otherParticipant) {
+                return (
+                  <ConversationUnit
+                    image={require('../assets/logo1.png')}
+                    name={otherParticipant.name}
+                    newMess={messageData[0].lastMessage}
+                    onPress={() => loadMessageData(item.id, navigation)}
+                  />
+                );
+              } else {
+                return null;
+              }
+            } else {
+              return null;
+            }
+          }}
         />
-      );
-    } else {
-      // Trường hợp không tìm thấy participant khác, trả về null hoặc JSX tùy thuộc vào yêu cầu của bạn
-      return null;
-    }
-  }}
-  keyExtractor={item => item._id}
-/>
+        }
 
       </View>
     </View>

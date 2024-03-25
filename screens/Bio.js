@@ -52,7 +52,7 @@ const navigation = useNavigation();
         </View>
         <View style={styles.avatar}>
           {
-            !user ?
+            user == null ?
             null
             :
             <Image

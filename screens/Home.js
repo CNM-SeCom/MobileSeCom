@@ -58,20 +58,21 @@ const Home = ({ navigation }) => {
   
     //logout
     const handleLogout = () => {
-      axios.post('http://'+ip+':3000/logout', { idUser: user.idUser }, config)
-        .then((response) => {
-          console.log('====================================');
-          console.log(response.data);
-          console.log('====================================');
-          dispatch(setUser({}));
-          navigation.navigate('Login');
-        })
-        .catch((error) => {
-          console.log('====================================');
-          console.log(error);
-          console.log('====================================');
-        });
+      if (!user) {
+        navigation.navigate('Login');
+      } else {
+        axios.post('http://'+ip+':3000/logout', { idUser: user.idUser }, config)
+          .then((response) => {
+       
+            dispatch(setUser({}));
+            navigation.navigate('Login');
+          })
+          .catch((error) => {
+        
+          });
+      }
     };
+    
 
   return (
     <View style={[
@@ -100,7 +101,9 @@ const Home = ({ navigation }) => {
             </ScrollView>
             <View>
       
-      <WS
+      {
+        user ? 
+        <WS
         ref={ref => { this.ws = ref }}
         url={`ws://${ip}:3001/?idUser=`+user.idUser}
         
@@ -126,7 +129,8 @@ const Home = ({ navigation }) => {
           console.log("mmb")
           handleLogout();
         }}
-      />
+      /> : null
+      }
       
       </View>
       </View>

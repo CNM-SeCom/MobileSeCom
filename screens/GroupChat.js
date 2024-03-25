@@ -52,9 +52,6 @@ const colors = useSelector((state) => {
             placeholder="Tìm kiếm"
             paddingLeft={40}
             opacity={0.5}
-            onFocus={() => {
-                // setOpacity(1);
-            }}
           />
       </View>
       <View style={[
@@ -86,7 +83,7 @@ const colors = useSelector((state) => {
               newMess={item.lastMessage.message}
             />
           )}
-          keyExtractor={item => item.id}
+          // keyExtractor={item => item.id}
         />
       </View>
     </View>    

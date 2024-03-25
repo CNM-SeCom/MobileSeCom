@@ -40,7 +40,7 @@ const Search = () => {
   
   const handleSearch = (textSearch) => {
     console.log("============")
-     axios.post('http://192.168.60.78:3000/getListUserByName', {name : textSearch})
+     axios.post('http://'+ip+':3000/getListUserByName', {name : textSearch})
       .then((response) => {
         setFilteredDataSource(response.data.data);
       })
@@ -51,12 +51,10 @@ const Search = () => {
   
 
 const handleAddFriend = () => {
-  axios.post('http://192.168.60.78:3000/sendRequestAddFriend', { fromUser:"17106455394110348307338",
+  axios.post('http://'+ip+':3000/sendRequestAddFriend', { fromUser:"17106455394110348307338",
   toUser:"17106455254400348307336"},config)
   .then((response) => {
-    console.log('====================================');
-    console.log(response.data);
-    console.log('====================================');
+
   })
   .catch((error) => {
     console.log(error);

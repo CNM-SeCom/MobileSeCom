@@ -52,12 +52,9 @@ const Setting = () => {
   const token = useSelector((state) => state.token.token);
   const user = useSelector((state) => state.user.user);
 
-  console.log("token on setting");
-  console.log(token);
-  console.log('====================================');
-  console.log('');
-  console.log('====================================');
-
+console.log('====================================');
+console.log(token.accessToken);
+console.log('====================================');
   let config = {
     headers: {
       'Content-Type': 'application/json',
@@ -86,18 +83,16 @@ const Setting = () => {
     dispatch(toggleMode(newMode));
   };
 
-  console.log("user on log");
-  console.log(user);
-
   const handleLogout = () => {
     axios.post('http://'+ip+':3000/logout', { idUser: user.idUser }, config)
       .then((response) => {
-        console.log('====================================');
-        console.log(response.data);
-        console.log('====================================');
+     
         dispatch(setToken({}));
-        dispatch(setUser({}));
-        navigation.navigate('Login');
+        dispatch(setUser(null));
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Login' }],
+        });
       })
       .catch((error) => {
         console.log(error);

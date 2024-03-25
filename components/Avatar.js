@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { Image } from 'react-native-elements';
 
-const Avata = (props) => {
+const Avatar = (props) => {
 
 const {size, image, status, newMess} = props;
 
@@ -28,7 +28,7 @@ const {size, image, status, newMess} = props;
   )
 }
 
-export default Avata
+export default Avatar
 
 const styles = StyleSheet.create({
     container: {

@@ -21,6 +21,7 @@ const { width, height } = Dimensions.get('screen');
 const Chat = ({ navigation }) => {
 
     const chatData = useSelector((state) => state.chatData.chatData);
+
     const [imageMessage, setImageMessage] = useState([]);
     // const [messagess, setMessagess] = useState(ChatDataHash);
     const [messages, setMessages] = useState(chatData);
@@ -33,7 +34,6 @@ const Chat = ({ navigation }) => {
       return (
         <TouchableOpacity
           style={styles.iconpicker}
-          icon="image"
           onPress={
             () => {
               this.handlePickPicture();
@@ -83,7 +83,7 @@ const Chat = ({ navigation }) => {
                     marginLeft: 40,
                 }}>
                     <Avatar rounded source={require('../assets/logo2.png')} />
-                    <Text style={styles.headerText}>Kazuha</Text>
+                    <Text style={styles.headerText}>{chatData[0].user.name}</Text>
                 </View>
                 <View style={{
                     position: 'absolute',
@@ -153,12 +153,12 @@ const onSend = useCallback((messages = []) => {
         inverted={false}
         alwaysShowSend={true}
         renderActions={renderCustomActions}
-        renderMessageImage={(props) => {
-          return (
-            <Image source={{ uri: props.currentMessage.image }} style={{ width: 200, height: 200 }} />
-          );
-        }
-        }
+        // renderMessageImage={(props) => {
+        //   return (
+        //     <Image source={{ uri: props.currentMessage.image }} style={{ width: 200, height: 200 }} />
+        //   );
+        // }
+        // }
         renderBubble={(props) => {
           return (
             <View style={[styles.bubble,{

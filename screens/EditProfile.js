@@ -101,9 +101,7 @@ const UpdateInfo = (  ) => {
          width: width,
          height: height,
          backgroundColor: '#3c3c3c',
-      }}>
-      {/* Avatar */}
-     
+      }}>     
       <View style={styles.editAvatarContainer}>
         <View style={styles.editTitle}>
           <Text
@@ -126,7 +124,7 @@ const UpdateInfo = (  ) => {
           </TouchableOpacity>
         </View>
        {
-          avatar ?
+          avatar != '' ?
           <Image
             style={styles.avatar} 
             source={{uri: avatar}}

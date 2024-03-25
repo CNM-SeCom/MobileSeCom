@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { TextInput } from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
+import ip from '../data/ip';
 
 const Register = () => {
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()-+])[A-Za-z\d!@#$%^&*()-+]{8,}$/;
@@ -47,7 +48,7 @@ const Register = () => {
                 name: name,
             }
             console.log(data);
-            axios.post('http://192.168.60.78:3000/create', data)
+            axios.post('http://'+ip+':3000/create', data)
             .then((response) => {
                 alert('Account Created Successfully');
                 navigate.navigate('Login');
