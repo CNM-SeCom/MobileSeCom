@@ -26,11 +26,9 @@ const Home = ({ navigation }) => {
   const colors = useSelector((state) => {
     switch (mode) {
       case 'dark':
-        return state.theme.darkColors;
-      case 'light':
-        return state.theme.lightColors;
+        return state.theme.darkColors;   
       default:
-        return state.theme.defaultColors;
+        return state.theme.lightColors;
     }
   });
 
@@ -44,7 +42,6 @@ const Home = ({ navigation }) => {
   }, [navigation]);
 
   useEffect(() => {
-    console.log('ChatData:', chatData);
   }, [chatData]);
   //hàm load lại màn hình và lấy dữ liệu mới sau khi thêm chatData
 
@@ -114,11 +111,9 @@ const Home = ({ navigation }) => {
           let data = JSON.parse(msg.data);
           //ảnh sẽ gắn mặc định
           data.user.avatar = require('../assets/logo1.png');
-          console.log('Data:', data);
           const add = dispatch(addChatData(data));
           if (add) {
-            console.log('Add');
-            console.log('ChatData sau khi cập nhật:', chatData);
+           
           }else {
             console.log('Not Add');
           }

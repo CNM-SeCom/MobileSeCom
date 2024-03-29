@@ -20,14 +20,11 @@ const Bio = () => {
     const colors = useSelector((state) => {
       switch (mode) {
         case 'dark':
-          return state.theme.darkColors;
-        case 'light':
-          return state.theme.lightColors;
+          return state.theme.darkColors;   
         default:
-          return state.theme.defaultColors;
+          return state.theme.lightColors;
       }
-    }
-    );
+    });
 
 const navigation = useNavigation();
 
@@ -39,7 +36,7 @@ const navigation = useNavigation();
     style={styles.container}>
        {
         user ?
-        <View style={styles.scrollContainer}>
+        <View style={[{backgroundColor : colors.background },styles.scrollContainer]}>
        <View style={{
         width: width,
       }}>
@@ -62,7 +59,6 @@ const navigation = useNavigation();
           }
         </View>
         <View style={[
-          // {backgroundColor: colors.background},
           styles.profile]}>
             <View style={{
               flexDirection: 'row',
@@ -189,7 +185,6 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     width: width,
-    backgroundColor: 'black',
     alignItems: 'center',
     paddingBottom: 10,
   },

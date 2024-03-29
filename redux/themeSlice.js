@@ -22,17 +22,7 @@ const initialState = {
     iconActive: 'black',
     iconInactive: '#3c3c3c',
 
-  },
-  defaultColors: {
-    primary: '#BB86FC',
-    background: 'white',
-    card: '#F5F5F5',
-    text: '#2667FF',
-    border: '#CCCCCC',
-    icon: '#3F8EFC',
-    iconActive: '#3B28CC',
-    iconInactive: '#3F8EFC',
-  },
+  }
 };
 
 const themeSlice = createSlice({

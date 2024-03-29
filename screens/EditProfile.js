@@ -42,14 +42,11 @@ const UpdateInfo = (  ) => {
   const colors = useSelector((state) => {
     switch (mode) {
       case 'dark':
-        return state.theme.darkColors;
-      case 'light':
-        return state.theme.lightColors;
+        return state.theme.darkColors;   
       default:
-        return state.theme.defaultColors;
+        return state.theme.lightColors;
     }
-  }
-  );
+  });
 
   const navigation = useNavigation();
 

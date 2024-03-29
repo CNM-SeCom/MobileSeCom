@@ -26,26 +26,20 @@ const Setting = () => {
 
   const [isDarkMode, setIsDarkMode] = React.useState(true);
   const onToggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode)
-    setIsLightMode(false)
-    setIsDefaultMode(false)
-    handleModeChange('dark')
+    if(isDarkMode === false) {
+      setIsDarkMode(true)
+      setIsLightMode(false)
+      handleModeChange('dark')
+    }
   };
 
   const [isLightMode, setIsLightMode] = React.useState(false);
   const onToggleLightMode = () => {
-    setIsLightMode(!isLightMode)
-    setIsDarkMode(false)
-    setIsDefaultMode(false)
-    handleModeChange('light')
-  };
-
-  const [isDefaultMode, setIsDefaultMode] = React.useState(false);
-  const onToggleDefaultMode = () => {
-    setIsDefaultMode(!isDefaultMode)
-    setIsLightMode(false)
-    setIsDarkMode(false)
-    handleModeChange('default')
+    if(isDarkMode === true) {
+      setIsDarkMode(false)
+      setIsLightMode(true)
+      handleModeChange('light')
+    }
   };
   
   const mode = useSelector((state) => state.mode.mode);
@@ -66,13 +60,11 @@ console.log('====================================');
   const colors = useSelector((state) => {
     switch (mode) {
       case 'dark':
-        return state.theme.darkColors;
-      case 'light':
-        return state.theme.lightColors;
+        return state.theme.darkColors;   
       default:
-        return state.theme.defaultColors;
+        return state.theme.lightColors;
     }
-  });
+  });;
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -142,18 +134,6 @@ console.log('====================================');
             styles.titleOption,
             { color: colors.text },
           ]}        />
-        <List.Item title="Default theme mode" 
-          right={() => (
-            <Switch
-              value={isDefaultMode}
-              onValueChange={onToggleDefaultMode}
-            />
-          )}
-          titleStyle={[
-            styles.titleOption,
-            { color: colors.text },
-          ]}
-        />
       </List.Accordion>
     </List.Section>
     <TouchableOpacity 

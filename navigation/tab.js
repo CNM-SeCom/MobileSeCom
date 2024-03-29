@@ -6,10 +6,10 @@ import Settings from '../screens/Setting';
 import TestTabView from '../screens/TabViewChat';
 import Test from '../screens/Test';
 // import VideoCall from '../screens/VideoCall';
-import WS from 'react-native-websocket';
+import Notification from '../screens/Notification';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faHome,faComment, faUser, faPhone , faCamera,faBars} from '@fortawesome/free-solid-svg-icons';
+import { faHome,faComment, faUser, faPhone , faCamera,faBars, faBell} from '@fortawesome/free-solid-svg-icons';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { Badge } from 'react-native-paper';
 import { View } from 'react-native';
@@ -80,6 +80,16 @@ const colors = useSelector((state) => {
                 tabBarShowLabel: false,
             }}
         />
+          <Tab.Screen
+            name="Notification"
+            component={Notification}
+            options={{
+                tabBarIcon: ({ color }) => (
+                  <FontAwesomeIcon icon={faBell} size={25} color={color} />
+                ),
+                tabBarShowLabel: false,
+            }}
+        />
         <Tab.Screen
             name="Setting"
             component={Settings}
@@ -90,26 +100,6 @@ const colors = useSelector((state) => {
                 tabBarShowLabel: false,
             }}
         />
-        {/* <Tab.Screen
-            name="Test"
-            component={Test}
-            options={{
-                tabBarIcon: ({ color }) => (
-                  <FontAwesomeIcon icon={faCamera} size={25} color={color} />
-                ),
-                tabBarShowLabel: false,
-            }}
-        /> */}
-        {/* <Tab.Screen
-            name="VideoCall"
-            component={VideoCall}
-            options={{
-                tabBarIcon: ({ color }) => (
-                  <FontAwesomeIcon icon={faPhone} size={25} color={color} />
-                ),
-                tabBarShowLabel: false,
-            }}
-        /> */}
       
     </Tab.Navigator>
     

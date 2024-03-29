@@ -17,23 +17,8 @@ const ForgotPass = () => {
   const digits = OTP.toString().split('');
   const [isCorrect, setIsCorrect] = useState(false);
 
-  function randomOTP() {
-    return setOTP(Math.floor(100000 + Math.random() * 900000));
-  }
-
   function sendCode() {
-    randomOTP();
     setShowOTP(true);
-  }
-
-  const compareOTP = () => {
-    let temp = confirmOTP.join('');
-    if (temp === OTP.toString()) {
-      console.log('Mã xác nhận chính xác');
-      setIsCorrect(true);
-    } else {
-      console.log('Mã xác nhận không chính xác');
-    }
   }
 
   useEffect(() => {
@@ -76,11 +61,13 @@ const ForgotPass = () => {
           Nhập số điện thoại của bạn để lấy lại mật khẩu
         </Text>
       </View>
-      <TextInput
+    <View style={{width : '90%', marginTop : 20}}>
+    <TextInput
         style={styles.textInput}
         placeholder="Nhập số điện thoại"
         keyboardType="numeric"
       />
+    </View>
       <TouchableOpacity
         onPress={sendCode}
         style={styles.sendCodeButton}
@@ -103,29 +90,11 @@ const ForgotPass = () => {
             
           >
             <View style={styles.showOTPWrapper}>
-            {
-                digits.map((item, index) => (
-                  <TextInput
-                    key={index}
-                    style={{
-                      width: 50,
-                      height: 50,
-                      backgroundColor: '#E5E5E5',
-                      borderRadius: 10,
-                      textAlign: 'center',
-                      marginHorizontal: 5,
-                    }}
-                    onSubmitEditing={compareOTP}
-                    value={confirmOTP[index]}
-                    onChangeText={(text) => {
-                      let temp = confirmOTP;
-                      temp[index] = text;
-                      setConfirmOTP(temp);
-                      console.log(confirmOTP);
-                    }}
-                  />
-                ))
-              }
+            <View style={{width : '100%'}}>
+              <TextInput style={[styles.textInput, {textAlign:"center"}]}>
+                {digits[0]}
+              </TextInput>
+            </View>
             </View>
           </View>
           </View>
@@ -166,11 +135,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   textInput : {
-    width : '90%',
+    width : '100%',
     height : 50,
     backgroundColor : '#E5E5E5',
     borderRadius : 10,
-    marginTop : 20,
     paddingLeft : 10,
   },
   titleWrapper : {
@@ -203,7 +171,7 @@ const styles = StyleSheet.create({
     justifyContent : 'center',
     alignItems : 'center',
     marginTop : 20,
-    width : '80%',
+    width : '100%',
     alignSelf : 'center',
   },
   buttonResetPass : {

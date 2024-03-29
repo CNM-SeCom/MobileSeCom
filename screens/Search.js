@@ -19,11 +19,9 @@ const Search = () => {
   const colors = useSelector((state) => {
     switch (mode) {
       case 'dark':
-        return state.theme.darkColors;
-      case 'light':
-        return state.theme.lightColors;
+        return state.theme.darkColors;   
       default:
-        return state.theme.defaultColors;
+        return state.theme.lightColors;
     }
   });
 
@@ -67,7 +65,7 @@ return (
   <View style={[{backgroundColor : colors.background},styles.container]}>
     <View style={styles.headerContainer}>
       <TouchableOpacity
-        onPress={() => navigation.goBack()}
+        onPress={() => navigation.navigate('Home')}
       >
         <FontAwesomeIcon icon={faArrowLeft} size={30} color={colors.text} />
       </TouchableOpacity>
