@@ -7,7 +7,7 @@ import ChatDataHash from '../data/dataChat';
 import { IconButton } from 'react-native-paper';
 import { Icon } from 'react-native-elements'
 import WS from 'react-native-websocket'
-import axios from 'axios';
+import axios, { formToJSON } from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { setChatData, addChatData } from '../redux/chatDataSlice'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
@@ -17,6 +17,7 @@ import { useRoute } from '@react-navigation/native';
 import { FlatList, TextInput } from 'react-native-gesture-handler';
 import Video from 'react-native-video'
 import ip from '../data/ip'
+import RNFetchBlob from 'rn-fetch-blob';
 
 
 
@@ -37,12 +38,12 @@ const Chat = ({ navigation }) => {
   }, [chatData]);
 
   useEffect(() => {
-    console.log('chatData', chatData);
     setMessages([chatData]);
   }, [chatData, text, image, video, docment]);
 
   const route = useRoute();
   const name = route.params.username;
+  const id = route.params.chatId;
   const otherParticipantId = route.params.id;
   const chatData = useSelector((state) => state.chatData.chatData);
   const token = useSelector((state) => state.token.token);
@@ -56,17 +57,15 @@ const Chat = ({ navigation }) => {
   const [video, setVideo] = useState(null); // Khai báo biến video để lưu video đính kèm
   const [docment, setDocment] = useState(null); // Khai báo biến docment để lưu tài liệu đính kèm
 
-  console.log('imageMessage', imageMessage);
 
   handlePickPicture = () => {
-    openGallery();
+    selectImage()
   }
 
   handlePickVideo = () => {
     openGalleryVideo();
   }
 
-  console.log('chatData', chatData[0]);
 
   const openGallery = async () => {
     try {
@@ -79,7 +78,6 @@ const Chat = ({ navigation }) => {
 
         //load lại màn hình
         setImageMessage([...imageMessage]);
-        console.log('imageMessage', imageMessage);
       } else {
 
       }
@@ -121,7 +119,7 @@ const Chat = ({ navigation }) => {
       );
     } else if (item.type === 'image') {
       return (
-        <Image source={{ uri: item.text }} style={{ width: 200, height: 200 }} />
+        <Image source={{ uri: item.image }} style={{ width: 200, height: 200, borderRadius: 10 }} />
       );
     } else if (item.type === 'video') {
       return (
@@ -146,7 +144,7 @@ const Chat = ({ navigation }) => {
       },
       body: {
         message: {
-          chatId: "1",
+          chatId: id,
           text: text,
           type: 'text',
           user: {
@@ -154,16 +152,14 @@ const Chat = ({ navigation }) => {
             avatar: user.avatar,
             name: user.name,
           },
-          receiverId: "17106602933470399889699",
-          // receiverId: '17106601683500348307336',
+          receiverId: otherParticipantId,
         }
       }
-    };
-
+    };      
 
     axios.post('http://' + ip + ':3000/ws/send-message-to-user', config.body)
       .then((response) => {
-        console.log(response.data.message);
+        dispatch(addChatData(config.body.message));
       })
       .catch((error) => {
         console.log(error);
@@ -172,7 +168,75 @@ const Chat = ({ navigation }) => {
     setText('');
 
   }
+  const selectImage = async () => {
+    const result = await launchImageLibrary({
+      mediaType: 'photo',
+      quality: 1,
+    });
 
+    if (result.didCancel) {
+      console.log('User cancelled image picker');
+    } else if (result.error) {
+      console.log('ImagePicker Error: ', result.error);
+    } else {
+      imageMessage.push(result.assets[0].uri);
+      setImageMessage([...imageMessage]);
+      
+    }
+  };
+
+  
+
+  const handleSendImage = (uri) => {
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': `Bearer ${token.accessToken}`
+      },
+      body: {
+        message: {
+          chatId: id,
+          text: "",
+          type: 'image',
+          image: uri,
+          user: {
+            idUser: user.idUser,
+            avatar: user.avatar,
+            name: user.name,
+          },
+          receiverId: otherParticipantId,
+        }
+      }
+      }
+      dispatch(addChatData(config.body.message));
+      axios.post('http://' + ip + ':3000/ws/send-message-to-user', config.body)
+      .then((response) => {
+        
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+    };
+    const uploadImage = (uri) => {
+      RNFetchBlob.fetch('POST', 'http://' + ip + ':3000/uploadImageMessage', {
+        'Content-Type': 'multipart/form-data',
+      }, [
+        { name: 'image', filename: 'image.jpg', type: 'image/jpeg', data: RNFetchBlob.wrap(uri) }
+        ,
+        {
+          name: 'idUser', data: user.idUser
+        }
+      ]).then((response) => {
+        //format response to json
+        response = JSON.parse(response.data);
+        console.log("succsss")
+        console.log(response.uri)
+        console.log("++++++++++++=")
+        handleSendImage(response.uri);
+      }).catch((error) => {
+        console.error(error);
+      });
+    };
 
 
   useLayoutEffect(() => {
@@ -216,7 +280,6 @@ const Chat = ({ navigation }) => {
 
   //load lại màn hình khi có tin nhắn mới
   useEffect(() => {
-    console.log('chatData', chatData);
     setMessages([chatData]);
   }, [chatData, imageMessage]);
 
@@ -294,6 +357,7 @@ const Chat = ({ navigation }) => {
   }
 
   const handleSendMedia = () => {
+    uploadImage(imageMessage[0]);
     setImageMessage([]);
   }
 
@@ -306,8 +370,9 @@ const Chat = ({ navigation }) => {
         onContentSizeChange={() => scrollToBottom()}
         onLayout={() => scrollToBottom()}
         renderItem={({ item }) => (
+
           //nếu id người gửi khác với id nguôi dùng thì hiển thị tin nhắn bên trái
-          item.user._id !== user.idUser ? (
+          item.user.idUser !== user.idUser ? (
             <View style={[{ justifyContent: 'flex-start' }, styles.bubble]}>
               <Avatar rounded source={require('../assets/logo2.png')} />
               {/* <Avatar rounded source={{uri : item.user.avatar}} /> */}
@@ -362,6 +427,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
+    padding: 10,
   },
   customHeader: {
     height: 50,
@@ -395,13 +461,11 @@ const styles = StyleSheet.create({
   },
   bubbleLeft: {
     backgroundColor: 'gray',
-    padding: 10,
     borderRadius: 10,
     marginLeft: 10,
   },
   bubbleRight: {
     backgroundColor: '#009688',
-    padding: 10,
     borderRadius: 10,
     marginRight: 10,
     alignSelf: 'center',

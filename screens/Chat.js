@@ -66,7 +66,7 @@ const Chat = () => {
     }).then((response) => {
       dispatch(setChatData(response.data.data));
       console.log(name)
-      navigation.navigate('Conversation', {username: name, id : idUser});
+      navigation.navigate('Conversation', {username: name, id : idUser, chatId: id});
     }).catch((error) => {
       console.log(error);
     });

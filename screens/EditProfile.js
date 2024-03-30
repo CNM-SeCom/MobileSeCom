@@ -12,6 +12,8 @@ const width = Dimensions.get('window').width;
 
 const UpdateInfo = (  ) => {
 
+  const user = useSelector((state) => state.user.user);
+
   const [avatar, setAvatar] = useState('');
   const [coverImage, setCoverImage] = useState('');
   const [userName, setUserName] = useState('');
@@ -27,18 +29,17 @@ const UpdateInfo = (  ) => {
     setIsModalVisible(!isModalVisible);
   };
 
-  const dataUpdate = useRoute().params;
-  //khi focus vào màn hình này thì log ra dataUpdate
-  useEffect(() => {
-    if(dataUpdate) {
-      setAvatar(dataUpdate.dataUpdate.avatar);
-      setCoverImage(dataUpdate.dataUpdate.coverImage);
-    }
-  }, [dataUpdate, avatar,coverImage, userName, biography, address, school, relationship, job, link]);
+  // const dataUpdate = useRoute().params;
+  // //khi focus vào màn hình này thì log ra dataUpdate
+  // useEffect(() => {
+  //   if(dataUpdate) {
+  //     setAvatar(dataUpdate.dataUpdate.avatar);
+  //     setCoverImage(dataUpdate.dataUpdate.coverImage);
+  //   }
+  // }, [dataUpdate, avatar,coverImage, userName, biography, address, school, relationship, job, link]);
  
 
   const mode = useSelector((state) => state.mode.mode);
-  const user = useSelector((state) => state.user.user);
   const colors = useSelector((state) => {
     switch (mode) {
       case 'dark':
@@ -107,17 +108,13 @@ const UpdateInfo = (  ) => {
               fontWeight: 'bold',
               fontSize: 15,
             }}
-          >Ảnh đại diện</Text>
+          >Chỉnh sửa ảnh</Text>
           <TouchableOpacity
             onPress={() => {
               navigation.navigate('ChooseImage');
             }}
           >
-            <Text style={{
-                color: '#55c1dd',
-                fontWeight: 'bold',
-              fontSize: 15,
-            }}>Thêm</Text>
+            <FontAwesomeIcon icon={faPen} size={20} color={'#fff'} style={{marginLeft : 10, top : 4}}/>
           </TouchableOpacity>
         </View>
        {
@@ -136,35 +133,18 @@ const UpdateInfo = (  ) => {
       {/* CoverImage */}
       <View style={styles.coverImageContainer}>
         <View style={styles.editTitle}>
-          <Text
-            style={{
-              color: '#fff',
-              fontWeight: 'bold',
-              fontSize: 15,
-            }}
-          >Ảnh bìa</Text>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('ChooseImage');
-            }}
-          >
-            <Text style={{
-                color: '#55c1dd',
-                fontWeight: 'bold',
-              fontSize: 15,
-            }}>Thêm</Text>
-          </TouchableOpacity>
         </View>
           {
-            coverImage ?
+             coverImage != '' ?
             <Image
               style={styles.coverImage} 
               source={{uri: coverImage}}
             />
             :
-            <View style={styles.coverImage} >
-              
-            </View>
+            <Image
+              style={styles.coverImage} 
+              source={{uri: user.coverImage}}
+            />
           }
       </View>
       <View style={{
@@ -435,9 +415,7 @@ const styles = StyleSheet.create({
         width: width * 0.95,
         height: 200,
         flexDirection: 'row',
-        marginTop: 20,
         borderColor: '#fff',
-        borderBottomWidth: 1,
         backgroundColor: '#3c3c3c',
         justifyContent: 'center',
         alignSelf: 'center',
@@ -462,6 +440,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         borderWidth: 5,
         borderColor: '#fff',
+
     },
     coverImageContainer :{
         width: width * 0.95,

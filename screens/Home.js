@@ -112,8 +112,11 @@ const Home = ({ navigation }) => {
           //ảnh sẽ gắn mặc định
           data.user.avatar = require('../assets/logo1.png');
           const add = dispatch(addChatData(data));
+
+          
+
           if (add) {
-           
+            
           }else {
             console.log('Not Add');
           }

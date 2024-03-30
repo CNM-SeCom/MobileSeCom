@@ -5,6 +5,8 @@ import listPost from '../data/ListPost'
 import listUser from '../data/dataUser'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faEdit } from '@fortawesome/free-solid-svg-icons'
+import { useFocusEffect } from '@react-navigation/native';
+import { useEffect } from 'react';
 
 import {useNavigation} from '@react-navigation/native';
 
@@ -14,7 +16,7 @@ const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
 const Bio = () => {
-  
+
     const mode = useSelector((state) => state.mode.mode);
     const user = useSelector((state) => state.user.user);
     const colors = useSelector((state) => {
@@ -25,6 +27,11 @@ const Bio = () => {
           return state.theme.lightColors;
       }
     });
+    useEffect(() => {
+      console.log('user đã thay đổi');
+      // Thực hiện các hành động bạn muốn khi màn hình được focus lại ở đây
+      //load lại user
+    }, [user]);
 
 const navigation = useNavigation();
 
@@ -41,11 +48,17 @@ const navigation = useNavigation();
         width: width,
       }}>
       <View style={[
-        // {backgroundColor: colors.background},
         styles.bioContainer]}>
         <View style={styles.coverImage}>
-
-          {/* <Image source={require('../assets/LOL/cover/3.jpg')} style={{width: '100%', height: '100%'}} /> */}
+        {
+            user == null ?
+            null
+            :
+            <Image
+            style={{width: '100%', height: '100%'}}
+            source={{uri: user.coverImage}}
+            />
+          }
         </View>
         <View style={styles.avatar}>
           {
@@ -63,9 +76,9 @@ const navigation = useNavigation();
             <View style={{
               flexDirection: 'row',
               alignSelf: 'center',
-              marginHorizontal: 10,
-              width: '100%',
-              justifyContent: 'center',
+              width: '50%',
+              left: 90,
+              bottom: 50,
             }}>
               <Text style={[
               {color: colors.text},
@@ -158,11 +171,12 @@ const styles = StyleSheet.create({
     height: 150,
     borderRadius: 75,
     position: 'absolute',
-    top: 100,
-    left: '35%',
+    top: 130,
+    left: 20,
     borderWidth: 5,
     borderColor: '#fff',
     zIndex: 2,
+    
   },
   profile: {
     width: '98%',
@@ -177,7 +191,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
     color: '#fff',
-    alignSelf: 'center',
+
   },
   profileText: {
     fontSize: 16,
