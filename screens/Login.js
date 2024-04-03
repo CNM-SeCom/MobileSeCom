@@ -22,6 +22,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faFaceSadTear } from '@fortawesome/free-solid-svg-icons'
 import { set_IdUser, getIdUser } from '../data/idUser';
 import ip from '../data/ip';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
 
@@ -52,6 +53,16 @@ const LoginScreen = () => {
   }, [email])
 
   const animetionLogo = useRef(new Animated.Value(0)).current;
+  const saveLoginState = async (token, id) => {
+    try {
+      await AsyncStorage.setItem('userToken', token);
+      await AsyncStorage.setItem('idUser', id);
+      console.log('Trạng thái đăng nhập đã được lưu.');
+    } catch (error) {
+      console.error('Lỗi khi lưu trạng thái đăng nhập:', error);
+    }
+  };
+
 
   useEffect(() => {
     Animated.timing(animetionLogo, {
@@ -97,7 +108,6 @@ const LoginScreen = () => {
           console.log('lỗi update token');
           console.log('Error: ', error);
         })
-
     }, 540000);
   }
 
@@ -148,6 +158,7 @@ const LoginScreen = () => {
             navigation.navigate('TabHome');
             // sau 9p thì gọi update token để duy trì token
             updateToken(response.data.token.refreshToken, response.data.user.idUser);
+            saveLoginState(response.data.token.refreshToken,response.data.user.idUser );
           }
         })
         .catch((error) => {
@@ -211,7 +222,7 @@ const LoginScreen = () => {
                 placeholderTextColor='#00000080'
                 style={styles.inputField}
                 secureTextEntry={!isShowPassword}
-                value="aaaaaaaaA11"
+                value="aaaaaaaaA1@"
                 onChangeText={setPassword}
               />
               <TouchableOpacity style={{

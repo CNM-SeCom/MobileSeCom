@@ -2,15 +2,86 @@ import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-na
 import React from 'react'
 import Video from 'react-native-video'
 import { useNavigation } from '@react-navigation/native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios'
+import { setUser } from '../redux/userSlice';
+import { setToken } from '../redux/tokenSlice';
+import ip from '../data/ip';
 
 export default function Intro() {
+  const dispatch = useDispatch();
+  const token = useSelector((state) => state.token.token);
 
   const navigation = useNavigation();
 
   const handlePress = () => {
+
     {
-      navigation.navigate('Login');
+      // navigation.navigate('Login');
+      checkLoginState();
     };
+  };
+
+  const saveLoginState = async (token, id) => {
+    try {
+      await AsyncStorage.setItem('userToken', token);
+      await AsyncStorage.setItem('idUser', id);
+      console.log('Trạng thái đăng nhập đã được lưu.');
+    } catch (error) {
+      console.error('Lỗi khi lưu trạng thái đăng nhập:', error);
+    }
+  };
+
+  const checkLoginState = async () => {
+    try {
+      const userToken = await AsyncStorage.getItem('userToken');
+      const idUser = await AsyncStorage.getItem('idUser');
+   
+      console.log('Token:', userToken);
+      console.log('Id:', idUser);
+      if (userToken) {
+        console.log('Người dùng đã đăng nhập:', userToken);
+        // Thực hiện các hành động liên quan đến đăng nhập
+        await axios.post('http://' + ip + ':3000/checkLoginWithToken', {refreshToken: userToken, idUser: idUser})
+        .then(res => {
+          console.log(res.data);
+          dispatch(setUser(res.data.data));
+          
+        })
+        
+        .catch(err => {
+          console.log(err);
+        });
+        const data = {
+          refreshToken: userToken,
+          idUser: idUser
+        }
+        console.log('data update token: ', data);
+       await axios.post('http://' + ip + ':3000/updateAccessToken', data)
+          .then((response) => {
+            console.log('Update token: ', response.data);
+            dispatch(setToken(response.data));
+
+            saveLoginState(response.data.refreshToken, idUser);
+            navigation.navigate('TabHome');
+          })
+          .catch((error) => {
+            console.log('lỗi update token');
+            console.log('Error: ', error);
+          })
+       
+
+       
+       
+      } else {
+        console.log('Người dùng chưa đăng nhập.');
+        // Thực hiện các hành động liên quan đến chưa đăng nhập
+        navigation.navigate('Login');
+      }
+    } catch (error) {
+      console.error('Lỗi khi kiểm tra trạng thái đăng nhập:', error);
+    }
   };
 
   return (

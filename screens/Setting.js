@@ -14,6 +14,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { setUser } from '../redux/userSlice';
 import { useNavigation } from '@react-navigation/native';
 import ip from '../data/ip';
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const Setting = () => {
 
@@ -41,14 +42,23 @@ const Setting = () => {
       handleModeChange('light')
     }
   };
-  
+
   const mode = useSelector((state) => state.mode.mode);
   const token = useSelector((state) => state.token.token);
   const user = useSelector((state) => state.user.user);
 
-console.log('====================================');
-console.log(token.accessToken);
-console.log('====================================');
+  const clearLoginState = async () => {
+    try {
+      await AsyncStorage.removeItem('userToken');
+      await AsyncStorage.removeItem('idUser');
+      console.log('Trạng thái đăng nhập đã được xóa.');
+    } catch (error) {
+      console.error('Lỗi khi xóa trạng thái đăng nhập:', error);
+    }
+  };
+
+
+
   let config = {
     headers: {
       'Content-Type': 'application/json',
@@ -75,16 +85,18 @@ console.log('====================================');
     dispatch(toggleMode(newMode));
   };
 
+
+
   const handleLogout = () => {
     axios.post('http://'+ip+':3000/logout', { idUser: user.idUser }, config)
       .then((response) => {
-     
         dispatch(setToken({}));
         dispatch(setUser(null));
         navigation.reset({
           index: 0,
           routes: [{ name: 'Login' }],
         });
+        clearLoginState();
       })
       .catch((error) => {
         console.log(error);
