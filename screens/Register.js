@@ -71,13 +71,13 @@ const Register = () => {
     return (
         <View style={styles.container}>
             <View style={styles.logoContainer}>
-                <Image style={styles.backgroundImage} source={require('../assets/logoSec.png')} />
+                <Image style={styles.backgroundImage} source={require('../assets/logo_seccom.png')} />
             </View>
             <View style={styles.wrapper}>
                 <Text
                     style={styles.title}
                 >
-                    Create an account
+                    Đăng ký tài khoản
                 </Text>
                 <TextInput
                  mode="outlined"
@@ -189,7 +189,7 @@ const Register = () => {
                 onPress={() =>{register()}}
                 style={styles.button}>
                     <Text style={styles.titleButton}>
-                        Create Account
+                        Đăng ký
                     </Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
@@ -200,7 +200,7 @@ const Register = () => {
                 }
                 style={styles.button}>
                     <Text style={styles.titleButton}>
-                        Login
+                        Đăng Nhập
                     </Text>
                 </TouchableOpacity>
 
@@ -212,12 +212,13 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         padding: 10,
-        justifyContent: 'center'
+        justifyContent: 'center',
+        backgroundColor:"#3c5a9a"
     },
     button: {
         width: '90%',
         marginTop: 20,
-        backgroundColor: '#3b5998',
+        backgroundColor: 'white',
         padding: 10,
         borderRadius: 20
     },
@@ -240,13 +241,14 @@ const styles = StyleSheet.create({
     title :{
         fontSize: 30,
         fontWeight: 'bold',
-        alignSelf: 'center',        
+        alignSelf: 'center',  
+        color: 'white'      
     },
     titleButton :{
         fontSize: 20,
         fontWeight: 'bold',
         alignSelf: 'center', 
-        color: 'white'       
+        color: 'black'       
     },
     genderContainer: {
         flexDirection: 'row',

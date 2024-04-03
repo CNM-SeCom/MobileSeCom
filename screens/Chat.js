@@ -120,9 +120,20 @@ const Chat = () => {
       <FlatList
         data={messageData}
         showsHorizontalScrollIndicator = {false}
-        renderItem={({item}) => (
-            <Avatar />
-        )}
+        renderItem={({item}) =>{ 
+          var otherParticipant;
+            // Lặp qua mảng participants để tìm người tham gia khác người dùng hiện tại
+            // dispatch(setChatId(item.id));
+            // setChatId(item.id)
+            if (user) {
+               otherParticipant = item.participants.find(element => element.idUser !== user.idUser);
+               return (
+                <Avatar
+                  image={otherParticipant.avatar}
+                />
+            )
+          }}
+        }
         keyExtractor={messageData => messageData.id}
         horizontal={true}
       />
@@ -138,17 +149,19 @@ const Chat = () => {
           data={messageData}
           keyExtractor={item => item.id}
           renderItem={({ item }) => {
+            var otherParticipant;
             // Lặp qua mảng participants để tìm người tham gia khác người dùng hiện tại
             // dispatch(setChatId(item.id));
             // setChatId(item.id)
             if (user) {
-              const otherParticipant = item.participants.find(element => element.idUser !== user.idUser);
+               otherParticipant = item.participants.find(element => element.idUser !== user.idUser);
+             
               if (otherParticipant) {
                 return (
                   <ConversationUnit
-                    image={require('../assets/logo1.png')}
+                    image={otherParticipant.avatar}
                     name={otherParticipant.name}
-                    newMess={messageData[0].lastMessage}
+                    newMess={item.lastMessage}
                     onPress={() => loadMessageData(item.id, navigation,otherParticipant.name,otherParticipant.idUser)}
                   />
                 );

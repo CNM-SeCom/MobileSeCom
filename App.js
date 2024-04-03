@@ -10,7 +10,6 @@ import { useEffect, useState } from 'react';
 
 export default function App() {
   return (
-
     <Provider store={store}>
       <NavigationContainer>
         <StackHome />

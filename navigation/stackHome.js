@@ -10,7 +10,8 @@ import EditProfile from '../screens/EditProfile';
 import Search from '../screens/Search';
 import ChooseImage from '../screens/ChooseImage';
 import Register from '../screens/Register';
-import ForgotPass from '../screens/ForgotPass';
+import ConfirmOTP from '../screens/ConfirmOTP';
+import ResetPass from '../screens/ResetPass';
 
 // import VideoCall from '../screens/VideoCall';
 
@@ -29,7 +30,8 @@ function MyStack() {
       <Stack.Screen name="Search" component={Search} options={{headerShown : false}}/>
       <Stack.Screen name="ChooseImage" component={ChooseImage} options={{headerShown : false}}/>
       <Stack.Screen name="Register" component={Register} options={{headerShown : false}}/>   
-      <Stack.Screen name="ForgotPass" component={ForgotPass} options={{headerShown : false}}/>
+      <Stack.Screen name="ConfirmOTP" component={ConfirmOTP} options={{headerShown : false}}/>
+      <Stack.Screen name="ResetPass" component={ResetPass} options={{headerShown : false}}/>
     </Stack.Navigator>
   );
 }

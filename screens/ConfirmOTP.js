@@ -4,27 +4,77 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faArrowAltCircleLeft } from '@fortawesome/free-solid-svg-icons'
 import { useNavigation } from '@react-navigation/native'
 import { useEffect, useState } from 'react'
+import { useRoute } from '@react-navigation/native'
+import axios from 'axios'
+import  ip  from '../data/ip'
+import { Modal, Portal, PaperProvider } from 'react-native-paper';
+
 
 const ForgotPass = () => {
   const navigation = useNavigation();
-
-
-
+  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [OTP, setOTP] = useState(Math.floor(100000 + Math.random() * 900000));
-  const [confirmOTP, setConfirmOTP] = useState([]);
-  const [showOTP, setShowOTP] = useState(false);
-  const digits = OTP.toString().split('');
+  const [showOTPInput, setShowOTPInput] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const route = useRoute().params;  
+  const [type , setType] = useState(route.type);
+  const [otp, setOtp] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  
 
-  function sendCode() {
-    setShowOTP(true);
+ 
+
+  useEffect(() => {
+    if(route.email){
+      setEmail(route.email);
+      setType(route.type);
+    }
+  }, [route])
+
+  const sendOTP = async(email) => {
+    console.log('sendOTP', email);
+    const data = {
+      email: email,
+    }
+    await axios.post('http://' + ip + ':3000/sendOTP', data)
+      .then(res => {
+        if (res.data.success === true) {
+          // setIsCorrect(true);
+          console.log('sendOTP', res.data);
+        }
+      })
+      .catch(err => {
+        console.log('sendOTP', err);
+      })
+  }
+
+const showModalNotify = (value) => {
+  setShowModal(value);
+}
+
+  const checkOTP = async() => {
+    const data = {
+      email : email,
+      otp: otp,
+    }
+    await axios.post('http://' + ip + ':3000/verifyOTP', data)
+      .then(res => {
+        if (res.data.success === true) {
+          // setIsCorrect(true);
+          console.log('checkOTP', res.data);
+          navigation.navigate('ResetPass',{type:type})
+        }
+      })
+      .catch(err => {
+        console.log('checkOTP', err);
+        showModalNotify(true);
+      })
   }
 
   useEffect(() => {
     navigation.setOptions({
       headerShown: true,
-      title: 'Quên mật khẩu',
+      title: 'Nhận OTP',
       headerTitleAlign: 'flex-start',
       headerTitleStyle: {
         fontSize: 20,
@@ -50,26 +100,30 @@ const ForgotPass = () => {
         )
       },
     });
-  }, [navigation, OTP, confirmOTP, isCorrect, showOTP])
+  }, [navigation])
 
   return (
-    <View style={styles.constainer}>
+    <PaperProvider>
+      <View style={styles.constainer}>
       <View style={styles.titleWrapper}>
         <Text
           style={styles.title}
         >
-          Nhập số điện thoại của bạn để lấy lại mật khẩu
+          Nhập email của bạn để lấy lại mật khẩu
         </Text>
       </View>
     <View style={{width : '90%', marginTop : 20}}>
     <TextInput
         style={styles.textInput}
-        placeholder="Nhập số điện thoại"
-        keyboardType="numeric"
+        placeholder="Nhập email"
+        value={email}
+        onChangeText={(text) => setEmail(text)}
       />
     </View>
-      <TouchableOpacity
-        onPress={sendCode}
+      {
+        email ? (
+          <TouchableOpacity
+        onPress={()=>{sendOTP(email); setShowOTPInput(true)}}
         style={styles.sendCodeButton}
       >
         <Text
@@ -78,8 +132,22 @@ const ForgotPass = () => {
           Gửi mã xác nhận
         </Text>
       </TouchableOpacity>
+        ):(
+          <View
+          
+        onPress={()=>{sendOTP(email); setShowOTPInput(true)}}
+        style={styles.sendCodeButton}
+      >
+        <Text
+          style={styles.titleButtonSendCode}
+        >
+          Gửi mã xác nhận
+        </Text>
+      </View>
+        )
+      }
      {
-        showOTP ? (
+        showOTPInput ? (
           <View style={{
             flexDirection: 'row',
             justifyContent: 'center',
@@ -87,12 +155,13 @@ const ForgotPass = () => {
             width: '90%',
           }}>
           <View
-            
+            //truongbinhtriet110202@gmail.com
           >
             <View style={styles.showOTPWrapper}>
             <View style={{width : '100%'}}>
-              <TextInput style={[styles.textInput, {textAlign:"center"}]}>
-                {digits[0]}
+              <TextInput 
+              onChangeText={(text) => setOtp(text)}
+              style={[styles.textInput, {textAlign:"center"}]}>
               </TextInput>
             </View>
             </View>
@@ -103,7 +172,9 @@ const ForgotPass = () => {
       {
         isCorrect ? (
           <TouchableOpacity
-            style={[{backgroundColor : 'green'},styles.buttonResetPass]}
+            onPress={() => {
+              navigation.navigate('ResetPass',{type:type})}}
+              style={[{backgroundColor : 'green'},styles.buttonResetPass]}
           >
             <Text
               style={styles.titleButtonSendCode}
@@ -112,6 +183,9 @@ const ForgotPass = () => {
             </Text>
           </TouchableOpacity>
         ) : <TouchableOpacity
+        onPress={()=>{
+          // navigation.navigate('ResetPass',{type:type})}}
+          checkOTP()}}
         style={[{backgroundColor : '#3c3c3c'},styles.buttonResetPass]}
       >
         <Text
@@ -122,6 +196,20 @@ const ForgotPass = () => {
       </TouchableOpacity>
       }
     </View>
+
+      <Portal>
+        <Modal visible={showModal} onDismiss={() => setShowModal(false)}>
+          <View style={{backgroundColor: 'white', padding: 20, margin: 20, borderRadius: 10}}>
+            <Text style={{fontSize: 20, fontWeight: 'bold', textAlign: 'center'}}>Thông báo</Text>
+            <Text style={{fontSize: 17, marginTop: 10, textAlign: 'center'}}>Mã OTP không chính xác</Text>
+            <TouchableOpacity style={{backgroundColor: '#3c3c3c', padding: 10, borderRadius: 10, marginTop: 20}} onPress={() => setShowModal(false)}>
+              <Text style={{fontSize: 17, color: 'white', textAlign: 'center'}}>Đóng</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+      </Portal>
+
+    </PaperProvider>
   )
 }
 

@@ -9,7 +9,6 @@ const heigh = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
 const ConversationUnit = (props) => {
-
     const {image, name, newMess, onPress} = props;
 
 const navigation = useNavigation();
@@ -19,10 +18,8 @@ const colors = useSelector((state) => {
     switch (mode) {
         case 'dark':
         return state.theme.darkColors;
-        case 'light':
-        return state.theme.lightColors;
         default:
-        return state.theme.defaultColors;
+            return state.theme.lightColors;
     }
 }
 );

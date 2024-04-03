@@ -59,7 +59,7 @@ const colors = useSelector((state) => {
         showsHorizontalScrollIndicator = {false}
         renderItem={({item}) => (
             <Avatar
-                image={item.image}
+                image={'https://res.cloudinary.com/dkwb3ddwa/image/upload/v1710070408/avataDefaultSeCom/jfvpv2c7etp65u8ssaff.jpg'}
             />
         )}
         keyExtractor={item => item.id}
@@ -76,7 +76,7 @@ const colors = useSelector((state) => {
           renderItem={({item}) => (
             <ConversationUnit
               name={item.name}
-              avatar={item.image}
+              image={'https://res.cloudinary.com/dkwb3ddwa/image/upload/v1710070408/avataDefaultSeCom/jfvpv2c7etp65u8ssaff.jpg'}
               newMess={item.lastMessage.message}
             />
           )}

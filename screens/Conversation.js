@@ -18,7 +18,7 @@ import { FlatList, TextInput } from 'react-native-gesture-handler';
 import Video from 'react-native-video'
 import ip from '../data/ip'
 import RNFetchBlob from 'rn-fetch-blob';
-
+const ITEM_HEIGHT = 50;
 
 
 const { width, height } = Dimensions.get('screen');
@@ -26,19 +26,18 @@ const { width, height } = Dimensions.get('screen');
 const Chat = ({ navigation }) => {
 
   const flatListRef = useRef();
+  
 
   const scrollToBottom = () => {
-    if (flatListRef.current && flatListRef.current.scrollToEnd) {
+    if (flatListRef.current ) {
+      console.log("hi")
       flatListRef.current.scrollToEnd({ animated: true });
     }
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [chatData]);
-
-  useEffect(() => {
     setMessages([chatData]);
+    scrollToBottom();
   }, [chatData, text, image, video, docment]);
 
   const route = useRoute();
@@ -66,6 +65,12 @@ const Chat = ({ navigation }) => {
     openGalleryVideo();
   }
 
+  //auto scroll to bottom when focus creen
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      scrollToBottom();
+    });
+  }, [navigation]);
 
   const openGallery = async () => {
     try {
@@ -155,7 +160,7 @@ const Chat = ({ navigation }) => {
           receiverId: otherParticipantId,
         }
       }
-    };      
+    };
 
     axios.post('http://' + ip + ':3000/ws/send-message-to-user', config.body)
       .then((response) => {
@@ -181,11 +186,11 @@ const Chat = ({ navigation }) => {
     } else {
       imageMessage.push(result.assets[0].uri);
       setImageMessage([...imageMessage]);
-      
+
     }
   };
 
-  
+
 
   const handleSendImage = (uri) => {
     const config = {
@@ -207,36 +212,36 @@ const Chat = ({ navigation }) => {
           receiverId: otherParticipantId,
         }
       }
-      }
-      dispatch(addChatData(config.body.message));
-      axios.post('http://' + ip + ':3000/ws/send-message-to-user', config.body)
+    }
+    dispatch(addChatData(config.body.message));
+    axios.post('http://' + ip + ':3000/ws/send-message-to-user', config.body)
       .then((response) => {
-        
+
       })
       .catch((error) => {
         console.log(error);
       })
-    };
-    const uploadImage = (uri) => {
-      RNFetchBlob.fetch('POST', 'http://' + ip + ':3000/uploadImageMessage', {
-        'Content-Type': 'multipart/form-data',
-      }, [
-        { name: 'image', filename: 'image.jpg', type: 'image/jpeg', data: RNFetchBlob.wrap(uri) }
-        ,
-        {
-          name: 'idUser', data: user.idUser
-        }
-      ]).then((response) => {
-        //format response to json
-        response = JSON.parse(response.data);
-        console.log("succsss")
-        console.log(response.uri)
-        console.log("++++++++++++=")
-        handleSendImage(response.uri);
-      }).catch((error) => {
-        console.error(error);
-      });
-    };
+  };
+  const uploadImage = (uri) => {
+    RNFetchBlob.fetch('POST', 'http://' + ip + ':3000/uploadImageMessage', {
+      'Content-Type': 'multipart/form-data',
+    }, [
+      { name: 'image', filename: 'image.jpg', type: 'image/jpeg', data: RNFetchBlob.wrap(uri) }
+      ,
+      {
+        name: 'idUser', data: user.idUser
+      }
+    ]).then((response) => {
+      //format response to json
+      response = JSON.parse(response.data);
+      console.log("succsss")
+      console.log(response.uri)
+      console.log("++++++++++++=")
+      handleSendImage(response.uri);
+    }).catch((error) => {
+      console.error(error);
+    });
+  };
 
 
   useLayoutEffect(() => {
@@ -281,6 +286,7 @@ const Chat = ({ navigation }) => {
   //load lại màn hình khi có tin nhắn mới
   useEffect(() => {
     setMessages([chatData]);
+    scrollToBottom();
   }, [chatData, imageMessage]);
 
   const renderTyping = () => {
