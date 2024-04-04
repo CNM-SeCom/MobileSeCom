@@ -30,7 +30,7 @@ const navigation = useNavigation();
       {backgroundColor : colors.background},
       styles.container]}>
        <View style={styles.customHeader}>
-          <Image source={require('../assets/logoSec.png')} style={{width: 60, height: 30, marginLeft: 20}} />
+          <Image source={require('../assets/logoHead.png')} style={{width: 30, height: 40, marginLeft: 20}} />
           <View style={{
             flexDirection: 'row',
             width: 60,

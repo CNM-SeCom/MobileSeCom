@@ -3,7 +3,7 @@ var ListPost = [
         id: 1,
         title: 'Post 1',
         description: '3 phút trước',
-        image: require('../assets/LOL/cover/1.jpg'),
+        image: require('../assets/logo_SeCom.png'),
         content: 'Content 1',
         idUser: 1
     },
@@ -11,7 +11,7 @@ var ListPost = [
         id: 2,
         title: 'Post 2',
         description: '6 ngày trước',
-        image: require('../assets/LOL/cover/1.jpg'),
+        image: require('../assets/logo_SeCom.png'),
         content: 'Content 2',
         idUser: 1
     },
@@ -19,7 +19,7 @@ var ListPost = [
         id: 3,
         title: 'Post 3',
         description: '1 ngày trước',
-        image: require('../assets/LOL/cover/1.jpg'),
+        image: require('../assets/logo_SeCom.png'),
         content: 'Content 3\n\
         Content 3\n\
         Content 3\n\
@@ -33,7 +33,7 @@ var ListPost = [
         id: 4,
         title: 'Post 4',
         description: '6 ngày trước',
-        image: require('../assets/LOL/cover/1.jpg'),
+        image: require('../assets/logo_SeCom.png'),
         content: 'Content 4',
         idUser: 2
     },
@@ -41,7 +41,7 @@ var ListPost = [
         id: 5,
         title: 'Post 5',
         description: '2 phút trước',
-        image: require('../assets/LOL/cover/1.jpg'),
+        image: require('../assets/logo_SeCom.png'),
         content: 'Content 5',
         idUser: 1
     },
@@ -49,7 +49,7 @@ var ListPost = [
         id: 6,
         title: 'Post 6',
         description: '1 tuần trước',
-        image: require('../assets/LOL/cover/1.jpg'),
+        image: require('../assets/logo_SeCom.png'),
         content: 'Content 6',
         idUser: 2
     },
@@ -57,7 +57,7 @@ var ListPost = [
         id: 7,
         title: 'Post 7',
         description: '1 ngày trước',
-        image: require('../assets/LOL/cover/1.jpg'),
+        image: require('../assets/logo_SeCom.png'),
         content: 'Content 7',
         idUser: 1
     },

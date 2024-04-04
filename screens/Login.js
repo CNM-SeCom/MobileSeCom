@@ -203,7 +203,7 @@ const LoginScreen = () => {
             <Image style={styles.logoImg} source={require('../assets/logo_com.png')} />
           </Animated.View> */}
           <View style={{ alignSelf: "center" }}>
-            <Image style={{  width : 230, height : 300 }} source={require('../assets/logo_SeCom.png')} />
+            <Image style={{  width : 250, height : 300 }} source={require('../assets/logo_SeCom.png')} />
           </View>
           <View style={styles.inputWrapper}>
 

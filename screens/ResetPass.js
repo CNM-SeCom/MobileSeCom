@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   buttonResetPass: {
     width: '100%',
     height: 50,
-    backgroundColor: '#9CFF2E',
+    backgroundColor: '#4CB9E7',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,

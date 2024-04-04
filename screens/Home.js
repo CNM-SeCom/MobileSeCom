@@ -12,6 +12,9 @@ import { setChatData, addChatData } from '../redux/chatDataSlice'
 import { setMessages, addMessage } from '../redux/messageSlice'
 import { setUser } from '../redux/userSlice'
 import ip from '../data/ip'
+import Toast from 'react-native-toast-message';
+
+
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -69,9 +72,17 @@ const Home = ({ navigation }) => {
           });
       }
     };
+    const showToast = (name, text) => {
+      Toast.show({
+        type: 'info',
+        text1: name,
+        text2: text
+      });
+    }
     
 
   return (
+
     <View style={[
       {backgroundColor : colors.background},
       styles.container]}>
@@ -112,7 +123,8 @@ const Home = ({ navigation }) => {
           //ảnh sẽ gắn mặc định
           data.user.avatar = require('../assets/logo1.png');
           const add = dispatch(addChatData(data));
-
+          console.log(data)
+          showToast(data.user.name, data.text);
           
 
           if (add) {
@@ -129,6 +141,7 @@ const Home = ({ navigation }) => {
       
       </View>
       </View>
+    
       </View>
   )
 }

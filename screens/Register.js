@@ -1,61 +1,74 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Image , TouchableOpacity, Text} from 'react-native'
+import { View, StyleSheet, Image , TouchableOpacity, Text, Dimensions} from 'react-native'
 import { Input, Button } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
 import { TextInput } from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import ip from '../data/ip';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Modal, Portal, PaperProvider } from 'react-native-paper';
+
+
+
+const { width, height } = Dimensions.get('window');
 
 const Register = () => {
+    const navigation = useNavigation();
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()-+])[A-Za-z\d!@#$%^&*()-+]{8,}$/;
-    const navigate = useNavigation();
-    const [phone, setPhone] = useState('');
-    const [password, setPassword] = useState('');
-    const [name, setName] = useState('');
+    const [phone, setPhone] = useState('0399889698');
+    const [password, setPassword] = useState('aaaaaaaaA1@');
+    const [mail, setMail] = useState('truongbinhtriet110202@gmail.com');
+    const [dob , setDob] = useState(new Date());
+    const [name, setName] = useState('Triet');
     const [avatar, setAvatar] = useState('https://res.cloudinary.com/dkwb3ddwa/image/upload/v1710070408/avataDefaultSeCom/amafsgal21le2xhy4jgy.jpg' );
-    const [confirmPassword, setConfirmPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('aaaaaaaaA1@');
     const [gender, setGender] = useState(0);
     const [active, setActive] = useState(true);
     const [isShowPassword, setIsShowPassword] = useState(false);
+    const [validDate, setValidDate] = useState(false);
 
+    const [date, setDate] = useState(new Date());
+    const [showDatePicker, setShowDatePicker] = useState(false);
+  
+    const onChange = (event, selectedDate) => {
+        const currentDate = selectedDate || date;
+        const sixYearsAgo = new Date();
+        sixYearsAgo.setFullYear(sixYearsAgo.getFullYear() - 6); // Ngày 6 năm trước
+        // Nếu ngày chọn rỗng hoặc nhỏ hơn ngày hiện tại và lớn hơn ngày 6 năm trước, thì cho phép cập nhật ngày
+        if (currentDate < new Date() && currentDate < sixYearsAgo) {
+            setDate(currentDate);
+            setDob(currentDate);
+            setValidDate(true);
+        } else {
+            alert('Ngày sinh không hợp lệ. Vui lòng chọn một ngày trong quá khứ và phải lớn hơn 6 tuổi.');
+        }
+        setShowDatePicker(false);
+    };
+    
 
     handleShowPassword = () => {
         setIsShowPassword(!isShowPassword);
       };
 
 
-    const register = () => {
-        console.log('Phone: ', phone);
-        console.log('Password: ', password);
-        console.log('Confirm Password: ', confirmPassword);
-        if (phone === '' || password === '' || confirmPassword === '') {
-            alert('Please fill all the fields');
-        } 
-        else if (passwordRegex.test(password) === false) {
-            alert('Password should contain at least one uppercase letter, one lowercase letter, one number and one special character');
+    const navigateGetOTP = () => {
+        if (phone.length < 10) {
+            alert('Số điện thoại không hợp lệ');
         }
-        else if (phone.length < 10) {
-            alert('Phone Number should be of 10 digits');
+        else if(!passwordRegex.test(password)) {
+            alert('Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt');
         }
-        else if (password !== confirmPassword) {
-            alert('Password and Confirm Password should be same');
-        }else{
-            const data = {
-                phone: phone,
-                pass: password,
-                gender: gender,
-                name: name,
-            }
-            console.log(data);
-            axios.post('http://'+ip+':3000/create', data)
-            .then((response) => {
-                alert('Account Created Successfully');
-                navigate.navigate('Login');
-            })
-            .catch((error) => {
-                console.log('Error: ', error.response.data.message);
-                alert(error.response.data.message);})
+        else if(mail === '') {
+            alert('Email không được để trống');
+        }
+        else if(password !== confirmPassword) {
+            alert('Mật khẩu không khớp');
+        }
+        else{
+            navigation.navigate('ConfirmOTP', { email: mail, type: 'register',phone: phone, password: password, name: name,
+            gender : gender, dob: dob.toDateString()
+        });
         }
     }
 
@@ -71,7 +84,7 @@ const Register = () => {
     return (
         <View style={styles.container}>
             <View style={styles.logoContainer}>
-                <Image style={styles.backgroundImage} source={require('../assets/logo_seccom.png')} />
+                <Image style={styles.backgroundImage} source={require('../assets/logo_SeCom.png')} />
             </View>
             <View style={styles.wrapper}>
                 <Text
@@ -81,15 +94,50 @@ const Register = () => {
                 </Text>
                 <TextInput
                  mode="outlined"
-                 label="Số điện thoại"
+                 label="Email"
                  style={styles.input}
-                onChangeText={(text) => setPhone(text)}
+                 onChangeText={(text) => setMail(text)}
+                value={mail}
                 />
+                <View 
+                    style={styles.wrapperPhoneDate}
+                >
+                <TextInput
+                    mode="outlined"
+                    label="Số điện thoại"
+                    style={styles.inputPhone}
+                    onChangeText={(text) => setPhone(text)}
+                    value={phone}
+                />
+                <TouchableOpacity
+                    style={styles.pickerDate}
+                    onPress={() => setShowDatePicker(true)}
+                >
+                    <Text>
+                        {
+                            validDate === true ?
+                            date.toDateString()
+                            :
+                            'Chọn ngày sinh'
+                        }
+                    </Text>
+                </TouchableOpacity>
+
+                    {showDatePicker && (
+                        <DateTimePicker
+                        value={date}
+                        mode="date"
+                        display="spinner"
+                        onChange={onChange}
+                        />
+                    )}
+                </View>
                 <TextInput
                  mode="outlined"
                  label="Tên người dùng"
                  style={styles.input}
                  onChangeText={(text) => setName(text)}
+                 value={name}
                 />
                 <View>
                 <TextInput
@@ -98,11 +146,12 @@ const Register = () => {
                     style={styles.input}
                     secureTextEntry={!isShowPassword}
                     onChangeText={(text) => setPassword(text)}
+                    value={password}
                 />
                 <TouchableOpacity style={{
                         position : 'absolute',
                         right : 10,
-                        top : 30,
+                        top : 20,
                         backgroundColor : 'white',
                         }}
                         onPress={handleShowPassword}
@@ -117,11 +166,12 @@ const Register = () => {
                     style={styles.input}
                     secureTextEntry={!isShowPassword}
                     onChangeText={(text) => setConfirmPassword(text)}
+                    value={confirmPassword}
                 />
                 <TouchableOpacity style={{
                         position : 'absolute',
                         right : 10,
-                        top : 30,
+                        top : 20,
                         }}
                         onPress={handleShowPassword}
                         >
@@ -136,7 +186,7 @@ const Register = () => {
                             setGender(0);
                             setActive(false);
                           }}
-                          style={[styles.buttonGender, styles.leftButton,{backgroundColor : 'green'}]}>
+                          style={[styles.buttonGender, styles.leftButton,{backgroundColor : '#3559E0'}]}>
                             <Text style={styles.textOnActive}>Nam</Text>
                           </TouchableOpacity>
                           :
@@ -170,7 +220,7 @@ const Register = () => {
                                 setGender(1);
                                 setActive(true);
                             }}
-                            style={[styles.buttonGender, styles.rightButton,{backgroundColor : 'green'}]}>
+                            style={[styles.buttonGender, styles.rightButton,{backgroundColor : '#E26EE5'}]}>
                                 <Text style={styles.textOnActive}>Nữ</Text>
                             </TouchableOpacity>
                             :
@@ -186,7 +236,7 @@ const Register = () => {
                 </View>
                 </View>
                 <TouchableOpacity 
-                onPress={() =>{register()}}
+                onPress={() =>{navigateGetOTP()}}
                 style={styles.button}>
                     <Text style={styles.titleButton}>
                         Đăng ký
@@ -195,40 +245,38 @@ const Register = () => {
                 <TouchableOpacity 
                 onPress={
                     () => {
-                        navigate.navigate('Login');
+                        navigation.navigate('Login');
                     }
                 }
-                style={styles.button}>
-                    <Text style={styles.titleButton}>
-                        Đăng Nhập
+                >
+                    <Text style={styles.titleButtonLogin}>
+                        Bạn đã có tài khoản? Đăng nhập
                     </Text>
                 </TouchableOpacity>
-
         </View>
     )
 }
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        width: '100%',
+        height: height,
         alignItems: 'center',
-        padding: 10,
-        justifyContent: 'center',
-        backgroundColor:"#3c5a9a"
+        justifyContent: 'flex-start',
+        backgroundColor:"#C3F8FF",
     },
     button: {
         width: '90%',
         marginTop: 20,
-        backgroundColor: 'white',
+        backgroundColor: '#4CB9E7',
         padding: 10,
         borderRadius: 20
     },
     logoContainer: {
         alignItems: 'center',
-        marginBottom: 30,
     },
     input: {
         width: '98%',
-        marginTop: 10,
+        marginTop: 0,
         alignSelf: 'center'
     },
     wrapper : {
@@ -236,13 +284,13 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         padding: 10,
         paddingBottom: 20,
-        borderRadius : 20
+        borderRadius : 20,
     },
     title :{
         fontSize: 30,
         fontWeight: 'bold',
         alignSelf: 'center',  
-        color: 'white'      
+        color: 'black'      
     },
     titleButton :{
         fontSize: 20,
@@ -292,6 +340,40 @@ const styles = StyleSheet.create({
         color: 'black',
         fontWeight: 'bold'
       },
+      backgroundImage :{
+        width: 200,
+        height: 200,
+      },
+        titleButtonLogin :{
+            fontSize: 15,
+            fontWeight: 'bold',
+            alignSelf: 'center', 
+            color: 'black',
+            marginTop: 10
+        },
+        inputPhone :{
+            width: '50%',
+            alignSelf: 'center'
+        },
+        pickerDate :{
+            width: '40%',
+            height: 45,
+            alignSelf: 'center',
+            marginTop: 5,
+            backgroundColor: 'white',
+            borderRadius: 5,
+            borderWidth: 1,
+            justifyContent: 'center',
+            alignItems: 'center'
+        },
+        wrapperPhoneDate :{
+            width: '98%',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            // backgroundColor: 'pink',
+            alignSelf: 'center',
+            alignItems: 'center',
+        }
 });
 
 export default Register;

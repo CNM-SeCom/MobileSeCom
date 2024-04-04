@@ -1,8 +1,8 @@
 import React, { useCallback, useState, useLayoutEffect, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, PermissionsAndroid, Image, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, PermissionsAndroid, Image, Animated, ActivityIndicator, ScrollView } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { Avatar } from 'react-native-elements';
-import { faPhone, faCamera, faInfo, faCircleInfo, faArrowLeft, faPaperclip, faMicrophone, faVideo } from '@fortawesome/free-solid-svg-icons';
+import { faPhone, faCamera, faInfo, faCircleInfo, faArrowLeft, faPaperclip, faMicrophone, faVideo, faXmark } from '@fortawesome/free-solid-svg-icons';
 import ChatDataHash from '../data/dataChat';
 import { IconButton } from 'react-native-paper';
 import { Icon } from 'react-native-elements'
@@ -18,6 +18,9 @@ import { FlatList, TextInput } from 'react-native-gesture-handler';
 import Video from 'react-native-video'
 import ip from '../data/ip'
 import RNFetchBlob from 'rn-fetch-blob';
+import { Provider, Portal, Modal, Button } from 'react-native-paper';
+import ImageViewer from 'react-native-image-zoom-viewer';
+
 const ITEM_HEIGHT = 50;
 
 
@@ -26,11 +29,39 @@ const { width, height } = Dimensions.get('screen');
 const Chat = ({ navigation }) => {
 
   const flatListRef = useRef();
-  
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
+  const [videoUri, setVideoUri] = useState('');
+  const [showImage, setShowImage] = useState(false);
+  const [imageUri, setImageUri] = useState('');
+  const [loadVideo, setLoadVideo] = useState(true);
+
+  const images = [{
+    url: imageUri,
+  }]
+  const handleShowImage = (image) => {
+    setShowImage(true);
+    setImageUri(image);
+  }
+
+
+  const handleShowVideo = (video) => {
+    setLoadVideo(true);
+    setShowVideo(true);
+    setVideoUri(video);
+
+  }
+
+  const handleLongPress = () => {
+    // Hiển thị menu lựa chọn
+    setMenuVisible(true);
+    // Hoặc bạn có thể sử dụng Alert để hiển thị các lựa chọn
+
+  };
+
 
   const scrollToBottom = () => {
-    if (flatListRef.current ) {
-      console.log("hi")
+    if (flatListRef.current) {
       flatListRef.current.scrollToEnd({ animated: true });
     }
   };
@@ -120,19 +151,36 @@ const Chat = ({ navigation }) => {
   renderMessage = (item) => {
     if (item.type === 'text') {
       return (
-        <Text style={styles.text}>{item.text}</Text>
+        <TouchableOpacity
+          onLongPress={handleLongPress}
+        >
+          <Text style={styles.text}>{item.text}</Text>
+        </TouchableOpacity>
       );
     } else if (item.type === 'image') {
       return (
-        <Image source={{ uri: item.image }} style={{ width: 200, height: 200, borderRadius: 10 }} />
+        <TouchableOpacity
+          onLongPress={handleLongPress}
+          onPress={() => { handleShowImage(item.image) }}
+        >
+          <Image source={{ uri: item.image }} style={{ width: 200, height: 200, borderRadius: 10 }} />
+        </TouchableOpacity>
       );
     } else if (item.type === 'video') {
+
       return (
-        <Video
-          source={{ uri: item.text }}
-          style={{ width: 200, height: 200 }}
+        <TouchableOpacity
+          onLongPress={handleLongPress}
+          onPress={() => handleShowVideo(item.video)}
+        >
+          <Text style={{ color: 'green', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.user.name} đã gửi 1 video, bấm để xem</Text>
+          {/* <Video
+          source={{ uri: item.video }}
+          style={{ width: 300, height: 170 }}
+          resizeMode="cover"
           controls={true}
-        />
+        /> */}
+        </TouchableOpacity>
       );
     } else {
       // Return null or handle other cases
@@ -234,9 +282,6 @@ const Chat = ({ navigation }) => {
     ]).then((response) => {
       //format response to json
       response = JSON.parse(response.data);
-      console.log("succsss")
-      console.log(response.uri)
-      console.log("++++++++++++=")
       handleSendImage(response.uri);
     }).catch((error) => {
       console.error(error);
@@ -368,53 +413,113 @@ const Chat = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        style={{ width: '100%' }}
-        data={chatData}
-        ref={flatListRef}
-        onContentSizeChange={() => scrollToBottom()}
-        onLayout={() => scrollToBottom()}
-        renderItem={({ item }) => (
+    <Provider>
+      <View style={styles.container}>
+        <FlatList
+          style={{ width: '100%' }}
+          data={chatData}
+          ref={flatListRef}
+          keyExtractor={(item, index) => index.toString()}
+          onContentSizeChange={() => scrollToBottom()}
+          onLayout={() => scrollToBottom()}
+          renderItem={({ item }) => (
 
-          //nếu id người gửi khác với id nguôi dùng thì hiển thị tin nhắn bên trái
-          item.user.idUser !== user.idUser ? (
-            <View style={[{ justifyContent: 'flex-start' }, styles.bubble]}>
-              <Avatar rounded source={require('../assets/logo2.png')} />
-              {/* <Avatar rounded source={{uri : item.user.avatar}} /> */}
-              <View style={styles.bubbleLeft}>
-                {
-                  renderMessage(item)
-                }
+            //nếu id người gửi khác với id nguôi dùng thì hiển thị tin nhắn bên trái
+            item.user.idUser !== user.idUser ? (
+              <View style={[{ justifyContent: 'flex-start' }, styles.bubble]}>
+                <Avatar rounded source={require('../assets/logo2.png')} />
+                {/* <Avatar rounded source={{uri : item.user.avatar}} /> */}
+                <View style={styles.bubbleLeft}>
+                  {
+                    renderMessage(item)
+                  }
+                </View>
               </View>
-            </View>
-          ) : (
-            <View style={[{ justifyContent: 'flex-end' }, styles.bubble]}>
-              <View style={styles.bubbleRight}>
-                {
-                  renderMessage(item)
-                }
-              </View>
-              <Avatar rounded source={require('../assets/logo2.png')} />
+            ) : (
+              <View style={[{ justifyContent: 'flex-end' }, styles.bubble]}>
+                <View style={styles.bubbleRight}>
+                  {
+                    renderMessage(item)
+                  }
+                </View>
+                <Avatar rounded source={require('../assets/logo2.png')} />
 
-              {/* <Avatar rounded source={{ uri: user.avatar }} /> */}
-            </View>
-          )
-        )}
-        keyExtractor={(item) => item._id}
-      />
-      <Animated.View style={styles.sendBar}>
-        {
-          imageMessage.length > 0 ? (
-            renderMedia()
-          )
-            : (
-              renderTyping()
+                {/* <Avatar rounded source={{ uri: user.avatar }} /> */}
+              </View>
             )
-        }
-      </Animated.View>
+          )}
 
-    </View>
+        />
+        <Animated.View style={styles.sendBar}>
+          {
+            imageMessage.length > 0 ? (
+              renderMedia()
+            )
+              : (
+                renderTyping()
+              )
+          }
+        </Animated.View>
+
+        <Portal>
+          <Modal style={{ justifyContent: 'center', alignItems: 'center' }} visible={menuVisible} onDismiss={() => setMenuVisible(false)}>
+            <View style={{ height: 170, width: 300, backgroundColor: 'white', borderRadius: 10 }}>
+              <View style={{ justifyContent: 'center', alignItems: 'center', width: "100%", backgroundColor: "cyan", borderRadius: 10 }}>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', margin: 10, color: 'black' }}>Tin nhắn</Text>
+              </View>
+              <View>
+                <TouchableOpacity style={styles.buttonMessageOption}>
+                  <Text style={styles.messageOption}>Xoá tin nhắn</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.buttonMessageOption}>
+                  <Text style={styles.messageOption}>Thu hồi tin nhắn</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.buttonMessageOption}>
+                  <Text style={styles.messageOption}>Chuyển tiếp tin nhắn</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+          <Modal visible={showVideo} onDismiss={() => setShowVideo(false)}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#0000ff" animating={loadVideo}/>
+              </View>
+              <Video
+                source={{ uri: videoUri }}
+                style={{ width: "100%", height: 300 }}
+                resizeMode="contain"
+                controls={true}
+                onLoad={() => setLoadVideo(false)}
+              />
+            </View>
+          </Modal>
+          <Modal visible={showImage} onDismiss={() => setShowImage(false)}>
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+              <TouchableOpacity
+                 style={{
+                  position: 'absolute',
+                  top: 10,
+                  right: 10,
+                  zIndex: 1, // Đảm bảo nút hiển thị trên phần còn lại của modal
+                }}
+                onPress={() => setShowImage(false)}
+              >
+                <FontAwesomeIcon 
+                  
+                  icon={faXmark} size={30} color='red' onPress={() => setShowImage(false)} />
+              </TouchableOpacity>
+              <Image
+                source={{ uri: imageUri }}
+                style={{ width: '100%', height: '100%', resizeMode: 'center' }}
+              /> 
+           
+            </View>
+          </Modal>
+
+        </Portal>
+      </View>
+    </Provider>
   );
 }
 
@@ -466,7 +571,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   bubbleLeft: {
-    backgroundColor: 'gray',
+    backgroundColor: 'skyblue',
     borderRadius: 10,
     marginLeft: 10,
   },
@@ -530,5 +635,15 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  messageOption: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    margin: 10,
+    color: 'red'
+  },
+  buttonMessageOption: {
+    borderBottomWidth: 1,
+    borderBottomColor: 'black'
   }
 });

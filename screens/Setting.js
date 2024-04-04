@@ -110,7 +110,7 @@ const Setting = () => {
      <List.Section 
      title="Setting">
       <List.Accordion
-        title="Color Theme"
+        title="Chủ đề"
         expanded={expanded}
         onPress={handlePress}
         titleStyle={[
@@ -124,7 +124,7 @@ const Setting = () => {
           <FontAwesomeIcon icon={faPalette} size={25} color={colors.text} />
         )} />}
       >
-        <List.Item title="Light mode" 
+        <List.Item title="Sáng" 
           right={() => (
             <Switch
               value={isLightMode}
@@ -135,7 +135,7 @@ const Setting = () => {
             styles.titleOption,
             { color: colors.text },
           ]}        />
-        <List.Item title="Dark mode" 
+        <List.Item title="Tối" 
           right={() => (
             <Switch
               value={isDarkMode}
@@ -146,6 +146,34 @@ const Setting = () => {
             styles.titleOption,
             { color: colors.text },
           ]}        />
+      </List.Accordion>
+      <List.Accordion
+        titleStyle={[
+          styles.title,{
+          color: colors.text,
+        }]}
+        style={{
+          backgroundColor: colors.background,
+        }}
+        title="Mật khẩu"
+        left={props => <List.Icon {...props} icon={() => (
+          <FontAwesomeIcon icon={faPalette} size={25} color={colors.text} />
+        )} />}
+      >
+       <TouchableOpacity>
+       <List.Item title="Đổi mật khẩu"
+          titleStyle={[
+            styles.titleOption,
+            { color: colors.text },
+          ]}
+        />
+       </TouchableOpacity>
+        <List.Item title="Quên mật khẩu"
+          titleStyle={[
+            styles.titleOption,
+            { color: colors.text },
+          ]}
+        />
       </List.Accordion>
     </List.Section>
     <TouchableOpacity 

@@ -12,17 +12,99 @@ import { Modal, Portal, PaperProvider } from 'react-native-paper';
 
 const ForgotPass = () => {
   const navigation = useNavigation();
+
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [showOTPInput, setShowOTPInput] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [showCountdown, setShowCountdown] = useState(false);
+  const [resend, setResend] = useState(false);
   const route = useRoute().params;  
+
+  console.log('route', route);
+
   const [type , setType] = useState(route.type);
   const [otp, setOtp] = useState('');
   const [showModal, setShowModal] = useState(false);
-  
 
+  const [countdown, setCountdown] = useState();
+
+  //countdown 1:30s
+  const countDownOTP = () => {
+    setTimeout(() => {
+      if (countdown > 0) {
+        setCountdown(countdown - 1);
+      }
+      if (countdown === 0) {
+        setShowCountdown(false);
+        setResend(true);
+      }
+    }, 1000);
+  }
+
+  useEffect(() => {
+    if (showCountdown) {
+      countDownOTP();
+      
+    }
+  }, [showCountdown, countdown])
+
+  const renderCountdown = (boolean) => {
+    if (boolean) {
+      return (
+        <Text style={{fontSize: 17, color: 'red', textAlign: 'center'}}>Mã OTP sẽ hết hạn sau {countdown} giây</Text>
+      )
+    }
+    else if (resend) {
+      return (
+        <TouchableOpacity style={{fontSize: 17, color: 'red', textAlign: 'center'}} onPress={() => {
+          setShowCountdown(true);
+          setResend(false);
+        }}>
+          <Text style={{fontSize: 17, color: 'white', textAlign: 'center'}}>Gửi lại mã OTP</Text>
+        </TouchableOpacity>
+      )
+    }
+  }
+  const register = () => {
+
+    const phone = route.phone;
+    const password = route.password;
+    const name = route.name;
+    const email = route.email;
+    const dob = route.dob;
+    const gender = route.gender
+    
+
+
+    console.log('Phone: ', phone);
+    console.log('Password: ', password);
  
+    if (phone.length < 10) {
+        alert('Số điện thoại không hợp lệ');
+    }
+    else if(email === '') {
+        alert('Email không được để trống');
+    }
+    else{
+        const data = {
+            phone: phone,
+            pass: password,
+            gender: gender,
+            name: name,
+            email: email,
+            dob: dob,
+        }
+        console.log(data);
+        axios.post('http://'+ip+':3000/create', data)
+        .then((response) => {
+            alert('Account Created Successfully');
+        })
+        .catch((error) => {
+            console.log('Error: ', error);
+            alert(error);})
+    }
+}
 
   useEffect(() => {
     if(route.email){
@@ -40,6 +122,8 @@ const ForgotPass = () => {
       .then(res => {
         if (res.data.success === true) {
           // setIsCorrect(true);
+          setCountdown(5);
+          setShowCountdown(true);
           console.log('sendOTP', res.data);
         }
       })
@@ -60,16 +144,62 @@ const showModalNotify = (value) => {
     await axios.post('http://' + ip + ':3000/verifyOTP', data)
       .then(res => {
         if (res.data.success === true) {
-          // setIsCorrect(true);
+          setIsCorrect(true);
           console.log('checkOTP', res.data);
-          navigation.navigate('ResetPass',{type:type})
+          if(route.type == 'register'){
+            register()
+            navigation.navigate('Login');
+           
+          }
+          else {
+            navigation.navigate('ResetPass',{email: email, type: type});
+            
+          }
         }
       })
       .catch(err => {
         console.log('checkOTP', err);
         showModalNotify(true);
+       
       })
   }
+
+  const renderContinueButton = () => {
+    if(route.type == 'register'){
+      return (
+    <TouchableOpacity
+        onPress={()=>{
+          checkOTP();
+          
+        }}
+        style={[{backgroundColor : '#3c3c3c'},styles.buttonResetPass]}
+      >
+        <Text
+          style={styles.titleButtonSendCode}
+        >
+          Đăng ký
+        </Text>
+      </TouchableOpacity>
+      )
+  }
+  else  {
+    return (
+     <TouchableOpacity
+          onPress={()=>{
+            // navigation.navigate('ResetPass',{type:type})}}
+            checkOTP()}}
+          style={[{backgroundColor : '#3c3c3c'},styles.buttonResetPass]}
+        >
+          <Text
+            style={styles.titleButtonSendCode}
+          >
+            Tiếp tục
+          </Text>
+        </TouchableOpacity>
+    )
+  }
+  }
+
 
   useEffect(() => {
     navigation.setOptions({
@@ -105,6 +235,7 @@ const showModalNotify = (value) => {
   return (
     <PaperProvider>
       <View style={styles.constainer}>
+       {renderCountdown(showCountdown)}
       <View style={styles.titleWrapper}>
         <Text
           style={styles.title}
@@ -123,7 +254,9 @@ const showModalNotify = (value) => {
       {
         email ? (
           <TouchableOpacity
-        onPress={()=>{sendOTP(email); setShowOTPInput(true)}}
+        onPress={()=>{
+          sendOTP(email); 
+          setShowOTPInput(true)}}
         style={styles.sendCodeButton}
       >
         <Text
@@ -169,32 +302,8 @@ const showModalNotify = (value) => {
           </View>
         ) : null
      }
-      {
-        isCorrect ? (
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('ResetPass',{type:type})}}
-              style={[{backgroundColor : 'green'},styles.buttonResetPass]}
-          >
-            <Text
-              style={styles.titleButtonSendCode}
-            >
-              Tiếp tục
-            </Text>
-          </TouchableOpacity>
-        ) : <TouchableOpacity
-        onPress={()=>{
-          // navigation.navigate('ResetPass',{type:type})}}
-          checkOTP()}}
-        style={[{backgroundColor : '#3c3c3c'},styles.buttonResetPass]}
-      >
-        <Text
-          style={styles.titleButtonSendCode}
-        >
-          Tiếp tục
-        </Text>
-      </TouchableOpacity>
-      }
+      
+      {renderContinueButton()}
     </View>
 
       <Portal>

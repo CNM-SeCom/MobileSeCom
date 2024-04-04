@@ -16,7 +16,6 @@ export default function Intro() {
   const navigation = useNavigation();
 
   const handlePress = () => {
-
     {
       // navigation.navigate('Login');
       checkLoginState();

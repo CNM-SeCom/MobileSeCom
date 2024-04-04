@@ -132,6 +132,7 @@ const styles = StyleSheet.create({
     width : '95%',
     height : 200,
     alignSelf : 'center',
+    resizeMode : 'center',
   },
   linearGradient: {
     flex: 1,
