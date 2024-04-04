@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Dimensions } from 'react-native'
 import React from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faArrowAltCircleLeft } from '@fortawesome/free-solid-svg-icons'
@@ -9,17 +9,20 @@ import axios from 'axios'
 import  ip  from '../data/ip'
 import { Modal, Portal, PaperProvider } from 'react-native-paper';
 
+const {width, height} = Dimensions.get('window');
 
+//truongbinhtriet110202@gmail.com
 const ForgotPass = () => {
   const navigation = useNavigation();
 
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState('truongbinhtriet110202@gmail.com');
   const [phone, setPhone] = useState('');
   const [showOTPInput, setShowOTPInput] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [showCountdown, setShowCountdown] = useState(false);
   const [resend, setResend] = useState(false);
   const route = useRoute().params;  
+
 
   console.log('route', route);
 
@@ -42,27 +45,43 @@ const ForgotPass = () => {
     }, 1000);
   }
 
+
+
   useEffect(() => {
     if (showCountdown) {
       countDownOTP();
       
     }
-  }, [showCountdown, countdown])
+  }, [showCountdown, countdown,resend])
 
   const renderCountdown = (boolean) => {
     if (boolean) {
       return (
-        <Text style={{fontSize: 17, color: 'red', textAlign: 'center'}}>Mã OTP sẽ hết hạn sau {countdown} giây</Text>
-      )
+        <View
+        style={{
+          width : '100%',
+          alignItems: 'center',
+      }}
+        >
+           <Text style={{fontSize: 17, color: 'red', textAlign: 'center', marginTop : 20}}>Mã OTP sẽ hết hạn sau {countdown} giây</Text>
+          {renderContinueButton()}
+        </View>
+        )
     }
     else if (resend) {
       return (
-        <TouchableOpacity style={{fontSize: 17, color: 'red', textAlign: 'center'}} onPress={() => {
-          setShowCountdown(true);
-          setResend(false);
-        }}>
-          <Text style={{fontSize: 17, color: 'white', textAlign: 'center'}}>Gửi lại mã OTP</Text>
-        </TouchableOpacity>
+        <View
+          style={{
+            width : '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop : 20,
+
+        }}
+        >
+          <Text style={{fontSize: 17, color: 'red', textAlign: 'center',margin : 10}}>Gửi lại mã OTP</Text>
+          {renderContinueButton()}
+        </View>
       )
     }
   }
@@ -115,6 +134,10 @@ const ForgotPass = () => {
 
   const sendOTP = async(email) => {
     console.log('sendOTP', email);
+    if (email === '') {
+      alert('Email không được để trống');
+      return;
+    }
     const data = {
       email: email,
     }
@@ -122,7 +145,7 @@ const ForgotPass = () => {
       .then(res => {
         if (res.data.success === true) {
           // setIsCorrect(true);
-          setCountdown(5);
+          setCountdown(90);
           setShowCountdown(true);
           console.log('sendOTP', res.data);
         }
@@ -136,10 +159,17 @@ const showModalNotify = (value) => {
   setShowModal(value);
 }
 
+// const renderInputOTP = () => {
+//   showOTPInput ? (
+    
+//   ) : null
+// }
+
   const checkOTP = async() => {
     const data = {
       email : email,
       otp: otp,
+
     }
     await axios.post('http://' + ip + ':3000/verifyOTP', data)
       .then(res => {
@@ -152,7 +182,7 @@ const showModalNotify = (value) => {
            
           }
           else {
-            navigation.navigate('ResetPass',{email: email, type: type});
+            navigation.navigate('ResetPass',{email: email, type: type, phone : route.phone});
             
           }
         }
@@ -167,35 +197,102 @@ const showModalNotify = (value) => {
   const renderContinueButton = () => {
     if(route.type == 'register'){
       return (
-    <TouchableOpacity
-        onPress={()=>{
-          checkOTP();
-          
-        }}
-        style={[{backgroundColor : '#3c3c3c'},styles.buttonResetPass]}
-      >
-        <Text
-          style={styles.titleButtonSendCode}
+        <View
+          style={[{width : '100%',alignItems : 'center'}]}
         >
-          Đăng ký
-        </Text>
-      </TouchableOpacity>
+          <View style={{
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '90%',
+
+    }}>
+    <View
+      //truongbinhtriet110202@gmail.com
+    >
+      <View style={styles.showOTPWrapper}>
+      <View style={{width : '100%'}}>
+        <TextInput 
+        onChangeText={(text) => setOtp(text)}
+        placeholder="Nhập mã OTP"
+        style={[styles.textInput, {textAlign:"center"}]}>
+        </TextInput>
+      </View>
+      </View>
+    </View>
+    </View>
+          <TouchableOpacity
+              onPress={()=>{
+                checkOTP();
+                
+              }}
+              style={[{backgroundColor : '#3c3c3c', height : 50,
+              // backgroundColor : '#3c3c3c',
+              borderRadius : 10,
+              width : '90%',
+              justifyContent : 'center',
+              alignItems : 'center',
+              marginTop : 20,}]}
+            >
+              <Text
+                style={styles.titleButtonSendCode}
+              >
+                Đăng ký
+              </Text>
+            </TouchableOpacity>
+        </View>
       )
   }
   else  {
     return (
-     <TouchableOpacity
-          onPress={()=>{
-            // navigation.navigate('ResetPass',{type:type})}}
-            checkOTP()}}
-          style={[{backgroundColor : '#3c3c3c'},styles.buttonResetPass]}
-        >
-          <Text
-            style={styles.titleButtonSendCode}
-          >
-            Tiếp tục
-          </Text>
-        </TouchableOpacity>
+    <View
+    style={[{width : '100%', alignItems : 'center', backgroundColor:'pink', flex:1, justifyContent:"flex-start"}]}
+    >
+       <View style={{
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '90%',
+
+    }}>
+    <View
+      //truongbinhtriet110202@gmail.com
+    >
+      <View style={styles.showOTPWrapper}>
+      <View style={{width : '100%'}}>
+        <TextInput 
+        onChangeText={(text) => setOtp(text)}
+        placeholder="Nhập mã OTP"
+        style={[styles.textInput, {textAlign:"center", marginTop : 100}]}>
+        </TextInput>
+      </View>
+      </View>
+    </View>
+    </View>
+        <View style={{width:"100%", alignItems:'center', marginTop : 70,}}>
+        <TouchableOpacity
+              onPress={()=>{
+                checkOTP()}}
+              style={[{backgroundColor : '#3c3c3c',
+              width : '90%',
+              
+              height : 50,
+              // backgroundColor : '#3c3c3c',
+              borderRadius : 10,
+              justifyContent : 'center',
+              alignItems : 'center',
+              marginTop : 20,
+            }]}
+            >
+              <Text
+                style={styles.titleButtonSendCode}
+              >
+                Tiếp tục
+              </Text>
+            </TouchableOpacity>
+        </View>
+            
+    </View>
     )
   }
   }
@@ -235,17 +332,17 @@ const showModalNotify = (value) => {
   return (
     <PaperProvider>
       <View style={styles.constainer}>
-       {renderCountdown(showCountdown)}
+       
       <View style={styles.titleWrapper}>
         <Text
           style={styles.title}
         >
-          Nhập email của bạn để lấy lại mật khẩu
+          Nhập email của bạn để lấy OTP
         </Text>
       </View>
-    <View style={{width : '90%', marginTop : 20}}>
+    <View style={{width : '90%', marginVertical : 20}}>
     <TextInput
-        style={styles.textInput}
+        style={[{},styles.textInput]}
         placeholder="Nhập email"
         value={email}
         onChangeText={(text) => setEmail(text)}
@@ -253,57 +350,34 @@ const showModalNotify = (value) => {
     </View>
       {
         email ? (
-          <TouchableOpacity
+        <View
+         style={[{
+          width : '100%',
+          alignItems : 'center',
+        }]}
+        >
+        <TouchableOpacity
         onPress={()=>{
           sendOTP(email); 
-          setShowOTPInput(true)}}
+          setShowOTPInput(true)
+        }}
         style={styles.sendCodeButton}
-      >
+        >
         <Text
           style={styles.titleButtonSendCode}
         >
           Gửi mã xác nhận
         </Text>
       </TouchableOpacity>
+      {renderCountdown(showCountdown)}
+        </View>
         ):(
-          <View
-          
-        onPress={()=>{sendOTP(email); setShowOTPInput(true)}}
-        style={styles.sendCodeButton}
-      >
-        <Text
-          style={styles.titleButtonSendCode}
-        >
-          Gửi mã xác nhận
-        </Text>
-      </View>
+        null
         )
       }
-     {
-        showOTPInput ? (
-          <View style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: '90%',
-          }}>
-          <View
-            //truongbinhtriet110202@gmail.com
-          >
-            <View style={styles.showOTPWrapper}>
-            <View style={{width : '100%'}}>
-              <TextInput 
-              onChangeText={(text) => setOtp(text)}
-              style={[styles.textInput, {textAlign:"center"}]}>
-              </TextInput>
-            </View>
-            </View>
-          </View>
-          </View>
-        ) : null
-     }
+  
       
-      {renderContinueButton()}
+      
     </View>
 
       <Portal>
@@ -326,8 +400,8 @@ export default ForgotPass
 
 const styles = StyleSheet.create({
   constainer: {
+    backgroundColor: 'white',
     flex: 1,
-    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -343,6 +417,7 @@ const styles = StyleSheet.create({
     justifyContent : 'center',
     alignItems : 'center',
     alignContent : 'center',
+    marginTop:20
   },
   title : {
     fontSize : 17,
@@ -355,7 +430,7 @@ const styles = StyleSheet.create({
     backgroundColor : '#3c3c3c',
     borderRadius : 10,
     justifyContent : 'center',
-    marginTop : 20,
+    marginTop : 10
   },
   titleButtonSendCode : {
     fontSize : 17,
@@ -367,16 +442,15 @@ const styles = StyleSheet.create({
     flexDirection : 'row',
     justifyContent : 'center',
     alignItems : 'center',
-    marginTop : 20,
     width : '100%',
-    alignSelf : 'center',
+
   },
   buttonResetPass : {
-    width : '90%',
+    width : '100%',
     height : 50,
     // backgroundColor : '#3c3c3c',
     borderRadius : 10,
     justifyContent : 'center',
-    marginTop : 20,
+    alignItems : 'center',
   },
 })

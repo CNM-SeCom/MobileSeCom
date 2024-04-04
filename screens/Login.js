@@ -38,7 +38,7 @@ const LoginScreen = () => {
 
   const [visible, setVisible] = React.useState(false);
   const [phone, setPhone] = useState('0399889699');
-  const [password, setPassword] = useState('aaaaaaaaA1@');
+  const [password, setPassword] = useState('memaybeo123@');
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [notification, setNotification] = useState('');
   const [incorect, setIncorect] = useState(0);
@@ -46,7 +46,7 @@ const LoginScreen = () => {
 
   useEffect(() => {
     if(incorect == 3){
-        navigation.navigate('ConfirmOTP',  {email: email, type : 'forgotPass'});
+        navigation.navigate('ConfirmOTP',  {email: email, type : 'forgotPass', phone: phone});
         setEmail('');
         showModal(false);
       }
@@ -125,7 +125,7 @@ const LoginScreen = () => {
   }
 
   const navigateForgotPass = () => {
-        navigation.navigate('ConfirmOTP', { email: "", type: 'forgotPass' });
+        navigation.navigate('ConfirmOTP', { email: "", type: 'forgotPass', phone: phone});
         setIncorect(0);
   }
 
@@ -144,7 +144,7 @@ const LoginScreen = () => {
         .then((response) => {
           if (response.data.error) {
             setIncorect(incorect + 1);
-            if (response.data.error === 'failed') {
+            if (response.data.error === 'failed'|| response.data.error === 'Mật khẩu không đúng') {
               setNotification("Thông tin đăng nhập không chính xác, bạn còn" + 3 - incorect + "thử lại");
             }
             setNotification(response.data.error);
@@ -167,7 +167,7 @@ const LoginScreen = () => {
           setIncorect(incorect + 1);
           console.log(error.response.data.message)
           const count = parseInt(3 - (incorect+1))
-          if (error.response.data.message == 'failed') {
+          if (error.response.data.message == 'failed'|| error.response.data.message == 'Mật khẩu không đúng') {
             setNotification("Thông tin đăng nhập không chính xác, bạn còn " + count + " thử lại");
           }
          else {
@@ -222,7 +222,7 @@ const LoginScreen = () => {
                 placeholderTextColor='#00000080'
                 style={styles.inputField}
                 secureTextEntry={!isShowPassword}
-                value="aaaaaaaaA1@"
+                value="aaaaaaaaA1#"
                 onChangeText={setPassword}
               />
               <TouchableOpacity style={{
