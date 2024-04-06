@@ -44,13 +44,16 @@ const LoginScreen = () => {
   const [incorect, setIncorect] = useState(0);
   const [email, setEmail] = useState('');
 
+
+
   useEffect(() => {
     if(incorect == 3){
+        autoNavigateForgotPass(phone)
         navigation.navigate('ConfirmOTP',  {email: email, type : 'forgotPass', phone: phone});
-        setEmail('');
+        setIncorect(0);
         showModal(false);
       }
-  }, [email])
+  }, [email,incorect, phone])
 
   const animetionLogo = useRef(new Animated.Value(0)).current;
   const saveLoginState = async (token, id) => {
@@ -71,7 +74,7 @@ const LoginScreen = () => {
       useNativeDriver: true,
       easing: Easing.linear
     }).start();
-  }, [animetionLogo])
+  }, [animetionLogo, phone])
 
 
   async function getEmailByPhone(phone) {
@@ -81,6 +84,7 @@ const LoginScreen = () => {
     await axios.post('http://' + ip + ':3000/findEmailByPhone', data)
       .then((response) => {
         setEmail(response.data.data);
+        console.log('Email: ', response.data.data);
         return response.data.data;
       })
       .catch((error) => {
@@ -112,21 +116,33 @@ const LoginScreen = () => {
   }
 
 
-  useEffect(() => {
-    autoNavigateForgotPass();
+  // useEffect(() => {
+  //   autoNavigateForgotPass();
 
-  }, [incorect])
+  // }, [incorect])
 
-  const autoNavigateForgotPass = async() => {
-    if (incorect == 3) {
-      const result =  await getEmailByPhone(phone);
-      setIncorect(0);
-    }
-  }
+
 
   const navigateForgotPass = () => {
-        navigation.navigate('ConfirmOTP', { email: "", type: 'forgotPass', phone: phone});
+        if(phone == ''){
+          navigation.navigate('ConfirmOTP', { email: "", type: 'forgotPass', phone: phone});
         setIncorect(0);
+        }
+        else{
+          (async () => {
+            await getEmailByPhone(phone)
+              .then(email => {
+                console.log('Email returned by getEmailByPhone:', email);
+                
+              })
+              .catch(error => {
+                console.log('Error occurred:', error);
+              });
+              navigation.navigate('ConfirmOTP', { email: email, type: 'forgotPass', phone: phone });
+          }
+          )();
+        }
+        
   }
 
   async function login(phone, password) {
@@ -180,7 +196,16 @@ const LoginScreen = () => {
     }
   }
 
-  
+  const autoNavigateForgotPass = async () => {
+    getEmailByPhone(phone)
+        .then(email => {
+            console.log('Email returned by getEmailByPhone:', email);
+        })
+        .catch(error => {
+            console.log('Error occurred:', error);
+        });
+}
+
 
   handleShowPassword = () => {
     setIsShowPassword(!isShowPassword);

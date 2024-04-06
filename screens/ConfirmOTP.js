@@ -25,13 +25,15 @@ const ForgotPass = () => {
   const [phoneForgot, setPhoneForgot] = useState('');
 
 
-  console.log('route', route);
+  console.log('routee', route);
 
   const [type, setType] = useState(route.type);
   const [otp, setOtp] = useState('');
   const [showModal, setShowModal] = useState(false);
 
   const [countdown, setCountdown] = useState();
+
+
 
   //countdown 1:30s
   const countDownOTP = () => {
@@ -51,12 +53,14 @@ const ForgotPass = () => {
   useEffect(() => {
     if (showCountdown) {
       countDownOTP();
-
     }
-  }, [showCountdown, countdown, resend])
+    
+  }, [showCountdown, countdown, resend, route.phone])
 
   useEffect(() => {
+   
   }, [email])
+
 
   const renderCountdown = (boolean) => {
     if (boolean) {
@@ -216,6 +220,7 @@ const ForgotPass = () => {
     await axios.post('http://' + ip + ':3000/findEmailByPhone', data)
       .then((response) => {
         setEmail(response.data.data);
+        console.log('email', email);
         return response.data.data;
       })
       .catch((error) => {
@@ -380,11 +385,12 @@ const ForgotPass = () => {
               style={[{}, styles.textInput]}
               textContentType='emailAddress'
               placeholder="Nhập email"
-              value={email}
+              value={route.email}
               onChangeText={(text) => {
                 setEmail(text)
                 console.log('email', email);
               }}
+
 
             />) : (<TextInput
               style={[{}, styles.textInput]}
@@ -395,6 +401,15 @@ const ForgotPass = () => {
               }}
 
             />)}
+            {/* <TextInput
+              style={[{}, styles.textInput]}
+              placeholder="Nhập số điện thoại"
+              onChangeText={(text) => {
+                setPhoneForgot(text)
+                console.log('email', phoneForgot);
+              }}
+
+            /> */}
         </View>
         {
           email || phoneForgot ? (
