@@ -37,22 +37,23 @@ const LoginScreen = () => {
   const dispatch = useDispatch();
 
   const [visible, setVisible] = React.useState(false);
-  const [phone, setPhone] = useState('0919437181');
-  const [password, setPassword] = useState('aaaaaaaaA2@');
+
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [notification, setNotification] = useState('');
   const [incorect, setIncorect] = useState(0);
   const [email, setEmail] = useState('');
 
-  // navigation.navigate('ResetPass', { email: email,id: user.id ,type: 'changePass' }); 
-
   useEffect(() => {
     if(incorect == 3){
-        navigation.navigate('ConfirmOTP',  {email: email, type : 'forgotPass'});
-        setEmail('');
+        autoNavigateForgotPass(phone)
+        navigation.navigate('ConfirmOTP',  {email: email, type : 'forgotPass', phone: phone});
+        setIncorect(0);
         showModal(false);
       }
-  }, [email])
+  }, [email,incorect, phone])
 
 
   const animetionLogo = useRef(new Animated.Value(0)).current;
@@ -74,7 +75,7 @@ const LoginScreen = () => {
       useNativeDriver: true,
       easing: Easing.linear
     }).start();
-  }, [animetionLogo])
+  }, [animetionLogo, phone])
 
 
   async function getEmailByPhone(phone) {
@@ -84,6 +85,7 @@ const LoginScreen = () => {
     await axios.post('http://' + ip + ':3000/findEmailByPhone', data)
       .then((response) => {
         setEmail(response.data.data);
+        console.log('Email: ', response.data.data);
         return response.data.data;
       })
       .catch((error) => {
@@ -115,21 +117,33 @@ const LoginScreen = () => {
   }
 
 
-  useEffect(() => {
-    autoNavigateForgotPass();
+  // useEffect(() => {
+  //   autoNavigateForgotPass();
 
-  }, [incorect])
+  // }, [incorect])
 
-  const autoNavigateForgotPass = async() => {
-    if (incorect == 3) {
-      const result =  await getEmailByPhone(phone);
-      setIncorect(0);
-    }
-  }
+
 
   const navigateForgotPass = () => {
-        navigation.navigate('ConfirmOTP', { email: "", type: 'forgotPass' });
+        if(phone == ''){
+          navigation.navigate('ConfirmOTP', { email: "", type: 'forgotPass', phone: phone});
         setIncorect(0);
+        }
+        else{
+          (async () => {
+            await getEmailByPhone(phone)
+              .then(email => {
+                console.log('Email returned by getEmailByPhone:', email);
+                
+              })
+              .catch(error => {
+                console.log('Error occurred:', error);
+              });
+              navigation.navigate('ConfirmOTP', { email: email, type: 'forgotPass', phone: phone });
+          }
+          )();
+        }
+        
   }
 
   async function login(phone, password) {
@@ -147,7 +161,7 @@ const LoginScreen = () => {
         .then((response) => {
           if (response.data.error) {
             setIncorect(incorect + 1);
-            if (response.data.error === 'failed') {
+            if (response.data.error === 'failed'|| response.data.error === 'Mật khẩu không đúng') {
               setNotification("Thông tin đăng nhập không chính xác, bạn còn" + 3 - incorect + "thử lại");
             }
             setNotification(response.data.error);
@@ -170,7 +184,7 @@ const LoginScreen = () => {
           setIncorect(incorect + 1);
           console.log(error.response.data.message)
           const count = parseInt(3 - (incorect+1))
-          if (error.response.data.message == 'failed') {
+          if (error.response.data.message == 'failed'|| error.response.data.message == 'Mật khẩu không đúng') {
             setNotification("Thông tin đăng nhập không chính xác, bạn còn " + count + " thử lại");
           }
          else {
@@ -183,7 +197,16 @@ const LoginScreen = () => {
     }
   }
 
-  
+  const autoNavigateForgotPass = async () => {
+    getEmailByPhone(phone)
+        .then(email => {
+            console.log('Email returned by getEmailByPhone:', email);
+        })
+        .catch(error => {
+            console.log('Error occurred:', error);
+        });
+}
+
 
   handleShowPassword = () => {
     setIsShowPassword(!isShowPassword);
@@ -213,10 +236,10 @@ const LoginScreen = () => {
             <View style={styles.inputUserNameContainer}>
 
               <TextInput
+                keyboardType='numeric'
                 onChangeText={setPhone}
                 placeholder='Số điện thoại'
                 placeholderTextColor='#00000080'
-                value="0919437181"
                 style={styles.inputField} />
             </View>
             <View style={styles.inputPasswordContainer}>
@@ -225,7 +248,6 @@ const LoginScreen = () => {
                 placeholderTextColor='#00000080'
                 style={styles.inputField}
                 secureTextEntry={!isShowPassword}
-                
                 onChangeText={setPassword}
               />
               <TouchableOpacity style={{

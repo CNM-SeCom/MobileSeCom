@@ -1,17 +1,21 @@
 import { StyleSheet, Text, View ,TouchableOpacity} from 'react-native'
+
+import React, { useEffect, useState,useRef} from 'react'
 import { TextInput } from 'react-native-paper';
 import { useRoute } from '@react-navigation/native';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faArrowAltCircleLeft } from '@fortawesome/free-solid-svg-icons';
-import { useNavigation } from '@react-navigation/native';
-import { useState, useRef, useEffect  } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { faArrowAltCircleLeft } from '@fortawesome/free-solid-svg-icons'
+import { useNavigation } from '@react-navigation/native'
 import { useSelector } from 'react-redux';
 import axios from 'axios';
-import ip from '../data/ip';
+import ip from '../data/ip'
 
 const ResetPass = () => {
-  const user = useSelector((state) => state.user.user);
-  // const account = useSelector((state) => state.account.account);
+	const user = useSelector((state) => state.user.user);
+  const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [reNewPassword, setReNewPassword] = useState('');
+
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState('aaaaaaaaA1@');
@@ -25,7 +29,34 @@ const ResetPass = () => {
   }
 
   const route = useRoute().params;
-  const type = route.type;
+
+  console.log('routee', route);
+
+  const handleCompare = () => {
+    if (newPassword !== reNewPassword) {
+      alert('Mật khẩu không khớp');
+    } else {
+      handleResetPass();
+      navigation.navigate('Login');
+      alert('Mật khẩu đã được thay đổi');
+    }
+  };
+
+  const data = {
+    phone : route.phone,
+    newPass: newPassword,
+  }
+  console.log('data', data);
+
+  const handleResetPass = () => {
+    axios.post('http://' + ip + ':3000/forgotPassword', data)
+    .then(res => {
+      console.log(res.data);
+    })
+    .catch(err => {
+      console.log(err);
+    })
+  }
 
   useEffect(() => {
     navigation.setOptions({
@@ -100,7 +131,7 @@ const ResetPass = () => {
         style={styles.wrapperInputResetPass}
       >
         {
-        type === 'changePass' ?
+        route.type === 'changePass' ?
         <TextInput
           mode='outlined'
           label="Nhập mật khẩu cũ"
@@ -113,6 +144,7 @@ const ResetPass = () => {
         <TextInput
           mode="outlined"
           label="Mật khẩu mới"
+          onChangeText={(text) => setNewPassword(text)}
           style={styles.textInput}
           onChangeText={(text) => {setNewPassword(text)}}
           value={newPassword}
@@ -120,11 +152,15 @@ const ResetPass = () => {
         <TextInput 
           mode="outlined"
           style={styles.textInput}
+          onChangeText={(text) => setReNewPassword(text)}
           label="Nhập lại mật khẩu mới"
           onChangeText={(text) => {setReNewPassword(text)}}
           value={reNewPassword}
         />
         <TouchableOpacity
+          onPress={()=>{
+            handleCompare();
+          }}
           style={styles.buttonResetPass}
           onPress={() => { handleResetPass() }}
         >

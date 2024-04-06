@@ -16,13 +16,13 @@ const { width, height } = Dimensions.get('window');
 const Register = () => {
     const navigation = useNavigation();
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()-+])[A-Za-z\d!@#$%^&*()-+]{8,}$/;
-    const [phone, setPhone] = useState('0399889698');
-    const [password, setPassword] = useState('aaaaaaaaA1@');
-    const [mail, setMail] = useState('truongbinhtriet110202@gmail.com');
+    const [phone, setPhone] = useState('');
+    const [password, setPassword] = useState('');
+    const [mail, setMail] = useState('');
     const [dob , setDob] = useState(new Date());
-    const [name, setName] = useState('Triet');
+    const [name, setName] = useState('');
     const [avatar, setAvatar] = useState('https://res.cloudinary.com/dkwb3ddwa/image/upload/v1710070408/avataDefaultSeCom/amafsgal21le2xhy4jgy.jpg' );
-    const [confirmPassword, setConfirmPassword] = useState('aaaaaaaaA1@');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [gender, setGender] = useState(0);
     const [active, setActive] = useState(true);
     const [isShowPassword, setIsShowPassword] = useState(false);
@@ -31,7 +31,7 @@ const Register = () => {
     const [date, setDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
   
-    const onChange = (event, selectedDate) => {
+    const onChange = async(event, selectedDate) => {
         const currentDate = selectedDate || date;
         const sixYearsAgo = new Date();
         sixYearsAgo.setFullYear(sixYearsAgo.getFullYear() - 6); // Ngày 6 năm trước
@@ -46,13 +46,15 @@ const Register = () => {
         setShowDatePicker(false);
     };
     
+    
 
     handleShowPassword = () => {
         setIsShowPassword(!isShowPassword);
       };
 
 
-    const navigateGetOTP = () => {
+    const navigateGetOTP = async() => {
+
         if (phone.length < 10) {
             alert('Số điện thoại không hợp lệ');
         }
@@ -66,11 +68,28 @@ const Register = () => {
             alert('Mật khẩu không khớp');
         }
         else{
+         await  axios.post('http://'+ip+':3000/checkPhoneExist', {phone : phone})
+        .then((response) => {
             navigation.navigate('ConfirmOTP', { email: mail, type: 'register',phone: phone, password: password, name: name,
-            gender : gender, dob: dob.toDateString()
-        });
+            gender : gender, dob: dob.toDateString()})
+        })
+        .catch((error) => {
+            alert("Tài khoản đã tồn tại");})
         }
+
+
+        // else{
+        //     navigation.navigate('ConfirmOTP', { email: mail, type: 'register',phone: phone, password: password, name: name,
+        //     gender : gender, dob: dob.toDateString()
+        // });
+        // }
+
+
+
     }
+
+
+    
 
     useEffect(() => {
             if (active) {
@@ -105,6 +124,7 @@ const Register = () => {
                 <TextInput
                     mode="outlined"
                     label="Số điện thoại"
+                    keyboardType='numeric'
                     style={styles.inputPhone}
                     onChangeText={(text) => setPhone(text)}
                     value={phone}
@@ -115,21 +135,20 @@ const Register = () => {
                 >
                     <Text>
                         {
-                            validDate === true ?
-                            date.toDateString()
+                        validDate === true ?
+                        date.toDateString()
                             :
-                            'Chọn ngày sinh'
+                        'Chọn ngày sinh'
                         }
                     </Text>
                 </TouchableOpacity>
-
                     {showDatePicker && (
                         <DateTimePicker
                         value={date}
                         mode="date"
                         display="spinner"
                         onChange={onChange}
-                        />
+                    />
                     )}
                 </View>
                 <TextInput
