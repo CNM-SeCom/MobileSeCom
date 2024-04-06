@@ -6,27 +6,28 @@ import { useNavigation } from '@react-navigation/native'
 import { useEffect, useState } from 'react'
 import { useRoute } from '@react-navigation/native'
 import axios from 'axios'
-import  ip  from '../data/ip'
+import ip from '../data/ip'
 import { Modal, Portal, PaperProvider } from 'react-native-paper';
 
-const {width, height} = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 //truongbinhtriet110202@gmail.com
 const ForgotPass = () => {
   const navigation = useNavigation();
 
-  const [email, setEmail] = useState('truongbinhtriet110202@gmail.com');
+  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [showOTPInput, setShowOTPInput] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [showCountdown, setShowCountdown] = useState(false);
   const [resend, setResend] = useState(false);
-  const route = useRoute().params;  
+  const route = useRoute().params;
+  const [phoneForgot, setPhoneForgot] = useState('');
 
 
   console.log('route', route);
 
-  const [type , setType] = useState(route.type);
+  const [type, setType] = useState(route.type);
   const [otp, setOtp] = useState('');
   const [showModal, setShowModal] = useState(false);
 
@@ -50,39 +51,46 @@ const ForgotPass = () => {
   useEffect(() => {
     if (showCountdown) {
       countDownOTP();
-      
+
     }
-  }, [showCountdown, countdown,resend])
+  }, [showCountdown, countdown, resend])
+
+  useEffect(() => {
+  }, [email])
 
   const renderCountdown = (boolean) => {
     if (boolean) {
       return (
         <View
-        style={{
-          width : '100%',
-          alignItems: 'center',
-      }}
+          style={{
+            width: '100%',
+            alignItems: 'center',
+          }}
         >
-           <Text style={{fontSize: 17, color: 'red', textAlign: 'center', marginTop : 20}}>Mã OTP sẽ hết hạn sau {countdown} giây</Text>
+          <Text style={{ fontSize: 14, color: 'red', textAlign: 'center', marginTop: 20 }}>Mã OTP đã gửi về {email}</Text>
+          <Text style={{ fontSize: 14, color: 'red', textAlign: 'center', marginTop: 20 }}>Mã OTP sẽ hết hạn sau {countdown} giây</Text>
           {renderContinueButton()}
         </View>
-        )
+      )
     }
     else if (resend) {
       return (
         <View
           style={{
-            width : '100%',
+            width: '100%',
             justifyContent: 'center',
             alignItems: 'center',
-            marginTop : 20,
+            marginTop: 20,
 
-        }}
+          }}
         >
-          <Text style={{fontSize: 17, color: 'red', textAlign: 'center',margin : 10}}>Gửi lại mã OTP</Text>
+          <Text style={{ fontSize: 17, color: 'red', textAlign: 'center', margin: 10 }}>Gửi lại mã OTP</Text>
           {renderContinueButton()}
         </View>
       )
+    }
+    else {
+      return null;
     }
   }
   const register = () => {
@@ -93,51 +101,52 @@ const ForgotPass = () => {
     const email = route.email;
     const dob = route.dob;
     const gender = route.gender
-    
+
 
 
     console.log('Phone: ', phone);
     console.log('Password: ', password);
- 
+
     if (phone.length < 10) {
-        alert('Số điện thoại không hợp lệ');
+      alert('Số điện thoại không hợp lệ');
     }
-    else if(email === '') {
-        alert('Email không được để trống');
-    }
-    else{
-        const data = {
-            phone: phone,
-            pass: password,
-            gender: gender,
-            name: name,
-            email: email,
-            dob: dob,
-        }
-        console.log(data);
-        axios.post('http://'+ip+':3000/create', data)
+    // else if( phoneForgot =='' && email == '') {
+    //     alert('Email không được để trống');
+    // }
+    else {
+      const data = {
+        phone: phone,
+        pass: password,
+        gender: gender,
+        name: name,
+        email: email,
+        dob: dob,
+      }
+      console.log(data);
+      axios.post('http://' + ip + ':3000/create', data)
         .then((response) => {
-            alert('Account Created Successfully');
+          alert('Account Created Successfully');
         })
         .catch((error) => {
-            console.log('Error: ', error);
-            alert(error);})
+          console.log('Error: ', error.message);
+          alert(error);
+        })
     }
-}
+  }
 
   useEffect(() => {
-    if(route.email){
+    if (route.email) {
       setEmail(route.email);
       setType(route.type);
     }
-  }, [route])
+  }, [route, email])
 
-  const sendOTP = async(email) => {
+  const sendOTP = async (email) => {
     console.log('sendOTP', email);
-    if (email === '') {
-      alert('Email không được để trống');
-      return;
-    }
+    // if ( phone =='' || email == '') {
+    //   alert('Email không được để trống');
+    //   return;
+    // }
     const data = {
       email: email,
     }
@@ -152,22 +161,23 @@ const ForgotPass = () => {
       })
       .catch(err => {
         console.log('sendOTP', err);
+        alert('Email không tồn tại');
       })
   }
 
-const showModalNotify = (value) => {
-  setShowModal(value);
-}
+  const showModalNotify = (value) => {
+    setShowModal(value);
+  }
 
-// const renderInputOTP = () => {
-//   showOTPInput ? (
-    
-//   ) : null
-// }
+  // const renderInputOTP = () => {
+  //   showOTPInput ? (
 
-  const checkOTP = async() => {
+  //   ) : null
+  // }
+
+  const checkOTP = async () => {
     const data = {
-      email : email,
+      email: email,
       otp: otp,
 
     }
@@ -176,113 +186,137 @@ const showModalNotify = (value) => {
         if (res.data.success === true) {
           setIsCorrect(true);
           console.log('checkOTP', res.data);
-          if(route.type == 'register'){
+          if (route.type == 'register') {
             register()
             navigation.navigate('Login');
-           
+
           }
           else {
-            navigation.navigate('ResetPass',{email: email, type: type, phone : route.phone});
-            
+            if (route.phone) {
+              navigation.navigate('ResetPass', { email: email, type: type, phone: route.phone });
+            }
+            else {
+              navigation.navigate('ResetPass', { email: email, type: type, phone: phoneForgot });
+            }
+
           }
         }
       })
       .catch(err => {
         console.log('checkOTP', err);
         showModalNotify(true);
-       
+
       })
   }
 
-  const renderContinueButton = () => {
-    if(route.type == 'register'){
-      return (
-        <View
-          style={[{width : '100%',alignItems : 'center'}]}
-        >
-          <View style={{
-      flexDirection: 'row',
-      justifyContent: 'center',
-      alignItems: 'center',
-      width: '90%',
-
-    }}>
-    <View
-      //truongbinhtriet110202@gmail.com
-    >
-      <View style={styles.showOTPWrapper}>
-      <View style={{width : '100%'}}>
-        <TextInput 
-        onChangeText={(text) => setOtp(text)}
-        placeholder="Nhập mã OTP"
-        style={[styles.textInput, {textAlign:"center"}]}>
-        </TextInput>
-      </View>
-      </View>
-    </View>
-    </View>
-          <TouchableOpacity
-              onPress={()=>{
-                checkOTP();
-                
-              }}
-              style={[{backgroundColor : '#3c3c3c', height : 50,
-              // backgroundColor : '#3c3c3c',
-              borderRadius : 10,
-              width : '90%',
-              justifyContent : 'center',
-              alignItems : 'center',
-              marginTop : 20,}]}
-            >
-              <Text
-                style={styles.titleButtonSendCode}
-              >
-                Đăng ký
-              </Text>
-            </TouchableOpacity>
-        </View>
+  async function getEmailByPhone(phone) {
+    const data = {
+      phone: phone
+    }
+    await axios.post('http://' + ip + ':3000/findEmailByPhone', data)
+      .then((response) => {
+        setEmail(response.data.data);
+        return response.data.data;
+      })
+      .catch((error) => {
+        console.log('Error: ', error);
+      }
       )
   }
-  else  {
-    return (
-    <View
-    style={[{width : '100%', alignItems : 'center', backgroundColor:'pink', flex:1, justifyContent:"flex-start"}]}
-    >
-       <View style={{
-      flexDirection: 'row',
-      justifyContent: 'center',
-      alignItems: 'center',
-      width: '90%',
 
-    }}>
-    <View
-      //truongbinhtriet110202@gmail.com
-    >
-      <View style={styles.showOTPWrapper}>
-      <View style={{width : '100%'}}>
-        <TextInput 
-        onChangeText={(text) => setOtp(text)}
-        placeholder="Nhập mã OTP"
-        style={[styles.textInput, {textAlign:"center", marginTop : 100}]}>
-        </TextInput>
-      </View>
-      </View>
-    </View>
-    </View>
-        <View style={{width:"100%", alignItems:'center', marginTop : 70,}}>
-        <TouchableOpacity
-              onPress={()=>{
-                checkOTP()}}
-              style={[{backgroundColor : '#3c3c3c',
-              width : '90%',
-              
-              height : 50,
+  const renderContinueButton = () => {
+    if (route.type == 'register') {
+      return (
+        <View
+          style={[{ width: '100%', alignItems: 'center' }]}
+        >
+          <View style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: '90%',
+
+          }}>
+            <View
+            //truongbinhtriet110202@gmail.com
+            >
+              <View style={styles.showOTPWrapper}>
+                <View style={{ width: '100%' }}>
+                  <TextInput
+                    onChangeText={(text) => setOtp(text)}
+                    placeholder="Nhập mã OTP"
+                    style={[styles.textInput, { textAlign: "center" }]}>
+                  </TextInput>
+                </View>
+              </View>
+            </View>
+          </View>
+          <TouchableOpacity
+            onPress={() => {
+              checkOTP();
+
+            }}
+            style={[{
+              backgroundColor: '#3c3c3c', height: 50,
               // backgroundColor : '#3c3c3c',
-              borderRadius : 10,
-              justifyContent : 'center',
-              alignItems : 'center',
-              marginTop : 20,
+              borderRadius: 10,
+              width: '90%',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: 20,
             }]}
+          >
+            <Text
+              style={styles.titleButtonSendCode}
+            >
+              Tiếp tục
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )
+    }
+    else {
+      return (
+        <View
+          style={[{ width: '100%', alignItems: 'center', backgroundColor: 'pink', flex: 1, justifyContent: "flex-start" }]}
+        >
+          <View style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: '90%',
+
+          }}>
+            <View
+            //truongbinhtriet110202@gmail.com
+            >
+              <View style={styles.showOTPWrapper}>
+                <View style={{ width: '100%' }}>
+                  <TextInput
+                    onChangeText={(text) => setOtp(text)}
+                    placeholder="Nhập mã OTP"
+                    style={[styles.textInput, { textAlign: "center", marginTop: 100 }]}>
+                  </TextInput>
+                </View>
+              </View>
+            </View>
+          </View>
+          <View style={{ width: "100%", alignItems: 'center', marginTop: 70, }}>
+            <TouchableOpacity
+              onPress={() => {
+                checkOTP()
+              }}
+              style={[{
+                backgroundColor: '#3c3c3c',
+                width: '90%',
+
+                height: 50,
+                // backgroundColor : '#3c3c3c',
+                borderRadius: 10,
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: 20,
+              }]}
             >
               <Text
                 style={styles.titleButtonSendCode}
@@ -290,11 +324,11 @@ const showModalNotify = (value) => {
                 Tiếp tục
               </Text>
             </TouchableOpacity>
+          </View>
+
         </View>
-            
-    </View>
-    )
-  }
+      )
+    }
   }
 
 
@@ -317,7 +351,7 @@ const showModalNotify = (value) => {
         return (
           <View>
             <TouchableOpacity
-              style={{marginLeft: 10}}
+              style={{ marginLeft: 10 }}
               onPress={() => {
                 navigation.goBack();
               }}>
@@ -332,61 +366,104 @@ const showModalNotify = (value) => {
   return (
     <PaperProvider>
       <View style={styles.constainer}>
-       
-      <View style={styles.titleWrapper}>
-        <Text
-          style={styles.title}
-        >
-          Nhập email của bạn để lấy OTP
-        </Text>
-      </View>
-    <View style={{width : '90%', marginVertical : 20}}>
-    <TextInput
-        style={[{},styles.textInput]}
-        placeholder="Nhập email"
-        value={email}
-        onChangeText={(text) => setEmail(text)}
-      />
-    </View>
-      {
-        email ? (
-        <View
-         style={[{
-          width : '100%',
-          alignItems : 'center',
-        }]}
-        >
-        <TouchableOpacity
-        onPress={()=>{
-          sendOTP(email); 
-          setShowOTPInput(true)
-        }}
-        style={styles.sendCodeButton}
-        >
-        <Text
-          style={styles.titleButtonSendCode}
-        >
-          Gửi mã xác nhận
-        </Text>
-      </TouchableOpacity>
-      {renderCountdown(showCountdown)}
+
+        <View style={styles.titleWrapper}>
+          <Text
+            style={styles.title}
+          >
+            Nhập thông tin của bạn để lấy OTP
+          </Text>
         </View>
-        ):(
-        null
-        )
-      }
-  
-      
-      
-    </View>
+        <View style={{ width: '90%', marginVertical: 20 }}>
+          {
+            route.phone ? (<TextInput
+              style={[{}, styles.textInput]}
+              textContentType='emailAddress'
+              placeholder="Nhập email"
+              value={email}
+              onChangeText={(text) => {
+                setEmail(text)
+                console.log('email', email);
+              }}
+
+            />) : (<TextInput
+              style={[{}, styles.textInput]}
+              placeholder="Nhập số điện thoại"
+              onChangeText={(text) => {
+                setPhoneForgot(text)
+                console.log('email', phoneForgot);
+              }}
+
+            />)}
+        </View>
+        {
+          email || phoneForgot ? (
+            <View
+              style={[{
+                width: '100%',
+                alignItems: 'center',
+              }]}
+            >
+              <TouchableOpacity
+                onPress={async () => {
+
+                  if (email) {
+                    sendOTP(email);
+                    setShowOTPInput(true)
+                  }
+                  else {
+
+                    //goi api lay email tu phone sau đó promise sendOTP
+
+                    // sendOTP(res.data.data);
+                    {
+                      const data = {
+                        phone: phoneForgot
+                      }
+
+                      await axios.post('http://' + ip + ':3000/findEmailByPhone', data)
+                        .then((response) => {
+                          console.log('+++++')
+                          setEmail(response.data.data);
+                          sendOTP(response.data.data);
+                          setShowOTPInput(true)
+                          return response.data.data;
+                        })
+                        .catch((error) => {
+                          console.log('Error: ', error);
+                        }
+                        )
+                    }
+                    //  setShowOTPInput(true)
+
+                  }
+                }}
+                style={styles.sendCodeButton}
+              >
+                <Text
+                  style={styles.titleButtonSendCode}
+                >
+                  Gửi mã xác nhận
+                </Text>
+              </TouchableOpacity>
+              {renderCountdown(showCountdown)}
+            </View>
+          ) : (
+            null
+          )
+        }
+
+
+
+      </View>
 
       <Portal>
         <Modal visible={showModal} onDismiss={() => setShowModal(false)}>
-          <View style={{backgroundColor: 'white', padding: 20, margin: 20, borderRadius: 10}}>
-            <Text style={{fontSize: 20, fontWeight: 'bold', textAlign: 'center'}}>Thông báo</Text>
-            <Text style={{fontSize: 17, marginTop: 10, textAlign: 'center'}}>Mã OTP không chính xác</Text>
-            <TouchableOpacity style={{backgroundColor: '#3c3c3c', padding: 10, borderRadius: 10, marginTop: 20}} onPress={() => setShowModal(false)}>
-              <Text style={{fontSize: 17, color: 'white', textAlign: 'center'}}>Đóng</Text>
+          <View style={{ backgroundColor: 'white', padding: 20, margin: 20, borderRadius: 10 }}>
+            <Text style={{ fontSize: 20, fontWeight: 'bold', textAlign: 'center' }}>Thông báo</Text>
+            <Text style={{ fontSize: 17, marginTop: 10, textAlign: 'center' }}>Mã OTP không chính xác</Text>
+            <TouchableOpacity style={{ backgroundColor: '#3c3c3c', padding: 10, borderRadius: 10, marginTop: 20 }} onPress={() => setShowModal(false)}>
+              <Text style={{ fontSize: 17, color: 'white', textAlign: 'center' }}>Đóng</Text>
             </TouchableOpacity>
           </View>
         </Modal>
@@ -405,52 +482,52 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  textInput : {
-    width : '100%',
-    height : 50,
-    backgroundColor : '#E5E5E5',
-    borderRadius : 10,
-    paddingLeft : 10,
+  textInput: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#E5E5E5',
+    borderRadius: 10,
+    paddingLeft: 10,
   },
-  titleWrapper : {
-    width : '90%',
-    justifyContent : 'center',
-    alignItems : 'center',
-    alignContent : 'center',
-    marginTop:20
+  titleWrapper: {
+    width: '90%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignContent: 'center',
+    marginTop: 20
   },
-  title : {
-    fontSize : 17,
-    fontWeight : 'bold',
-    alignSelf : 'center',
+  title: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    alignSelf: 'center',
   },
-  sendCodeButton : {
-    width : '90%',
-    height : 50,
-    backgroundColor : '#3c3c3c',
-    borderRadius : 10,
-    justifyContent : 'center',
-    marginTop : 10
+  sendCodeButton: {
+    width: '90%',
+    height: 50,
+    backgroundColor: '#3c3c3c',
+    borderRadius: 10,
+    justifyContent: 'center',
+    marginTop: 10
   },
-  titleButtonSendCode : {
-    fontSize : 17,
-    fontWeight : 'bold',
-    color : '#fff',
-    alignSelf : 'center',
+  titleButtonSendCode: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: '#fff',
+    alignSelf: 'center',
   },
-  showOTPWrapper :{
-    flexDirection : 'row',
-    justifyContent : 'center',
-    alignItems : 'center',
-    width : '100%',
+  showOTPWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
 
   },
-  buttonResetPass : {
-    width : '100%',
-    height : 50,
+  buttonResetPass: {
+    width: '100%',
+    height: 50,
     // backgroundColor : '#3c3c3c',
-    borderRadius : 10,
-    justifyContent : 'center',
-    alignItems : 'center',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 })
