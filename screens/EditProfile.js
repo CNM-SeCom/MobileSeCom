@@ -6,6 +6,8 @@ import { Modal, Portal, PaperProvider } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 import { useRoute } from '@react-navigation/native';
+import axios from 'axios';
+import ip from '../data/ip';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -13,6 +15,7 @@ const width = Dimensions.get('window').width;
 const UpdateInfo = (  ) => {
 
   const user = useSelector((state) => state.user.user);
+  const route = useRoute().params;
 
   const [avatar, setAvatar] = useState('');
   const [coverImage, setCoverImage] = useState('');
@@ -24,6 +27,7 @@ const UpdateInfo = (  ) => {
   const [job, setJob] = useState('');
   const [link, setLink] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const idUser = user.idUser;
 
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
@@ -55,6 +59,36 @@ const UpdateInfo = (  ) => {
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
+  const handleEditName = (userName) => {
+  const regexName = /\b[A-Z]\w*/;
+
+    const newName = userName;
+    const idUser = user.idUser;
+    const data = {
+      idUser: idUser,
+      newName: newName,
+    }
+    const params = {
+      idUser: idUser,
+      name: newName,
+  };
+  if (!regexName.test(newName)) {
+    alert('Chữ cái đầu phải viết hoa');
+  } else {
+    axios.post('http://' + ip + ':3000/changeProfile',params).then((res) => {
+      
+    alert('Cập nhật tên thành công');
+    navigation.goBack();
+
+    }).catch((err) => {
+      console.log(err);
+    })
+    console.log(newName);
+    console.log(idUser);
+  }
+    
+  }
+
 
   useEffect(() => {
     navigation.setOptions({
@@ -303,7 +337,7 @@ const UpdateInfo = (  ) => {
       </View>
       <TouchableOpacity
         onPress={() => {
-          navigation.goBack();
+          handleEditName(userName);
         }}
         style={styles.saveButton}
       >

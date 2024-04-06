@@ -98,7 +98,7 @@ const ForgotPass = () => {
         console.log(data);
         axios.post('http://'+ip+':3000/create', data)
         .then((response) => {
-            alert('Account Created Successfully');
+            alert('Tạo tài khoản thành công');
         })
         .catch((error) => {
             console.log('Error: ', error);

@@ -37,12 +37,14 @@ const LoginScreen = () => {
   const dispatch = useDispatch();
 
   const [visible, setVisible] = React.useState(false);
-  const [phone, setPhone] = useState('0399889699');
-  const [password, setPassword] = useState('aaaaaaaaA1@');
+  const [phone, setPhone] = useState('0919437181');
+  const [password, setPassword] = useState('aaaaaaaaA2@');
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [notification, setNotification] = useState('');
   const [incorect, setIncorect] = useState(0);
   const [email, setEmail] = useState('');
+
+  // navigation.navigate('ResetPass', { email: email,id: user.id ,type: 'changePass' }); 
 
   useEffect(() => {
     if(incorect == 3){
@@ -51,6 +53,7 @@ const LoginScreen = () => {
         showModal(false);
       }
   }, [email])
+
 
   const animetionLogo = useRef(new Animated.Value(0)).current;
   const saveLoginState = async (token, id) => {
@@ -213,16 +216,16 @@ const LoginScreen = () => {
                 onChangeText={setPhone}
                 placeholder='Số điện thoại'
                 placeholderTextColor='#00000080'
-                value="0399889699"
+                value="0919437181"
                 style={styles.inputField} />
             </View>
             <View style={styles.inputPasswordContainer}>
               <TextInput
-                placeholder='Mật khẩu'
+                placeholder='aaaaaaaaA2@'
                 placeholderTextColor='#00000080'
                 style={styles.inputField}
                 secureTextEntry={!isShowPassword}
-                value="aaaaaaaaA1@"
+                
                 onChangeText={setPassword}
               />
               <TouchableOpacity style={{

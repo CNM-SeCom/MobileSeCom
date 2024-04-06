@@ -5,6 +5,7 @@ import { faPalette, faRightFromBracket } from '@fortawesome/free-solid-svg-icons
 import { Switch } from 'react-native-paper';
 import { View, StyleSheet,Text } from 'react-native';
 import axios from 'axios';
+import { useState, useRef } from 'react'
 
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleMode } from '../redux/modeSlice';
@@ -46,7 +47,8 @@ const Setting = () => {
   const mode = useSelector((state) => state.mode.mode);
   const token = useSelector((state) => state.token.token);
   const user = useSelector((state) => state.user.user);
-
+  const account = useSelector((state) => state.account.account);
+  
   const clearLoginState = async () => {
     try {
       await AsyncStorage.removeItem('userToken');
@@ -102,9 +104,14 @@ const Setting = () => {
         console.log(error);
       });
   };
+  
+  const navigateForgotPass = () => {
+    navigation.navigate('ConfirmOTP', { email: "", type: 'forgotPass' });
+  }
+  const navigateChangePass = () => {
 
-
-
+    navigation.navigate('ConfirmOTP', { email:"phonggg78@gmail.com", type: 'changePass' });
+}
   return (
    <View style={[styles.container, { backgroundColor: colors.background }]}>
      <List.Section 
@@ -160,7 +167,8 @@ const Setting = () => {
           <FontAwesomeIcon icon={faPalette} size={25} color={colors.text} />
         )} />}
       >
-       <TouchableOpacity>
+       <TouchableOpacity  
+             onPress={() => { navigateChangePass() }}>
        <List.Item title="Đổi mật khẩu"
           titleStyle={[
             styles.titleOption,
@@ -223,7 +231,19 @@ const styles = StyleSheet.create({
     paddingLeft : 20,
     paddingRight : 20,
     borderTopWidth : 1,
-    borderColor : 'white',
-    
+    borderColor : 'red',
+    borderBottomWidth : 1,
+  },
+  changePassButton : {
+    width : '100%',
+    height : 50,
+    borderRadius : 10,
+    justifyContent : 'space-between',
+    flexDirection : 'row',
+    paddingLeft : 20,
+    paddingRight : 20,
+    borderTopWidth : 1,
+    borderColor : 'red',
+    borderBottomWidth : 1,
   }
 });
