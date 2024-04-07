@@ -37,8 +37,8 @@ const LoginScreen = () => {
   const dispatch = useDispatch();
 
   const [visible, setVisible] = React.useState(false);
-  const [phone, setPhone] = useState('0919437181');
-  const [password, setPassword] = useState('aaaaaaaaA2@');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [notification, setNotification] = useState('');
   const [incorect, setIncorect] = useState(0);
@@ -216,7 +216,7 @@ const LoginScreen = () => {
                 onChangeText={setPhone}
                 placeholder='Số điện thoại'
                 placeholderTextColor='#00000080'
-                value="0919437181"
+               
                 style={styles.inputField} />
             </View>
             <View style={styles.inputPasswordContainer}>

@@ -110,12 +110,14 @@ const Setting = () => {
   }
   const navigateChangePass = () => {
 
-    navigation.navigate('ConfirmOTP', { email:"phonggg78@gmail.com", type: 'changePass' });
+    navigation.navigate('ConfirmOTP', { email: user.email, type: 'changePass' });
 }
   return (
    <View style={[styles.container, { backgroundColor: colors.background }]}>
      <List.Section 
-     title="Setting">
+     title="Cài đặt" titleStyle={{fontSize:20,color: colors.text, 
+      borderColor : 'green',
+      borderBottomWidth : 1,}}> 
       <List.Accordion
         title="Chủ đề"
         expanded={expanded}
@@ -192,7 +194,7 @@ const Setting = () => {
       <Text style={[
         {color: colors.text},
         styles.textLogout]}>
-        Logout
+        Đăng xuất
       </Text>
       <FontAwesomeIcon style={styles.textLogout} icon={faRightFromBracket} size={25} color={colors.text}/>
     </TouchableOpacity>
@@ -231,7 +233,7 @@ const styles = StyleSheet.create({
     paddingLeft : 20,
     paddingRight : 20,
     borderTopWidth : 1,
-    borderColor : 'red',
+    borderColor : 'green',
     borderBottomWidth : 1,
   },
   changePassButton : {
@@ -243,7 +245,7 @@ const styles = StyleSheet.create({
     paddingLeft : 20,
     paddingRight : 20,
     borderTopWidth : 1,
-    borderColor : 'red',
+    borderColor : 'green',
     borderBottomWidth : 1,
   }
 });

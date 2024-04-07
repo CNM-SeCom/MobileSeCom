@@ -79,7 +79,7 @@ const Notification = () => {
                                 <Text
                                     style={styles.name}
                                 >{item.name}</Text>
-                                <Text>{item.time}</Text>
+                                <Text>{item.name}</Text>
                             </View>
                         </View>
                         <View>
