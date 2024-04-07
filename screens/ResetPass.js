@@ -18,9 +18,6 @@ const ResetPass = () => {
 
 
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState('aaaaaaaaA1@');
-  const [newPassword, setNewPassword] = useState('aaaaaaaaA2@');
-  const [reNewPassword, setReNewPassword] = useState('aaaaaaaaA2@');
   const navigation = useNavigation();
   const data={
     phone: user.phone,
@@ -42,13 +39,13 @@ const ResetPass = () => {
     }
   };
 
-  const data = {
-    phone : route.phone,
-    newPass: newPassword,
-  }
+  // const data = {
+  //   phone : route.phone,
+  //   newPass: newPassword,
+  // }
   console.log('data', data);
 
-  const handleResetPass = () => {
+  let handleResetPass = () => {
     axios.post('http://' + ip + ':3000/forgotPassword', data)
     .then(res => {
       console.log(res.data);
@@ -144,9 +141,8 @@ const ResetPass = () => {
         <TextInput
           mode="outlined"
           label="Mật khẩu mới"
-          onChangeText={(text) => setNewPassword(text)}
-          style={styles.textInput}
           onChangeText={(text) => {setNewPassword(text)}}
+          style={styles.textInput}
           value={newPassword}
         />
         <TextInput 
@@ -154,13 +150,13 @@ const ResetPass = () => {
           style={styles.textInput}
           onChangeText={(text) => setReNewPassword(text)}
           label="Nhập lại mật khẩu mới"
-          onChangeText={(text) => {setReNewPassword(text)}}
+          // onChangeText={(text) => {setReNewPassword(text)}}
           value={reNewPassword}
         />
         <TouchableOpacity
-          onPress={()=>{
-            handleCompare();
-          }}
+          // onPress={()=>{
+          //   handleCompare();
+          // }}
           style={styles.buttonResetPass}
           onPress={() => { handleResetPass() }}
         >

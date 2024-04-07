@@ -387,7 +387,7 @@ const ForgotPass = () => {
               style={[{}, styles.textInput]}
               textContentType='emailAddress'
               placeholder="Nhập email"
-              value={route.email}
+              {...(route.email ? { value: route.email } : {})  }
               onChangeText={(text) => {
                 setEmail(text)
                 console.log('email', email);

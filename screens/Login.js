@@ -244,7 +244,7 @@ const LoginScreen = () => {
             </View>
             <View style={styles.inputPasswordContainer}>
               <TextInput
-                placeholder='aaaaaaaaA2@'
+                placeholder='Mật khẩu'
                 placeholderTextColor='#00000080'
                 style={styles.inputField}
                 secureTextEntry={!isShowPassword}

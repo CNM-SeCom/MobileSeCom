@@ -109,7 +109,6 @@ const Setting = () => {
     navigation.navigate('ConfirmOTP', { email: "", type: 'forgotPass' });
   }
   const navigateChangePass = () => {
-
     navigation.navigate('ConfirmOTP', { email:"phonggg78@gmail.com", type: 'changePass' });
 }
   return (
