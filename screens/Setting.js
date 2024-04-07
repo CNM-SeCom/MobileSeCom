@@ -111,6 +111,7 @@ const Setting = () => {
   const navigateChangePass = () => {
 
     navigation.navigate('ConfirmOTP', { email: user.email, type: 'changePass' });
+
 }
   return (
    <View style={[styles.container, { backgroundColor: colors.background }]}>

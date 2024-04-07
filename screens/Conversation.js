@@ -19,7 +19,7 @@ import Video from 'react-native-video'
 import ip from '../data/ip'
 import RNFetchBlob from 'rn-fetch-blob';
 import { Provider, Portal, Modal, Button } from 'react-native-paper';
-import ImageViewer from 'react-native-image-zoom-viewer';
+
 
 const ITEM_HEIGHT = 50;
 
@@ -81,12 +81,23 @@ const Chat = ({ navigation }) => {
   const [imageMessage, setImageMessage] = useState([]);
   const [messages, setMessages] = useState(chatData);
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
+  const [visible, setVisible] = useState(false);
 
   const [text, setText] = useState(''); // Khai báo biến text để lưu nội dung tin nhắn
   const [image, setImage] = useState(null); // Khai báo biến image để lưu ảnh đính kèm
   const [video, setVideo] = useState(null); // Khai báo biến video để lưu video đính kèm
   const [docment, setDocment] = useState(null); // Khai báo biến docment để lưu tài liệu đính kèm
 
+  imageMessage.forEach(element => {
+    //nếu đuôi là jpg thì gửi ảnh
+    if (element.includes('.jpg' || '.png')) {
+      console.log('image');
+    }
+    else {
+      console.log('video');
+    }
+  });
 
   handlePickPicture = () => {
     selectImage()
@@ -101,7 +112,7 @@ const Chat = ({ navigation }) => {
     const unsubscribe = navigation.addListener('focus', () => {
       scrollToBottom();
     });
-  }, [navigation]);
+  }, [navigation,visible]);
 
   const openGallery = async () => {
     try {
@@ -154,7 +165,18 @@ const Chat = ({ navigation }) => {
         <TouchableOpacity
           onLongPress={handleLongPress}
         >
-          <Text style={styles.text}>{item.text}</Text>
+          {
+            //nếu không thuộc từ a - z thì không có back grounf
+            item.text.match(/^[a-zA-Z0-9]+$/) ? (
+              <View style={{ backgroundColor: '#009688', borderRadius: 10, padding: 10 }}>
+                <Text style={{ color: 'black', fontSize: 16 }}>{item.text}</Text>
+              </View>
+            ) : (
+              <View style={{ backgroundColor: 'white', borderRadius: 10 }}>
+                <Text style={{ color: 'black', fontSize: 24 }}>{item.text}</Text>
+              </View>
+            )
+          }
         </TouchableOpacity>
       );
     } else if (item.type === 'image') {
@@ -173,7 +195,12 @@ const Chat = ({ navigation }) => {
           onLongPress={handleLongPress}
           onPress={() => handleShowVideo(item.video)}
         >
-          <Text style={{ color: 'green', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.user.name} đã gửi 1 video, bấm để xem</Text>
+          {/* <Text style={{ color: 'green', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.user.name} đã gửi 1 video, bấm để xem</Text> */}
+          {loading && typeof item.video === 'string' && !item.video.includes('cloudinary') ?  <View style={{flexDirection: 'row'}}>
+            <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.user.name} đang gửi 1 video</Text>
+            <ActivityIndicator size="large" color="#0000ff" animating={loading} />
+          </View> : <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15, textDecorationLine : 'underline' }}>{item.user.name} đã gửi 1 video, bấm để xem</Text>
+}
           {/* <Video
           source={{ uri: item.video }}
           style={{ width: 300, height: 170 }}
@@ -223,7 +250,7 @@ const Chat = ({ navigation }) => {
   }
   const selectImage = async () => {
     const result = await launchImageLibrary({
-      mediaType: 'photo',
+      mediaType: 'mixed',
       quality: 1,
     });
 
@@ -264,14 +291,50 @@ const Chat = ({ navigation }) => {
     dispatch(addChatData(config.body.message));
     axios.post('http://' + ip + ':3000/ws/send-message-to-user', config.body)
       .then((response) => {
-
+        setLoading(false);
       })
       .catch((error) => {
         console.log(error);
       })
+     
   };
-  const uploadImage = (uri) => {
-    RNFetchBlob.fetch('POST', 'http://' + ip + ':3000/uploadImageMessage', {
+
+
+  const handleSendVideo = (uri) => {
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': `Bearer ${token.accessToken}`
+      },
+      body: {
+        message: {
+          chatId: id,
+          text: "",
+          type: 'video',
+          video: uri,
+          user: {
+            idUser: user.idUser,
+            avatar: user.avatar,
+            name: user.name,
+          },
+          receiverId: otherParticipantId,
+        }
+      }
+    }
+    dispatch(addChatData(config.body.message));
+    axios.post('http://' + ip + ':3000/ws/send-message-to-user', config.body)
+      .then((response) => {
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+     
+  }
+
+  const uploadImage = async(uri) => {
+    setLoading(true);
+    await RNFetchBlob.fetch('POST', 'http://' + ip + ':3000/uploadImageMessage', {
       'Content-Type': 'multipart/form-data',
     }, [
       { name: 'image', filename: 'image.jpg', type: 'image/jpeg', data: RNFetchBlob.wrap(uri) }
@@ -288,6 +351,74 @@ const Chat = ({ navigation }) => {
     });
   };
 
+  // const uploadVideo = async(uri) => {
+  //   await RNFetchBlob.fetch('POST', 'http://' + ip + ':3000/cloudinary/uploadVideo', {
+  //     'Content-Type': 'multipart/form-data',
+  //   }, [
+  //     { name: 'video', filename: 'video.mp4', type: 'video/mp4', data: RNFetchBlob.wrap(uri) }
+  //     ,
+  //     {
+  //       name: 'idUser', data: user.idUser
+  //     }
+  //   ]).then((response) => {
+  //     //format response to json
+  //     response = JSON.parse(response.data);
+  //     // handleSendVideo(response.uri);
+  //   }).catch((error) => {
+  //     console.error(error);
+  //   });
+  // }
+
+  const uploadVideo = async (uri) => {
+    setLoading(true);
+    const data = new FormData();
+    data.append('video', {
+        uri: uri,
+        type: 'video/mp4',
+        name: 'video.mp4',
+    });
+    data.append('idUser', user.idUser); // Gửi idUser cùng với video
+    
+    
+     const message= {
+        chatId: id,
+        text: "",
+        type: 'video',
+        video: uri,
+        user: {
+          idUser: user.idUser,
+          avatar: user.avatar,
+          name: user.name,
+        },
+        receiverId: otherParticipantId,
+      }
+    
+  dispatch(addChatData(message));
+    try {
+      const response = await fetch('http://' + ip + ':3000/cloudinary/uploadVideo', {
+          method: 'POST',
+          body: data,
+          headers: {
+              'Content-Type': 'multipart/form-data',
+          },
+      });
+
+      // Kiểm tra nếu response không thành công (status code không phải 2xx)
+      if (!response.ok) {
+          throw new Error('Server response was not ok');
+      }
+
+      // Chuyển đổi response thành đối tượng JSON
+      const responseData = await response.json();
+      handleSendVideo(responseData.url.url);
+
+      // Xử lý phản hồi từ máy chủ ở đây (nếu cần)
+      console.log('Server response:', responseData);
+      
+  } catch (error) {
+      console.error(error);
+  }
+};
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -307,7 +438,25 @@ const Chat = ({ navigation }) => {
             marginLeft: 10,
           }}>
             <TouchableOpacity
-              onPress={() => navigation.navigate('Chat')}
+              onPress={() => {
+                console.log('back', loading);
+                if(!loading){
+                  navigation.navigate('Chat')
+                }
+                else{
+
+                  setVisible(true);
+                  <Portal>
+                    <Modal
+                  visible={visible}
+                  onDismiss={() => setVisible(false)}
+                  contentContainerStyle={{ backgroundColor: 'white', padding: 20, margin: 20 }}
+                  >
+                    <Text>Đang gửi video</Text>
+                  </Modal>
+                  </Portal>
+                }
+              }}
             >
               <FontAwesomeIcon icon={faArrowLeft} size={20} color="#fff" style={styles.iconHeader} />
             </TouchableOpacity>
@@ -326,7 +475,7 @@ const Chat = ({ navigation }) => {
         </View>
       ),
     });
-  }, [navigation]);
+  }, [navigation, loading]);
 
   //load lại màn hình khi có tin nhắn mới
   useEffect(() => {
@@ -408,8 +557,15 @@ const Chat = ({ navigation }) => {
   }
 
   const handleSendMedia = () => {
-    uploadImage(imageMessage[0]);
-    setImageMessage([]);
+    // uploadImage(imageMessage[0]);
+    if (imageMessage[0].includes('.jpg' || '.png')) {
+      uploadImage(imageMessage[0]);
+      setImageMessage([]);
+    }
+    else {
+      uploadVideo(imageMessage[0]);
+      setImageMessage([]);
+    }
   }
 
   return (

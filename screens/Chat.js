@@ -12,12 +12,26 @@ import { useSelector,useDispatch } from 'react-redux';
 import { setChatData } from '../redux/chatDataSlice';
 import { setChatId } from '../redux/chatIdSlice';
 import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 
 const heigh = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
 const Chat = () => {
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // Do something when the screen is focused
+      getChatData();
+      console.log('Chat Screen focused');
+      return () => {
+        // Do something when the screen is unfocused
+        // Useful for cleanup functions
+      };
+    }, [])
+  );
 
   const user = useSelector((state) => state.user.user);
   const mode = useSelector((state) => state.mode.mode);
@@ -117,26 +131,33 @@ const Chat = () => {
       <View style={[
         {backgroundColor : colors.background},
         styles.users]}>
-      <FlatList
-        data={messageData}
-        showsHorizontalScrollIndicator = {false}
-        renderItem={({item}) =>{ 
-          var otherParticipant;
-            // Lặp qua mảng participants để tìm người tham gia khác người dùng hiện tại
-            // dispatch(setChatId(item.id));
-            // setChatId(item.id)
-            if (user) {
-               otherParticipant = item.participants.find(element => element.idUser !== user.idUser);
-               return (
-                <Avatar
-                  image={otherParticipant.avatar}
-                />
+          {
+            messageData ?
+            (
+              <FlatList
+              data={messageData}
+              showsHorizontalScrollIndicator = {false}
+              renderItem={({item}) =>{ 
+                var otherParticipant;
+                  // Lặp qua mảng participants để tìm người tham gia khác người dùng hiện tại
+                  // dispatch(setChatId(item.id));
+                  // setChatId(item.id)
+                  if (user) {
+                     otherParticipant = item.participants.find(element => element.idUser !== user.idUser);
+                     return (
+                      <Avatar
+                        image={otherParticipant.avatar}
+                      />
+                  )
+                }}
+              }
+              keyExtractor={messageData => messageData.id}
+              horizontal={true}
+            />
+            ) :(
+              null
             )
-          }}
-        }
-        keyExtractor={messageData => messageData.id}
-        horizontal={true}
-      />
+          }
       </View>
       <View style={{
           width: '100%',
@@ -144,7 +165,7 @@ const Chat = () => {
           alignItems: 'center',
       }}>
         {
-          loading ? <Text>Loading...</Text> : 
+         messageData ? (
           <FlatList
           data={messageData}
           keyExtractor={item => item.id}
@@ -173,6 +194,9 @@ const Chat = () => {
             }
           }}
         />
+         ) : (
+          null
+         )
         }
 
       </View>
