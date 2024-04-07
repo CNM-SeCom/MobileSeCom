@@ -1,55 +1,64 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { FlatList } from 'react-native-gesture-handler'
 import { selectUser } from '../slices/userSlice'
-import { useState } from 'react'
+import axios from 'axios';
+import ip from '../data/ip';
+import { useFocusEffect } from '@react-navigation/native';
 
 const Notification = () => {
 
-    const listRequest = [
-        {
-            id: '1',
-            name: 'John Doe',
-            avatar: require('../assets/logo1.png'),
-            time: '3h ago',
-            message: 'Hi there!I am using this app to connect with people. ',
-        },
-        {
-            id: '2',
-            name: 'Jane Doe',
-            avatar: require('../assets/logo2.png'),
-            time: '2h ago',
-            message: 'Hello! Make sure to check out my profile and follow me!',
-        },
-        {
-            id: '3',
-            name: 'John Smith',
-            avatar: require('../assets/logo1.png'),
-            time: '1h ago',
-            message: 'Message you!',
-        },
-        {
-            id: '4',
-            name: 'Jane Smith',
-            avatar: require('../assets/logo3.png'),
-            time: '1h ago',
-            message: 'Sent you a friend request',
-        }
+  
 
-    ]
+    const user = useSelector((state) => state.user.user);
+    let [listRequest, setListRequest] = useState([]);
 
-    const handleAccept = (id) => {
-        console.log('Accept' + id)
+   
+
+    const getListRequestAddFriend = async() => {
+        console.log('id' , user.idUser);
+        await axios.post('http://' + ip + ':3000/getRequestAddFriendByUserId', { idUser : user.idUser })
+            .then((response) => {
+                // console.log('++++++++++++++++++');
+                // console.log(response.data);
+                setListRequest(response.data.data);
+                return response.data;
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
+    // getListRequestAddFriend();
+
+    // let listRequestAddFriend = getListRequestAddFriend();
+    useFocusEffect(
+        React.useCallback(() => {
+            getListRequestAddFriend();
+            console.log('Notification Screen focused');
+        }, [])
+    );
+    console.log('listRequestAddFriend', listRequest);
+
+
+    const handleAccept = async(item) => {
+        console.log(item);
+        console.log('==');
+        await axios.post('http://' + ip + ':3000/acceptRequestAddFriend',  item )
+            .then((response) => {
+                console.log(response.data);
+                //ẩn item vừa accept
+                setListRequest(listRequest.filter((request) => request.id !== item.id));
+                return response.data;
+            })
     }
 
     const handleDecline = (id) => {
         console.log('Decline' + id)
     }
 
-    useEffect(() => {
-        console.log('Notification Screen')
-    }, [])
+ 
 
     const renderAddFriendRequest = () => {
         return (
@@ -71,26 +80,21 @@ const Notification = () => {
                                 style={styles.avatarWrapper}
                             >
                                 <Image
-                                    source={item.avatar}
+                                    source={{uri:item.avatarFromUser}}
                                     style={styles.avatar}
                                 />
                             </View>
                             <View>
                                 <Text
                                     style={styles.name}
-                                >{item.name}</Text>
+                                >{item.nameFromUser}</Text>
                                 <Text>{item.time}</Text>
                             </View>
-                        </View>
-                        <View>
-                            <Text
-                                style={styles.message}
-                            >{item.message}</Text>
                             <View
                                 style={styles.buttonGroup}
                             >
                                 <TouchableOpacity
-                                    onPress={() => handleAccept(item.id)}
+                                    onPress={() => handleAccept(item)}
                                     style={styles.buttonAccept}
                                 >
                                     <Text
@@ -168,6 +172,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-end',
         margin: 10,
+        marginLeft: 40,
     },
     message: {
         margin: 10,

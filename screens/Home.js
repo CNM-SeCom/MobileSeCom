@@ -25,6 +25,7 @@ const Home = ({ navigation }) => {
   const chatData = useSelector((state) => state.chatData.chatData); 
   const token = useSelector((state) => state.token.token); 
 
+
   const mode = useSelector((state) => state.mode.mode);
   const colors = useSelector((state) => {
     switch (mode) {
@@ -120,18 +121,29 @@ const Home = ({ navigation }) => {
         }}
         onMessage={(msg) => {
           let data = JSON.parse(msg.data);
+          let add;
           //ảnh sẽ gắn mặc định
-          data.user.avatar = require('../assets/logo1.png');
-          const add = dispatch(addChatData(data));
-          console.log(data)
+          // data.user.avatar = require('../assets/logo1.png');
+        if(data.type === 'ADD_FRIEND'){
           showToast(data.user.name, data.text);
-          
-
+        }
+        else if(data.type === 'ACCEPT_FRIEND'){
+          console.log(data.data);
+          showToast(data.user.name, data.text);
+        }
+        else{
+           add = dispatch(addChatData(data));
+          // console.log(data)
+          showToast(data.user.name, data.text);
           if (add) {
             
           }else {
             console.log('Not Add');
           }
+        }
+          
+
+          
         }}
         onError={console.log}
         onClose={() => {

@@ -15,6 +15,7 @@ import DataUser from '../data/dataUser';
 const Search = () => {
   const token = useSelector((state) => state.token.token);
   const mode = useSelector((state) => state.mode.mode);
+  const user = useSelector((state) => state.user.user);
   
   const colors = useSelector((state) => {
     switch (mode) {
@@ -24,6 +25,7 @@ const Search = () => {
         return state.theme.lightColors;
     }
   });
+
 
   const [textSearch, setTextSearch] = useState('');
   const [filteredDataSource, setFilteredDataSource] = useState([]);
@@ -48,11 +50,21 @@ const Search = () => {
   };
   
 
-const handleAddFriend = () => {
-  axios.post('http://'+ip+':3000/sendRequestAddFriend', { fromUser:"17106455394110348307338",
-  toUser:"17106455254400348307336"},config)
-  .then((response) => {
+const handleAddFriend = (toIdUser, nameToUser, avatar) => {
+  const data ={
+    fromUser:user.idUser,
+    nameFromUser:user.name,
+    avatarFromUser:user.avatar,
+    toUser:toIdUser,
+    nameToUser : nameToUser, 
+    avatarToUser : avatar,
 
+  }
+
+  axios.post('http://'+ip+':3000/sendRequestAddFriend', data,config)
+  .then((response) => {
+   console.log('==================');
+    console.log(response.data);
   })
   .catch((error) => {
     console.log(error);
@@ -70,9 +82,6 @@ return (
         <FontAwesomeIcon icon={faArrowLeft} size={30} color={colors.text} />
       </TouchableOpacity>
       <TextInput 
-        onBlur={() => 
-          console.log("onBlur")
-        }
         placeholder="Tìm kiếm..."
         onChangeText={(search) => {
           updateSearch(search);
@@ -100,7 +109,7 @@ return (
             style={{flexDirection : 'row', alignItems : 'center'}}
           >
           <Image
-            source={require('../assets/logo3.png')}
+            source={{uri : item.avatar}}
             style={{width : 50, height : 50, borderRadius : 50}}
           />
           <Text
@@ -109,7 +118,7 @@ return (
           </View>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => handleAddFriend()}
+          onPress={() => handleAddFriend(item.idUser, item.name, item.avatar)}
           style={[{backgroundColor : colors.background, borderColor : colors.text},styles.buttonAdd]}
         >
           <FontAwesomeIcon icon={faUserPlus} size={30} color={colors.text} />
