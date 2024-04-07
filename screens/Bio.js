@@ -110,11 +110,22 @@ const navigation = useNavigation();
           <Text style={[
             {color: colors.text},
             styles.profileText]}>Email : {user.email}</Text>
+          <Text style={[
+            {color: colors.text},
+            styles.profileText]}>Địa chỉ : {user.address}</Text>
+          <Text style={[
+            {color: colors.text},
+            styles.profileText]}>Ngày sinh : {user.dob}</Text>
           </View>
           <TouchableOpacity 
           onPress={() => navigation.navigate('EditProfile')}
           style={styles.editProfileButton}>
-            <Text style={{textAlign: 'center', marginTop: 5,fontSize : 15}}>Edit Profile</Text>
+            <Text style={{textAlign: 'center', marginTop: 5,fontSize : 15}}>Chỉnh sửa thông tin cá nhân</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+          onPress={() => navigation.navigate('FriendList')}
+          style={styles.editProfileButton}>
+            <Text style={{textAlign: 'center', marginTop: 5,fontSize : 15}}>Danh sách bạn bè</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -20,6 +20,7 @@ const UpdateInfo = (  ) => {
   const [avatar, setAvatar] = useState('');
   const [coverImage, setCoverImage] = useState('');
   const [userName, setUserName] = useState('');
+  const [dob, setDob] = useState('');
   const [biography, setBiography] = useState('');
   const [address, setAddress] = useState('');
   const [school, setSchool] = useState('');
@@ -27,11 +28,20 @@ const UpdateInfo = (  ) => {
   const [job, setJob] = useState('');
   const [link, setLink] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isModalVisibleDob, setIsModalVisibleDob] = useState(false);
+  const [isModalVisibleAddress, setIsModalVisibleAddress] = useState(false);
   const idUser = user.idUser;
 
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
   };
+  const toggleModalDob = () => {
+    setIsModalVisibleDob(!isModalVisibleDob);
+  };
+  const toggleModalAddress = () => {
+    setIsModalVisibleAddress(!isModalVisibleAddress);
+  };
+  
 
   // const dataUpdate = useRoute().params;
   // //khi focus vào màn hình này thì log ra dataUpdate
@@ -59,6 +69,10 @@ const UpdateInfo = (  ) => {
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
+  const showModalAdrress = () => setVisible(true);
+  const hideModalAdrress = () => setVisible(false);
+  const showModalDob = () => setVisible(true);
+  const hideModalDob = () => setVisible(false);
   const handleEditName = (userName) => {
   const regexName = /\b[A-Z]\w*/;
 
@@ -193,9 +207,9 @@ const UpdateInfo = (  ) => {
           marginLeft: 5,
           marginTop: 5,
           alignSelf: 'center',
-          height: 'fit-content',
           fontWeight: 'bold',
-        }}>
+          borderBottomWidth:1,borderColor:'green'
+        }}>Họ và tên:
          {/* nếu user name là khoảng trắng hoặc rỗng thì hiện tên user.name */}
          {
             userName ? 
@@ -219,6 +233,86 @@ const UpdateInfo = (  ) => {
           <FontAwesomeIcon icon={faRotateLeft} size={20} color={'#fff'} style={{marginLeft : 10, top : 4}}/>
         </TouchableOpacity>
       </View>
+      
+      <View style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignContent: 'center',
+        alignItems: 'center'
+      }}>
+        <Text style={{
+          color: '#fff',
+          fontSize: 25,
+          marginLeft: 5,
+          marginTop: 5,
+          alignSelf: 'center',
+          fontWeight: 'bold',
+          
+        }}>
+          Địa chỉ:
+         {/* nếu user name là khoảng trắng hoặc rỗng thì hiện tên user.name */}
+         {
+            address ? 
+              (address === ' ' || address === '' ? user.address : address) :
+              user.address
+          }
+
+        </Text>
+        <TouchableOpacity
+          onPress={() => {
+            toggleModalAddress();
+          }}
+        >
+          <FontAwesomeIcon icon={faPen} size={20} color={'#fff'} style={{marginLeft : 10, top : 4}}/>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            setAddress('');
+          }}
+        >
+          <FontAwesomeIcon icon={faRotateLeft} size={20} color={'#fff'} style={{marginLeft : 10, top : 4}}/>
+        </TouchableOpacity>
+      </View>
+      <View style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignContent: 'center',
+        alignItems: 'center',
+         borderBottomWidth:1,borderTopWidth:1, borderColor:'green'
+      }}>
+        <Text style={{
+          color: '#fff',
+          fontSize: 25,
+          marginLeft: 5,
+          marginTop: 5,
+          alignSelf: 'center',
+          height: 'fit-content',
+          fontWeight: 'bold',
+          
+        }}>Ngày sinh: 
+         {/* nếu user name là khoảng trắng hoặc rỗng thì hiện tên user.name */}
+         {
+            dob ? 
+              (dob === ' ' || dob === '' ? user.dob : dob) :
+              user.dob
+          }
+
+        </Text>
+        <TouchableOpacity
+          onPress={() => {
+            toggleModalDob();
+          }}
+        >
+          <FontAwesomeIcon icon={faPen} size={20} color={'#fff'} style={{marginLeft : 10, top : 4}}/>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            setDob('');
+          }}
+        >
+          <FontAwesomeIcon icon={faRotateLeft} size={20} color={'#fff'} style={{marginLeft : 10, top : 4}}/>
+        </TouchableOpacity>
+      </View>
       <View style={styles.biographyContainer}>
         <View style={styles.editTitle}>
           <Text
@@ -237,6 +331,7 @@ const UpdateInfo = (  ) => {
               fontSize: 15,
             }}>Thêm</Text>
           </TouchableOpacity>
+          
           </View>
           {
             biography ?
@@ -348,7 +443,6 @@ const UpdateInfo = (  ) => {
         }}>Lưu</Text>
       </TouchableOpacity>
       </ScrollView>
-
       <Portal>
         <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modal}>
           <Text
@@ -417,6 +511,51 @@ const UpdateInfo = (  ) => {
           <TouchableOpacity
             onPress={() => {
               toggleModal();
+              //nếu người dùng không nhập lại tên thì set lại tên cũ
+            }}
+            style={styles.saveNewName}
+          >
+            <Text style={{
+              color: '#55c1dd',
+              fontWeight: 'bold',
+              fontSize: 15,
+              alignSelf: 'center',
+            }}>OK</Text>
+          </TouchableOpacity>
+        </Modal>
+        {/* sửa tên người ngày sinh */}
+        <Modal visible={isModalVisible} onDismiss={toggleModalDob} contentContainerStyle={styles.modalIputNewName}>
+          <Text
+            style={{
+              color: '#000',
+              fontWeight: 'bold',
+              fontSize: 17,
+              padding: 10,
+              alignSelf: 'center',
+            }}
+          >Nhập ngày sinh</Text>
+          <TextInput
+            multiline={true}
+            numberOfLines={1}
+            maxLength={20}
+            onChangeText={(text) => {
+              setDob(text);
+              console.log(dob);
+              }
+            }
+            {
+              ...dob ? 
+              {defaultValue: dob} : {defaultValue: ' '+user.dob}
+            }
+            onFocus={() => {
+              setUserName('');
+            }}
+            style={styles.inputNewName}
+          >
+          </TextInput>
+          <TouchableOpacity
+            onPress={() => {
+              toggleModalDob();
               //nếu người dùng không nhập lại tên thì set lại tên cũ
             }}
             style={styles.saveNewName}
