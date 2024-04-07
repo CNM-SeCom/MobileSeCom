@@ -49,6 +49,18 @@ const Search = () => {
       });
   };
   
+const handleNotify = (receiverId, name) => {
+  const data = {
+    receiverId: receiverId,
+    name : name
+  }
+
+  axios.post('http://'+ip+':3000/ws/sendNotifyAddFriendToUser', {data})
+  .then((response) => {
+    console.log(response.data);
+  })
+
+}
 
 const handleAddFriend = (toIdUser, nameToUser, avatar) => {
   const data ={
@@ -63,6 +75,7 @@ const handleAddFriend = (toIdUser, nameToUser, avatar) => {
 
   axios.post('http://'+ip+':3000/sendRequestAddFriend', data,config)
   .then((response) => {
+    handleNotify(toIdUser, data.nameFromUser);
    console.log('==================');
     console.log(response.data);
   })
