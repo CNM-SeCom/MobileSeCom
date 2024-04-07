@@ -11,18 +11,22 @@ import ip from '../data/ip';
 import { List } from 'react-native-paper';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPalette, faRightFromBracket,faBars } from '@fortawesome/free-solid-svg-icons';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry'
 
 const FriendList = () => {
     const user = useSelector((state) => state.user.user);
-    const navigation = useNavigation();
-    const listFriend = user.listFriend;
     const [listFriendRequest, setListFriendRequest] = useState('');
+    const [listFriend, setListFriend] = useState('');
     const userId = user.idUser;
     const [modalVisible, setModalVisible] = useState(false);
-    const cancelRequest = (id) => {
-        console.log('Cancel' + id)
+    const cancelRequestAddFriend = (id) => {
+        console.log('Hủy yêu cầu' + id)
     }
-    async function getGetListRequest(id) {
+    const blockFriend = (id) => {
+        console.log('Chặn' + id)
+    }
+    //Danh sach gửi yêu cầu kết bạn
+    async function getSentRequestAddFriendByUserId(id) {
         const listFriendRequest = listFriendRequest;
         const data={
             idUser: id,
@@ -36,8 +40,22 @@ const FriendList = () => {
       console.log(err);
     })
     }
+    //Danh sách bạn bè
+    async function getListFriendByUserId(id) {
+        const data={
+            idUser: id,
+            listFriend:listFriend
+        }
+        await axios.post('http://' + ip + ':3000/getListFriendByUserId',data).then((res) => {
+        setListFriend(res.data.data);
+        return res.data.data;
+    }).catch((err) => {
+      console.log(err);
+    })
+    }
     useEffect(() => {
-        getGetListRequest(userId);
+        getSentRequestAddFriendByUserId(userId);
+        getListFriendByUserId(userId);
     },[]) 
     return (
         <View style={{backgroundColor:'white'}}>
@@ -60,14 +78,14 @@ const FriendList = () => {
                                 style={styles.avatarWrapper}
                             >
                                 <Image
-                                    source={{uri:item.avatarFromUser}}
+                                    source={{uri:item.avatarToUser}}
                                     style={styles.avatar}
                                 />
                             </View>
                             <View>
                                 <Text
                                     style={styles.name}
-                                >{item.nameFromUser}</Text>
+                                >{item.nameToUser}</Text>
                             </View>
                            
                         </View>
