@@ -84,7 +84,9 @@ const Chat = ({ navigation }) => {
   const [text, setText] = useState(''); // Khai báo biến text để lưu nội dung tin nhắn
   const [image, setImage] = useState(null); // Khai báo biến image để lưu ảnh đính kèm
   const [video, setVideo] = useState(null); // Khai báo biến video để lưu video đính kèm
-  const [docment, setDocment] = useState(null); // Khai báo biến docment để lưu tài liệu đính kèm
+  const [docment, setDocment] = useState(null); 
+  // Khai báo biến docment để lưu tài liệu đính kèm
+  // console.log('chatData', chatData);
 
   imageMessage.forEach(element => {
     //nếu đuôi là jpg thì gửi ảnh
@@ -184,9 +186,12 @@ const Chat = ({ navigation }) => {
       return (
         <TouchableOpacity
           onLongPress={handleLongPress}
-          onPress={() => { handleShowImage(item.image) }}
+          onPress={() => { 
+
+            console.log('image=============================================' , item.image);
+            handleShowImage(item.image) }}
         >
-          <Image source={{ uri: item.image }} style={{ width: 200, height: 200, borderRadius: 10 }} />
+          <Image source={{ uri:item.image }} style={{ width: 200, height: 200, borderRadius: 10 }} />
         </TouchableOpacity>
       );
     } else if (item.type === 'video') {
@@ -292,11 +297,12 @@ const Chat = ({ navigation }) => {
     dispatch(addChatData(config.body.message));
     axios.post('http://' + ip + ':3000/ws/send-message-to-user', config.body)
       .then((response) => {
+        setLoading(false);
       })
       .catch((error) => {
         console.log(error);
       })
-
+     
   };
 
 
