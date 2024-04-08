@@ -69,10 +69,10 @@ const Chat = ({ navigation }) => {
   };
 
   useEffect(() => {
-    console.log("sdahdbsajdbjsab dsa");
     setMessages([chatData]);
     scrollToBottom();
   }, [chatData, text, image, video, docment]);
+
 
   const route = useRoute();
   const name = route.params.username;
@@ -90,7 +90,9 @@ const Chat = ({ navigation }) => {
   const [text, setText] = useState(''); // Khai báo biến text để lưu nội dung tin nhắn
   const [image, setImage] = useState(null); // Khai báo biến image để lưu ảnh đính kèm
   const [video, setVideo] = useState(null); // Khai báo biến video để lưu video đính kèm
-  const [docment, setDocment] = useState(null); // Khai báo biến docment để lưu tài liệu đính kèm
+  const [docment, setDocment] = useState(null); 
+  // Khai báo biến docment để lưu tài liệu đính kèm
+  // console.log('chatData', chatData);
 
   imageMessage.forEach(element => {
     //nếu đuôi là jpg thì gửi ảnh
@@ -110,12 +112,16 @@ const Chat = ({ navigation }) => {
     openGalleryVideo();
   }
 
+  useEffect(() => {
+    setMessages(chatData);
+    scrollToBottom();
+  }, [chatData, text, image, video, docment]);
   //auto scroll to bottom when focus creen
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       scrollToBottom();
     });
-  }, [navigation,visible]);
+  }, [navigation]);
 
   const openGallery = async () => {
     try {
@@ -179,8 +185,8 @@ const Chat = ({ navigation }) => {
         >
           {
             //nếu không thuộc từ a - z thì không có back grounf
-            item.text.match(/^[a-zA-Z0-9]+$/) ? (
-              <View style={{ backgroundColor: '#009688', borderRadius: 10, padding: 10 }}>
+            item.text.match(/^[a-zA-Z0-9 ]+$/) ? (
+              <View style={{ borderRadius: 10, padding: 10 }}>
                 <Text style={{ color: 'black', fontSize: 16 }}>{item.text}</Text>
               </View>
             ) : (
@@ -203,9 +209,9 @@ const Chat = ({ navigation }) => {
             }
             console.log(isMyMessage);
             handleLongPress(item._id)}}
-          onPress={() => { handleShowImage(item.image) }}
+
         >
-          <Image source={{ uri: item.image }} style={{ width: 200, height: 200, borderRadius: 10 }} />
+          <Image source={{ uri:item.image }} style={{ width: 200, height: 200, borderRadius: 10 }} />
         </TouchableOpacity>
       );
     } else if (item.type === 'video') {
@@ -224,11 +230,11 @@ const Chat = ({ navigation }) => {
           onPress={() => handleShowVideo(item.video)}
         >
           {/* <Text style={{ color: 'green', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.user.name} đã gửi 1 video, bấm để xem</Text> */}
-          {loading && typeof item.video === 'string' && !item.video.includes('cloudinary') ?  <View style={{flexDirection: 'row'}}>
+          {loading && typeof item.video === 'string' && !item.video.includes('cloudinary') ? <View style={{ flexDirection: 'row' }}>
             <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.user.name} đang gửi 1 video</Text>
             <ActivityIndicator size="large" color="#0000ff" animating={loading} />
-          </View> : <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15, textDecorationLine : 'underline' }}>{item.user.name} đã gửi 1 video, bấm để xem</Text>
-}
+          </View> : <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15, textDecorationLine: 'underline' }}>{item.user.name} đã gửi 1 video, bấm để xem</Text>
+          }
           {/* <Video
           source={{ uri: item.video }}
           style={{ width: 300, height: 170 }}
@@ -349,7 +355,7 @@ const Chat = ({ navigation }) => {
         }
       }
     }
-    dispatch(addChatData(config.body.message));
+    // dispatch(addChatData(config.body.message));
     axios.post('http://' + ip + ':3000/ws/send-message-to-user', config.body)
       .then((response) => {
         setLoading(false);
@@ -357,11 +363,11 @@ const Chat = ({ navigation }) => {
       .catch((error) => {
         console.log(error);
       })
-     
+
   }
 
-  const uploadImage = async(uri) => {
-    setLoading(true);
+  const uploadImage = async (uri) => {
+
     await RNFetchBlob.fetch('POST', 'http://' + ip + ':3000/uploadImageMessage', {
       'Content-Type': 'multipart/form-data',
     }, [
@@ -379,61 +385,44 @@ const Chat = ({ navigation }) => {
     });
   };
 
-  // const uploadVideo = async(uri) => {
-  //   await RNFetchBlob.fetch('POST', 'http://' + ip + ':3000/cloudinary/uploadVideo', {
-  //     'Content-Type': 'multipart/form-data',
-  //   }, [
-  //     { name: 'video', filename: 'video.mp4', type: 'video/mp4', data: RNFetchBlob.wrap(uri) }
-  //     ,
-  //     {
-  //       name: 'idUser', data: user.idUser
-  //     }
-  //   ]).then((response) => {
-  //     //format response to json
-  //     response = JSON.parse(response.data);
-  //     // handleSendVideo(response.uri);
-  //   }).catch((error) => {
-  //     console.error(error);
-  //   });
-  // }
 
   const uploadVideo = async (uri) => {
     setLoading(true);
     const data = new FormData();
     data.append('video', {
-        uri: uri,
-        type: 'video/mp4',
-        name: 'video.mp4',
+      uri: uri,
+      type: 'video/mp4',
+      name: 'video.mp4',
     });
     data.append('idUser', user.idUser); // Gửi idUser cùng với video
-    
-    
-     const message= {
-        chatId: id,
-        text: "",
-        type: 'video',
-        video: uri,
-        user: {
-          idUser: user.idUser,
-          avatar: user.avatar,
-          name: user.name,
-        },
-        receiverId: otherParticipantId,
-      }
-    
-  dispatch(addChatData(message));
+
+
+    const message = {
+      chatId: id,
+      text: "",
+      type: 'video',
+      video: uri,
+      user: {
+        idUser: user.idUser,
+        avatar: user.avatar,
+        name: user.name,
+      },
+      receiverId: otherParticipantId,
+    }
+    dispatch(addChatData(message));
+s
     try {
       const response = await fetch('http://' + ip + ':3000/cloudinary/uploadVideo', {
-          method: 'POST',
-          body: data,
-          headers: {
-              'Content-Type': 'multipart/form-data',
-          },
+        method: 'POST',
+        body: data,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
       // Kiểm tra nếu response không thành công (status code không phải 2xx)
       if (!response.ok) {
-          throw new Error('Server response was not ok');
+        throw new Error('Server response was not ok');
       }
 
       // Chuyển đổi response thành đối tượng JSON
@@ -442,8 +431,9 @@ const Chat = ({ navigation }) => {
 
       // Xử lý phản hồi từ máy chủ ở đây (nếu cần)
       console.log('Server response:', responseData);
-      
-  } catch (error) {
+
+
+    } catch (error) {
       console.error(error);
   }
 };
@@ -463,6 +453,7 @@ const handleDeleteMesssage = () => {
       })
 }
 
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
@@ -473,7 +464,9 @@ const handleDeleteMesssage = () => {
             alignItems: 'center',
             marginLeft: 40,
           }}>
-            <Avatar rounded source={require('../assets/logo2.png')} />
+            <Avatar rounded source={{
+              uri: route.params.avatar
+            }} />
             <Text style={styles.headerText}>{name}</Text>
           </View>
           <View style={{
@@ -483,21 +476,11 @@ const handleDeleteMesssage = () => {
             <TouchableOpacity
               onPress={() => {
                 console.log('back', loading);
-                if(!loading){
+                if (!loading) {
                   navigation.navigate('Chat')
                 }
-                else{
-
+                else {
                   setVisible(true);
-                  <Portal>
-                    <Modal
-                  visible={visible}
-                  onDismiss={() => setVisible(false)}
-                  contentContainerStyle={{ backgroundColor: 'white', padding: 20, margin: 20 }}
-                  >
-                    <Text>Đang gửi video</Text>
-                  </Modal>
-                  </Portal>
                 }
               }}
             >
@@ -524,7 +507,7 @@ const handleDeleteMesssage = () => {
   useEffect(() => {
     setMessages([chatData]);
     scrollToBottom();
-  }, [chatData, imageMessage]);
+  }, [ imageMessage]);
 
   const renderTyping = () => {
     if (text) {
@@ -588,12 +571,16 @@ const handleDeleteMesssage = () => {
             keyExtractor={(item) => item}
             horizontal={true}
           />
+          <TouchableOpacity>
+
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={handleSendMedia}
             style={{ padding: 10 }}
           >
             <Icon name='send' size={25} color='#009688' />
           </TouchableOpacity>
+
         </View>
       )
     }
@@ -626,7 +613,7 @@ const handleDeleteMesssage = () => {
             //nếu id người gửi khác với id nguôi dùng thì hiển thị tin nhắn bên trái
             item.user.idUser !== user.idUser ? (
               <View style={[{ justifyContent: 'flex-start' }, styles.bubble]}>
-                <Avatar rounded source={require('../assets/logo2.png')} />
+                <Avatar rounded source={{ uri: item.user.avatar }} />
                 {/* <Avatar rounded source={{uri : item.user.avatar}} /> */}
                 <View style={styles.bubbleLeft}>
                   {
@@ -641,7 +628,7 @@ const handleDeleteMesssage = () => {
                     renderMessage(item)
                   }
                 </View>
-                <Avatar rounded source={require('../assets/logo2.png')} />
+                <Avatar rounded source={{ uri: user.avatar }} />
 
                 {/* <Avatar rounded source={{ uri: user.avatar }} /> */}
               </View>
@@ -681,7 +668,7 @@ const handleDeleteMesssage = () => {
           <Modal visible={showVideo} onDismiss={() => setShowVideo(false)}>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
               <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" color="#0000ff" animating={loadVideo}/>
+                <ActivityIndicator size="large" color="#0000ff" animating={loadVideo} />
               </View>
               <Video
                 source={{ uri: videoUri }}
@@ -695,7 +682,7 @@ const handleDeleteMesssage = () => {
           <Modal visible={showImage} onDismiss={() => setShowImage(false)}>
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
               <TouchableOpacity
-                 style={{
+                style={{
                   position: 'absolute',
                   top: 10,
                   right: 10,
@@ -703,18 +690,38 @@ const handleDeleteMesssage = () => {
                 }}
                 onPress={() => setShowImage(false)}
               >
-                <FontAwesomeIcon 
-                  
+                <FontAwesomeIcon
+
                   icon={faXmark} size={30} color='red' onPress={() => setShowImage(false)} />
               </TouchableOpacity>
               <Image
                 source={{ uri: imageUri }}
                 style={{ width: '100%', height: '100%', resizeMode: 'center' }}
-              /> 
-           
+              />
+
             </View>
           </Modal>
-
+          <Portal>
+            <Modal
+              visible={visible}
+              onDismiss={() => setVisible(false)}
+              contentContainerStyle={{ backgroundColor: 'white', padding: 20, margin: 20 }}
+            >
+              {/* tiếp tục */}
+              <Text style={{ fontSize: 20, fontWeight: 'bold', color: 'black' }}>Bạn có muốn thoát không?</Text>
+              <View style={{
+                flexDirection: 'row'
+              }}>
+                <Button onPress={() =>
+                  setVisible(false)
+                }>Ở lại</Button>
+                <Button onPress={() => {
+                  setVisible(false)
+                  navigation.navigate('Chat')
+                }}>Thoát</Button>
+              </View>
+            </Modal>
+          </Portal>
         </Portal>
       </View>
     </Provider>

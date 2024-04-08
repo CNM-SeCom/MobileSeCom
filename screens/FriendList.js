@@ -156,13 +156,19 @@ const FriendList = () => {
                                     style={styles.name}
                                 >{item.name}</Text>
                             </View>
-                            <Modal
-                            animationType="none"
+
+                     
+                            
+                        </View>
+                        <Modal
+
+                            animationType="slide"
+
                             transparent={true}
                             visible={modalVisible}
                             style={{backgroundColor:'white'}}
                             onRequestClose={() => {
-                            setModalVisible(!modalVisible);
+                                setModalVisible(!modalVisible);
                             }}
                             >
                             <View style={styles.centeredView}>

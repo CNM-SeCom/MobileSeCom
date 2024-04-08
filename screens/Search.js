@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { Chip } from 'react-native-paper';
-import { TextInput, View,TouchableOpacity,StyleSheet, Text,Image } from 'react-native';
+import { TextInput, View,TouchableOpacity,StyleSheet, Text,Image, Alert } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faCheck, faArrowLeft, faSearch, faUserPlus} from '@fortawesome/free-solid-svg-icons';
 import { useNavigation } from '@react-navigation/native'; 
@@ -16,6 +16,8 @@ const Search = () => {
   const token = useSelector((state) => state.token.token);
   const mode = useSelector((state) => state.mode.mode);
   const user = useSelector((state) => state.user.user);
+
+  console.log('user', user.listFriend);
   
   const colors = useSelector((state) => {
     switch (mode) {
@@ -38,9 +40,9 @@ const Search = () => {
     headers: { Authorization: `Bearer ${token.accessToken}` }
   };
   
-  const handleSearch = (textSearch) => {
+  const handleSearch = async(textSearch) => {
     console.log("============")
-     axios.post('http://'+ip+':3000/getListUserByName', {name : textSearch})
+    await axios.post('http://'+ip+':3000/getListUserByName', {name : textSearch, idUser : user.idUser},config)
       .then((response) => {
         setFilteredDataSource(response.data.data);
       })
@@ -48,7 +50,39 @@ const Search = () => {
         console.log(error);
       });
   };
+
   
+  
+
+const renderButtonAdd = (idUser, name) => {
+
+  checkFriend(idUser);
+   if(checkFriend(idUser) == true){
+    return(
+      <TouchableOpacity
+        onPress={() => {
+          handleAddFriend(idUser)
+          Alert.alert('Thông báo', 'Đã gửi lời mời kết bạn đến '+name);
+        }}
+        style={[{backgroundColor : colors.background, borderColor : colors.text},styles.buttonAdd]}
+      >
+        <FontAwesomeIcon icon={faUserPlus} size={30} color={colors.text} />
+      </TouchableOpacity>
+    );
+  }
+}
+
+  
+const checkFriend = (item) => {
+  for (const friend of user.listFriend) {
+    if (friend.idUser === item) {
+      return false; // Nếu tìm thấy idUser trong listFriend thì trả về false
+    }
+  }
+  return true; // Nếu không tìm thấy idUser trong listFriend thì trả về true
+};
+
+
 const handleNotify = (receiverId, name) => {
   const data = {
     receiverId: receiverId,
@@ -57,12 +91,14 @@ const handleNotify = (receiverId, name) => {
 
   axios.post('http://'+ip+':3000/ws/sendNotifyAddFriendToUser', {data})
   .then((response) => {
+    
     console.log(response.data);
   })
 
 }
 
-const handleAddFriend = (toIdUser, nameToUser, avatar) => {
+
+const handleAddFriend = async(toIdUser, nameToUser, avatar) => {
   const data ={
     fromUser:user.idUser,
     nameFromUser:user.name,
@@ -73,7 +109,9 @@ const handleAddFriend = (toIdUser, nameToUser, avatar) => {
 
   }
 
-  axios.post('http://'+ip+':3000/sendRequestAddFriend', data,config)
+  
+
+  await axios.post('http://'+ip+':3000/sendRequestAddFriend', data,config)
   .then((response) => {
     handleNotify(toIdUser, data.nameFromUser);
    console.log('==================');
@@ -130,12 +168,16 @@ return (
           >{item.name}</Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => handleAddFriend(item.idUser, item.name, item.avatar)}
+        {/* <TouchableOpacity
+          onPress={() => {
+            handleAddFriend(item.idUser, item.name, item.avatar)
+            Alert.alert('Thông báo', 'Đã gửi lời mời kết bạn đến '+item.name);
+          }}
           style={[{backgroundColor : colors.background, borderColor : colors.text},styles.buttonAdd]}
         >
           <FontAwesomeIcon icon={faUserPlus} size={30} color={colors.text} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+        {renderButtonAdd(item.idUser, item.name)}
        </View>
       )}
     />
