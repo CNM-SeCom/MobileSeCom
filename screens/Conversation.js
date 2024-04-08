@@ -112,7 +112,7 @@ const Chat = ({ navigation }) => {
     const unsubscribe = navigation.addListener('focus', () => {
       scrollToBottom();
     });
-  }, [navigation,visible]);
+  }, [navigation]);
 
   const openGallery = async () => {
     try {
@@ -167,8 +167,8 @@ const Chat = ({ navigation }) => {
         >
           {
             //nếu không thuộc từ a - z thì không có back grounf
-            item.text.match(/^[a-zA-Z0-9]+$/) ? (
-              <View style={{ backgroundColor: '#009688', borderRadius: 10, padding: 10 }}>
+            item.text.match(/^[a-zA-Z0-9 ]+$/) ? (
+              <View style={{ borderRadius: 10, padding: 10 }}>
                 <Text style={{ color: 'black', fontSize: 16 }}>{item.text}</Text>
               </View>
             ) : (
@@ -291,7 +291,6 @@ const Chat = ({ navigation }) => {
     dispatch(addChatData(config.body.message));
     axios.post('http://' + ip + ':3000/ws/send-message-to-user', config.body)
       .then((response) => {
-        setLoading(false);
       })
       .catch((error) => {
         console.log(error);
@@ -333,7 +332,7 @@ const Chat = ({ navigation }) => {
   }
 
   const uploadImage = async(uri) => {
-    setLoading(true);
+  
     await RNFetchBlob.fetch('POST', 'http://' + ip + ':3000/uploadImageMessage', {
       'Content-Type': 'multipart/form-data',
     }, [
@@ -393,7 +392,7 @@ const Chat = ({ navigation }) => {
         receiverId: otherParticipantId,
       }
     
-  dispatch(addChatData(message));
+  // dispatch(addChatData(message));
     try {
       const response = await fetch('http://' + ip + ':3000/cloudinary/uploadVideo', {
           method: 'POST',
@@ -573,7 +572,7 @@ const Chat = ({ navigation }) => {
             //nếu id người gửi khác với id nguôi dùng thì hiển thị tin nhắn bên trái
             item.user.idUser !== user.idUser ? (
               <View style={[{ justifyContent: 'flex-start' }, styles.bubble]}>
-                <Avatar rounded source={require('../assets/logo2.png')} />
+                <Avatar rounded source={{uri : item.user.avatar}} />
                 {/* <Avatar rounded source={{uri : item.user.avatar}} /> */}
                 <View style={styles.bubbleLeft}>
                   {
@@ -588,7 +587,7 @@ const Chat = ({ navigation }) => {
                     renderMessage(item)
                   }
                 </View>
-                <Avatar rounded source={require('../assets/logo2.png')} />
+                <Avatar rounded source={{ uri : user.avatar }} />
 
                 {/* <Avatar rounded source={{ uri: user.avatar }} /> */}
               </View>
@@ -673,8 +672,13 @@ const Chat = ({ navigation }) => {
                      <View style={{
                       flexDirection: 'row'
                      }}>
-                          <Button onPress={() => setVisible(false)}>Ở lại</Button>
-                          <Button onPress={() => setVisible(false)}>Hủy</Button>
+                          <Button onPress={() => 
+                           setVisible(false)
+                            }>Ở lại</Button>
+                          <Button onPress={() =>  {
+                              setVisible(false)
+                            navigation.navigate('Chat')
+                            }}>Thoát</Button>
                      </View>
                   </Modal>
                   </Portal>
