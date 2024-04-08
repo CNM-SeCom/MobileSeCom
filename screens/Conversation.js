@@ -35,7 +35,8 @@ const Chat = ({ navigation }) => {
   const [showImage, setShowImage] = useState(false);
   const [imageUri, setImageUri] = useState('');
   const [loadVideo, setLoadVideo] = useState(true);
-
+  const [messageId, setMessageId] = useState();
+  const [isMyMessage, setIsMyMessage] = useState(false);
   const images = [{
     url: imageUri,
   }]
@@ -52,7 +53,8 @@ const Chat = ({ navigation }) => {
 
   }
 
-  const handleLongPress = () => {
+  const handleLongPress = (id) => {
+    setMessageId(id);
     // Hiển thị menu lựa chọn
     setMenuVisible(true);
     // Hoặc bạn có thể sử dụng Alert để hiển thị các lựa chọn
@@ -67,6 +69,7 @@ const Chat = ({ navigation }) => {
   };
 
   useEffect(() => {
+    console.log("sdahdbsajdbjsab dsa");
     setMessages([chatData]);
     scrollToBottom();
   }, [chatData, text, image, video, docment]);
@@ -75,7 +78,7 @@ const Chat = ({ navigation }) => {
   const name = route.params.username;
   const id = route.params.chatId;
   const otherParticipantId = route.params.id;
-  const chatData = useSelector((state) => state.chatData.chatData);
+  let chatData = useSelector((state) => state.chatData.chatData);
   const token = useSelector((state) => state.token.token);
   const user = useSelector((state) => state.user.user);
   const [imageMessage, setImageMessage] = useState([]);
@@ -160,10 +163,19 @@ const Chat = ({ navigation }) => {
   }
 
   renderMessage = (item) => {
+  
     if (item.type === 'text') {
       return (
         <TouchableOpacity
-          onLongPress={handleLongPress}
+          onLongPress={()=>{
+            if(item.user.idUser === user.idUser){
+              setIsMyMessage(true);
+            }
+            else{
+              setIsMyMessage(false);
+            }
+            console.log(isMyMessage);
+            handleLongPress(item._id)}}
         >
           {
             //nếu không thuộc từ a - z thì không có back grounf
@@ -182,7 +194,15 @@ const Chat = ({ navigation }) => {
     } else if (item.type === 'image') {
       return (
         <TouchableOpacity
-          onLongPress={handleLongPress}
+          onLongPress={()=>{
+            if(item.user.idUser === user.idUser){
+              setIsMyMessage(true);
+            }
+            else{
+              setIsMyMessage(false);
+            }
+            console.log(isMyMessage);
+            handleLongPress(item._id)}}
           onPress={() => { handleShowImage(item.image) }}
         >
           <Image source={{ uri: item.image }} style={{ width: 200, height: 200, borderRadius: 10 }} />
@@ -192,7 +212,15 @@ const Chat = ({ navigation }) => {
 
       return (
         <TouchableOpacity
-          onLongPress={handleLongPress}
+          onLongPress={()=>{
+            if(item.user.idUser === user.idUser){
+              setIsMyMessage(true);
+            }
+            else{
+              setIsMyMessage(false);
+            }
+            console.log(isMyMessage);
+            handleLongPress(item._id)}}
           onPress={() => handleShowVideo(item.video)}
         >
           {/* <Text style={{ color: 'green', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.user.name} đã gửi 1 video, bấm để xem</Text> */}
@@ -419,6 +447,21 @@ const Chat = ({ navigation }) => {
       console.error(error);
   }
 };
+//delete message
+const handleDeleteMesssage = () => {
+    //xóa tin nhắn
+    axios.post('http://' + ip + ':3000/deleteMessageById', { messageId: messageId })
+      .then((response) => {
+        console.log(response.data);
+        setMenuVisible(false);
+        chatData= chatData.filter((message) => message._id !== messageId);
+        dispatch(setChatData(chatData));
+
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+}
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -619,16 +662,15 @@ const Chat = ({ navigation }) => {
 
         <Portal>
           <Modal style={{ justifyContent: 'center', alignItems: 'center' }} visible={menuVisible} onDismiss={() => setMenuVisible(false)}>
-            <View style={{ height: 170, width: 300, backgroundColor: 'white', borderRadius: 10 }}>
-              <View style={{ justifyContent: 'center', alignItems: 'center', width: "100%", backgroundColor: "cyan", borderRadius: 10 }}>
-                <Text style={{ fontSize: 20, fontWeight: 'bold', margin: 10, color: 'black' }}>Tin nhắn</Text>
+            <View style={{  width: 300, backgroundColor: 'white'}}>
+              <View style={{ justifyContent: 'center', alignItems: 'center', width: "100%",height:50, backgroundColor: "#C3F8FF"}}>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: 'black' }}>Tin nhắn</Text>
               </View>
               <View>
-                <TouchableOpacity style={styles.buttonMessageOption}>
-                  <Text style={styles.messageOption}>Xoá tin nhắn</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.buttonMessageOption}>
-                  <Text style={styles.messageOption}>Thu hồi tin nhắn</Text>
+                <TouchableOpacity style={styles.buttonMessageOptionDelete} disabled={!isMyMessage} onPress={()=>{
+                  handleDeleteMesssage()
+                }}>
+                  {isMyMessage ? <Text style={styles.messageOption}>Xóa tin nhắn</Text> : null}
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.buttonMessageOption}>
                   <Text style={styles.messageOption}>Chuyển tiếp tin nhắn</Text>
@@ -796,10 +838,15 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
     margin: 10,
-    color: 'red'
+    color: 'black',
   },
   buttonMessageOption: {
     borderBottomWidth: 1,
-    borderBottomColor: 'black'
+    borderColor: 'black',
+  },
+  buttonMessageOptionDelete: {
+    borderBottomWidth: 1,
+    borderColor: 'black',
+    borderTopWidth: 1,
   }
 });
