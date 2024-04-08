@@ -54,14 +54,14 @@ const Search = () => {
   
   
 
-const renderButtonAdd = (idUser, name) => {
+const renderButtonAdd = (idUser, name, avatar) => {
 
   checkFriend(idUser);
    if(checkFriend(idUser) == true){
     return(
       <TouchableOpacity
         onPress={() => {
-          handleAddFriend(idUser)
+          handleAddFriend(idUser, name, avatar);
           Alert.alert('Thông báo', 'Đã gửi lời mời kết bạn đến '+name);
         }}
         style={[{backgroundColor : colors.background, borderColor : colors.text},styles.buttonAdd]}
@@ -177,7 +177,7 @@ return (
         >
           <FontAwesomeIcon icon={faUserPlus} size={30} color={colors.text} />
         </TouchableOpacity> */}
-        {renderButtonAdd(item.idUser, item.name)}
+        {renderButtonAdd(item.idUser, item.name, item.avatar)}
        </View>
       )}
     />

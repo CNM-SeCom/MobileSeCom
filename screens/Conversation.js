@@ -410,7 +410,7 @@ const Chat = ({ navigation }) => {
       receiverId: otherParticipantId,
     }
     dispatch(addChatData(message));
-s
+
     try {
       const response = await fetch('http://' + ip + ':3000/cloudinary/uploadVideo', {
         method: 'POST',
@@ -571,8 +571,10 @@ const handleDeleteMesssage = () => {
             keyExtractor={(item) => item}
             horizontal={true}
           />
-          <TouchableOpacity>
-
+          <TouchableOpacity
+            onPress={() => setImageMessage([])}
+          >
+            <FontAwesomeIcon icon={faXmark} size={25} color='#009688' />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleSendMedia}
