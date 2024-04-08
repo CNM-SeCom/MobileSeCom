@@ -165,6 +165,7 @@ const styles = StyleSheet.create({
        width: width,
        height: height,
        alignItems: 'center',
+
    },
   
       nav : {

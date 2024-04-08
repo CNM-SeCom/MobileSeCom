@@ -21,6 +21,7 @@ const initialState = {
     icon: 'black',
     iconActive: 'black',
     iconInactive: '#3c3c3c',
+    background:'#C3F8FF'
 
   }
 };

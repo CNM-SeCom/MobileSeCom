@@ -12,6 +12,7 @@ import ChooseImage from '../screens/ChooseImage';
 import Register from '../screens/Register';
 import ConfirmOTP from '../screens/ConfirmOTP';
 import ResetPass from '../screens/ResetPass';
+import FriendList from '../screens/FriendList';
 
 // import VideoCall from '../screens/VideoCall';
 
@@ -20,7 +21,6 @@ const Stack = createStackNavigator();
 function MyStack() {
   return (
     <Stack.Navigator
-    
     screenOptions={{headerShown : true}}>
       <Stack.Screen name="Intro" component={Intro} options={{headerShown : false}}/>
       <Stack.Screen name="Login" component={Login} options={{headerShown : false}}/>
@@ -32,6 +32,7 @@ function MyStack() {
       <Stack.Screen name="Register" component={Register} options={{headerShown : false}}/>   
       <Stack.Screen name="ConfirmOTP" component={ConfirmOTP} options={{headerShown : false}}/>
       <Stack.Screen name="ResetPass" component={ResetPass} options={{headerShown : false}}/>
+      <Stack.Screen name="FriendList" component={FriendList} options={{headerShown : true,headerTitle:"Bạn bè"}}/>
     </Stack.Navigator>
   );
 }
