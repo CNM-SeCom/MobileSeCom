@@ -42,7 +42,7 @@ const Search = () => {
   
   const handleSearch = async(textSearch) => {
     console.log("============")
-    await axios.post('http://'+ip+':3000/getListUserByName', {name : textSearch})
+    await axios.post('http://'+ip+':3000/getListUserByName', {name : textSearch, idUser : user.idUser},config)
       .then((response) => {
         setFilteredDataSource(response.data.data);
       })

@@ -74,13 +74,14 @@ const Chat = () => {
     });
   }
   // load tin nhan
-  const loadMessageData = (id, navigation, name, idUser) => {
+  const loadMessageData = (id, navigation, name, idUser, image) => {
+    console.log(image);
     axios.post('http://'+ip+':3000/getMessageByChatId',{
       chatId: id
     }).then((response) => {
       dispatch(setChatData(response.data.data));
       console.log(name)
-      navigation.navigate('Conversation', {username: name, id : idUser, chatId: id});
+      navigation.navigate('Conversation', {username: name, id : idUser, chatId: id,avatar: image});
     }).catch((error) => {
       console.log(error);
     });
@@ -183,7 +184,7 @@ const Chat = () => {
                     image={otherParticipant.avatar}
                     name={otherParticipant.name}
                     newMess={item.lastMessage}
-                    onPress={() => loadMessageData(item.id, navigation,otherParticipant.name,otherParticipant.idUser)}
+                    onPress={() => loadMessageData(item.id, navigation,otherParticipant.name,otherParticipant.idUser, otherParticipant.avatar)}
                   />
                 );
               } else {
