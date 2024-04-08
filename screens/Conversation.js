@@ -444,17 +444,7 @@ const Chat = ({ navigation }) => {
                   navigation.navigate('Chat')
                 }
                 else{
-
                   setVisible(true);
-                  <Portal>
-                    <Modal
-                  visible={visible}
-                  onDismiss={() => setVisible(false)}
-                  contentContainerStyle={{ backgroundColor: 'white', padding: 20, margin: 20 }}
-                  >
-                    <Text>Đang gửi video</Text>
-                  </Modal>
-                  </Portal>
                 }
               }}
             >
@@ -672,7 +662,22 @@ const Chat = ({ navigation }) => {
            
             </View>
           </Modal>
-
+                    <Portal>
+                    <Modal
+                      visible={visible}
+                      onDismiss={() => setVisible(false)}
+                      contentContainerStyle={{ backgroundColor: 'white', padding: 20, margin: 20 }}
+                      >
+                    {/* tiếp tục */}
+                      <Text style={{ fontSize: 20, fontWeight: 'bold', color: 'black' }}>Bạn có muốn thoát không?</Text>
+                     <View style={{
+                      flexDirection: 'row'
+                     }}>
+                          <Button onPress={() => setVisible(false)}>Ở lại</Button>
+                          <Button onPress={() => setVisible(false)}>Hủy</Button>
+                     </View>
+                  </Modal>
+                  </Portal>
         </Portal>
       </View>
     </Provider>
