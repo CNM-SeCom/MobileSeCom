@@ -19,9 +19,7 @@ const FriendList = () => {
     const [listFriend, setListFriend] = useState('');
     const userId = user.idUser;
     const [modalVisible, setModalVisible] = useState(false);
-    const cancelRequestAddFriend = (id) => {
-        console.log('Hủy yêu cầu' + id)
-    }
+    const [friendId, setFriendId] = useState('');
     const blockFriend = (id) => {
         console.log('Chặn' + id)
     }
@@ -29,8 +27,7 @@ const FriendList = () => {
     async function getSentRequestAddFriendByUserId(id) {
         const listFriendRequest = listFriendRequest;
         const data={
-            idUser: id,
-            listRequest:listFriendRequest
+            idUser: id
         }
     await axios.post('http://' + ip + ':3000/getSentRequestAddFriendByUserId',data).then((res) => {
         console.log(res.data.data);
@@ -53,16 +50,41 @@ const FriendList = () => {
       console.log(err);
     })
     }
+    //Huy loi moi ket ban
+    async function cancelRequestAddFriend(request) {
+        await axios.post('http://' + ip + ':3000/cancelRequestAddFriend',request).then((res) => {
+        getSentRequestAddFriendByUserId(userId);
+        return res.data.data;
+    }).catch((err) => {
+      console.log(err);
+    })
+    }
+    //Hủy kết bạn
+    async function unFriend(idUser,idFriend) {
+        console.log('idUser',idUser);
+        console.log('idFriend',idFriend);
+        const data={
+            idUser:idUser,
+            friendId:idFriend
+        }
+        await axios.post('http://' + ip + ':3000/unFriend',data).then((res) => {
+        getListFriendByUserId(userId);
+        return res.data.data;
+    }).catch((err) => {
+      console.log(err);
+    })
+    }
     useEffect(() => {
         getSentRequestAddFriendByUserId(userId);
         getListFriendByUserId(userId);
     },[]) 
     return (
-        <View style={{backgroundColor:'white'}}>
-            <Text style={{justifyContent:'center',alignItems:'center',textAlign:'center',fontSize:20,color:'black'}}>Lời mời kết bạn</Text>
+        <View style={{backgroundColor:'#C3F8FF',width:'100%',flex:1}}>
+            <View>
+            <Text style={{justifyContent:'center',alignItems:'center',textAlign:'center',fontSize:20,color:'black', margin:10}}>Yêu cầu kết bạn</Text>
             <FlatList
                 contentContainerStyle={{
-                    paddingBottom: 20,
+                    paddingBottom: 20,backgroundColor:'#C3F8FF'
                 }}
                 style={styles.listRequestContainer}
                 data={listFriendRequest}
@@ -92,6 +114,9 @@ const FriendList = () => {
                         <View>
                         <TouchableOpacity
                                     style={styles.buttonDecline}
+                                    onPress={() => {
+                                        cancelRequestAddFriend(item);
+                                    }}
                                 >
                                     <Text
                                         style={styles.textButton}
@@ -101,8 +126,9 @@ const FriendList = () => {
                     </View>
                 )}
             />
+            </View>
             <View>
-                <Text style={{justifyContent:'center',alignItems:'center',textAlign:'center',fontSize:20,color:'black'}}>Danh sách bạn bè</Text>
+                <Text style={{justifyContent:'center',alignItems:'center',textAlign:'center',fontSize:20,color:'black',margin:10}}>Danh sách bạn bè</Text>
                 <FlatList
                 contentContainerStyle={{
                     paddingBottom: 20,
@@ -130,11 +156,14 @@ const FriendList = () => {
                                     style={styles.name}
                                 >{item.name}</Text>
                             </View>
+
+                     
                             
                         </View>
                         <Modal
 
                             animationType="slide"
+
                             transparent={true}
                             visible={modalVisible}
                             style={{backgroundColor:'white'}}
@@ -149,8 +178,8 @@ const FriendList = () => {
                                 <TouchableOpacity
                                     style={styles.cancelFriendButton}
                                     onPress={() => {
+                                        unFriend(userId,friendId);
                                         setModalVisible(!modalVisible);
-                                        // Thực hiện hành động khi hủy kết bạn
                                         }}
                                 >
                                     <Text style={styles.textStyle}>Hủy kết bạn</Text>
@@ -168,6 +197,7 @@ const FriendList = () => {
                                 <TouchableHighlight
                                 style={{ ...styles.closeButton }}
                                 onPress={() => {
+                                    
                                     setModalVisible(!modalVisible);
                                 }}
                                 >
@@ -177,9 +207,12 @@ const FriendList = () => {
                             </View>
                         </Modal>
 
+                        </View>
+                        
                     <TouchableOpacity 
                     style={{right:10}}
                     onPress={() => {
+                        setFriendId(item.idUser);
                     setModalVisible(true);
                     }}>
                         <FontAwesomeIcon icon={faBars} size={25}/>
@@ -205,11 +238,11 @@ const styles = StyleSheet.create({
         borderBottomColor: 'grey',
         marginTop: 10,
         borderRadius: 10,
-        paddingTop: 10,
         borderWidth: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+        backgroundColor: 'white',
     },
     listRequestContainer: {
         width: '95%',
@@ -285,7 +318,7 @@ const styles = StyleSheet.create({
         marginTop: 22,
       },
       modalView: {
-        margin: 20,
+        
         backgroundColor: 'white',
         borderRadius: 20,
         padding: 35,
@@ -319,7 +352,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
       },
       cancelFriendButton: {
-        backgroundColor: 'red',
+        backgroundColor: '#9B3922',
         borderRadius: 5,
         padding: 10,
         elevation: 2,

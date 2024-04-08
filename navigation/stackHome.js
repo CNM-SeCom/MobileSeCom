@@ -32,7 +32,7 @@ function MyStack() {
       <Stack.Screen name="Register" component={Register} options={{headerShown : false}}/>   
       <Stack.Screen name="ConfirmOTP" component={ConfirmOTP} options={{headerShown : false}}/>
       <Stack.Screen name="ResetPass" component={ResetPass} options={{headerShown : false}}/>
-      <Stack.Screen name="FriendList" component={FriendList} options={{headerShown : true,headerTitle:"Bạn bè"}}/>
+      <Stack.Screen name="FriendList" component={FriendList} options={{headerShown : true,headerTitle:"Bạn bè",headerStyle:{backgroundColor:'#C3F8FF'}}} />
     </Stack.Navigator>
   );
 }
