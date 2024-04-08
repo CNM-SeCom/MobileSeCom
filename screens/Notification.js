@@ -31,7 +31,14 @@ const Notification = () => {
     }
 
     // getListRequestAddFriend();
-
+    // hủy lời mời kết bạn
+    async function cancelRequestAddFriend(request) {
+        await axios.post('http://' + ip + ':3000/cancelRequestAddFriend',request).then((res) => {
+        return res.data.data;
+    }).catch((err) => {
+      console.log(err);
+    })
+    }
     // let listRequestAddFriend = getListRequestAddFriend();
     useFocusEffect(
         React.useCallback(() => {
@@ -54,8 +61,12 @@ const Notification = () => {
             })
     }
 
-    const handleDecline = (id) => {
-        console.log('Decline' + id)
+    const handleDecline = async(item) => {
+        await axios.post('http://' + ip + ':3000/cancelRequestAddFriend',request).then((res) => {
+            return res.data.data;
+        }).catch((err) => {
+          console.log(err);
+        })
     }
 
  
@@ -99,7 +110,7 @@ const Notification = () => {
                                 >
                                     <Text
                                         style={styles.textButton}
-                                    >Accept</Text>
+                                    >Xác nhận</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     onPress={() => handleDecline(item.id)}
@@ -107,7 +118,7 @@ const Notification = () => {
                                 >
                                     <Text
                                         style={styles.textButton}
-                                    >Decline</Text>
+                                    >Từ chối</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -169,10 +180,9 @@ const styles = StyleSheet.create({
         color: 'black',
     },
     buttonGroup: {
-        flexDirection: 'row',
         justifyContent: 'flex-end',
         margin: 10,
-        marginLeft: 40,
+        marginLeft: 150,
     },
     message: {
         margin: 10,
@@ -187,9 +197,10 @@ const styles = StyleSheet.create({
         marginRight: 10,
         padding: 5,
         borderRadius: 10,
-        width: 70,
+        width: 100,
         justifyContent: 'center',
         alignItems: 'center',
+        bottom:10
     },
     textButton: {
         color: 'white',
@@ -200,7 +211,7 @@ const styles = StyleSheet.create({
         color: 'white',
         padding: 5,
         borderRadius: 10,
-        width: 70,
+        width: 100,
         justifyContent: 'center',
         alignItems: 'center',
     }

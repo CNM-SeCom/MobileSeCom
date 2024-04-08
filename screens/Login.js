@@ -147,18 +147,21 @@ const LoginScreen = () => {
   }
 
   async function login(phone, password) {
+    
     if (phone === '' || password === '') {
       setNotification('Vui lòng nhập đầy đủ thông tin');
       showModal(true);
       return;
     }
     else {
+      
       const data = {
         phone: phone,
         pass: password
       }
       await axios.post('http://' + ip + ':3000/login', data)
         .then((response) => {
+          console.log("cos log 22");
           if (response.data.error) {
             setIncorect(incorect + 1);
             if (response.data.error === 'failed'|| response.data.error === 'Mật khẩu không đúng') {
