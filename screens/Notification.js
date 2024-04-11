@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     buttonGroup: {
         justifyContent: 'flex-end',
         margin: 10,
-        marginLeft: 150,
+        marginLeaft: 100,
     },
     message: {
         margin: 10,

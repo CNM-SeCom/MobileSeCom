@@ -185,13 +185,13 @@ const Chat = ({ navigation }) => {
         >
           {
             //nếu không thuộc từ a - z thì không có back grounf
-            item.text.match(/^[a-zA-Z0-9 ]+$/) ? (
+            item.text.match(/^[a-zA-Z0-9!@#$%^&*()_+{}\[\]:;'"|<,>.?\/\\\- ]+$/  ) ? (
               <View style={{ borderRadius: 10, padding: 10 }}>
                 <Text style={{ color: 'black', fontSize: 16 }}>{item.text}</Text>
               </View>
             ) : (
               <View style={{ backgroundColor: 'white', borderRadius: 10 }}>
-                <Text style={{ color: 'black', fontSize: 24 }}>{item.text}</Text>
+                <Text style={{ color: 'black', fontSize: 16 }}>{item.text}</Text>
               </View>
             )
           }
@@ -232,7 +232,7 @@ const Chat = ({ navigation }) => {
           {/* <Text style={{ color: 'green', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.user.name} đã gửi 1 video, bấm để xem</Text> */}
           {loading && typeof item.video === 'string' && !item.video.includes('cloudinary') ? <View style={{ flexDirection: 'row' }}>
             <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.user.name} đang gửi 1 video</Text>
-            <ActivityIndicator size="large" color="#0000ff" animating={loading} />
+            <ActivityIndicator size="large" color="white" animating={loading} />
           </View> : <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15, textDecorationLine: 'underline' }}>{item.user.name} đã gửi 1 video, bấm để xem</Text>
           }
           {/* <Video

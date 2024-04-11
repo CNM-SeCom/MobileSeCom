@@ -9,6 +9,7 @@ import {
   Easing,
   Image,
   Dimensions,
+  KeyboardAvoidingView 
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
@@ -225,6 +226,11 @@ const LoginScreen = () => {
 
   return (
     <PaperProvider>
+      <KeyboardAvoidingView style={{
+        flex: 1,
+        justifyContent: 'center',
+      
+      }}>
       <View style={styles.container}>
         <View style={styles.backgroundImage} />
         <View style={styles.inputContainer}>
@@ -329,6 +335,7 @@ const LoginScreen = () => {
           </View>
         </Modal>
       </Portal>
+      </KeyboardAvoidingView> 
     </PaperProvider>
   );
 };
