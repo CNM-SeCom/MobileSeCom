@@ -46,7 +46,6 @@ export default function Intro() {
         .then(res => {
           console.log(res.data);
           dispatch(setUser(res.data.data));
-          
         })
         
         .catch(err => {

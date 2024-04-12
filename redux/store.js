@@ -9,6 +9,7 @@ import messageReducer from './messageSlice';
 import listChatReducer from './listChatSlice';
 import chatIdReducer from './chatIdSlice';
 import currentIdSlice from './currentIdSlice';
+import checkTypingSlice from './checkTypingSlice';
 
 const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ const store = configureStore({
     listChat: listChatReducer,
     chatId: chatIdReducer,
     currentId: currentIdSlice,
+    checkTyping: checkTypingSlice,
   },
 });
 

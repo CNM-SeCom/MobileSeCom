@@ -85,6 +85,11 @@ const colors = useSelector((state) => {
               )}
               // keyExtractor={item => item.id}
             />
+          <View>
+            <TouchableOpacity>
+              
+            </TouchableOpacity>
+          </View>
           </View>
         </View>    
     </View>

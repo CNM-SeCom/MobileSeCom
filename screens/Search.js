@@ -9,6 +9,8 @@ import { debounce } from 'lodash';
 import axios from 'axios';
 import ip from '../data/ip';
 import token from '../redux/tokenSlice';
+import { useDispatch } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { FlatList } from 'react-native-gesture-handler';
 import DataUser from '../data/dataUser';
@@ -16,6 +18,13 @@ const Search = () => {
   const token = useSelector((state) => state.token.token);
   const mode = useSelector((state) => state.mode.mode);
   const user = useSelector((state) => state.user.user);
+
+
+  useFocusEffect(
+    React.useCallback(() => {
+      //load laị user trong redux
+    }, [])
+  );
 
   console.log('user', user.listFriend);
   
@@ -41,7 +50,6 @@ const Search = () => {
   };
   
   const handleSearch = async(textSearch) => {
-    console.log("============")
     await axios.post('http://'+ip+':3000/getListUserByName', {name : textSearch, idUser : user.idUser},config)
       .then((response) => {
         setFilteredDataSource(response.data.data);
@@ -133,6 +141,7 @@ return (
         <FontAwesomeIcon icon={faArrowLeft} size={30} color={colors.text} />
       </TouchableOpacity>
       <TextInput 
+        placeholderTextColor='black'
         placeholder="Tìm kiếm..."
         onChangeText={(search) => {
           updateSearch(search);
@@ -203,6 +212,7 @@ const styles = StyleSheet.create({
     paddingLeft : 10,
     opacity : 0.7,
     borderWidth : 3,
+    color : 'black'
   },
   headerContainer : {
     flexDirection: 'row',

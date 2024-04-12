@@ -10,6 +10,7 @@ import ChatData from '../data/dataChat';
 import { useSelector, useDispatch } from 'react-redux';
 import { setChatData, addChatData } from '../redux/chatDataSlice'
 import { setMessages, addMessage } from '../redux/messageSlice'
+import { setTyping } from '../redux/checkTypingSlice'
 import { setUser } from '../redux/userSlice'
 import ip from '../data/ip'
 import Toast from 'react-native-toast-message';
@@ -120,6 +121,7 @@ const Home = ({ navigation }) => {
         onOpen={() => {
           console.log('Open!');
         }}
+        
         onMessage={(msg) => {
           let data = JSON.parse(msg.data);
           let add;
@@ -131,6 +133,24 @@ const Home = ({ navigation }) => {
         else if(data.type === 'ACCEPT_FRIEND'){
           console.log(data.data);
           showToast(data.user.name, data.text);
+        }
+        else if(data.type === 'TYPING'){
+          if(currentId &&data.chatId === currentId){
+            dispatch(setTyping(data.typing));
+        }
+      }
+        else if(data.type === 'RELOAD_MESSAGE'){
+          if(data.chatId === currentId){
+               axios.post('http://'+ip+':3000/getMessageByChatId',{
+                chatId: currentId    
+              }).then((response) => {
+                dispatch(setChatData(response.data.data));
+              }).catch((error) => {
+                console.log(error);
+              }
+              );           
+          }
+          
         }
         else{
            if( data.chatId === currentId){
@@ -145,7 +165,7 @@ const Home = ({ navigation }) => {
           }
         }
           
-
+      
           
         }}
         onError={console.log}

@@ -1,3 +1,8 @@
 {
-  "extends": "@react-native/typescript-config/tsconfig.json"
+  "compilerOptions": {
+    // Cấu hình các tùy chọn khác...
+  },
+  "exclude": [
+    "node_modules/**/*.tsx" // Bỏ qua tất cả các file có phần mở rộng .tsx trong thư mục node_modules
+  ]
 }

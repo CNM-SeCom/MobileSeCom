@@ -16,7 +16,7 @@ import FriendList from '../screens/FriendList';
 import ListFriendForward from '../screens/ListFriendForward';
 import ConversationGroup from '../screens/ConversationGroup';
 
-// import VideoCall from '../screens/VideoCall';
+import VideoCall from '../screens/VideoCall';
 
 const Stack = createStackNavigator();
 
@@ -37,6 +37,7 @@ function MyStack() {
       <Stack.Screen name="FriendList" component={FriendList} options={{headerShown : true,headerTitle:"Bạn bè",headerStyle:{backgroundColor:'#C3F8FF'}}} />
       <Stack.Screen name="ListFriendForward" component={ListFriendForward} options={{headerShown : true,headerTitle:"Chọn bạn bè",headerStyle:{backgroundColor:'#C3F8FF'}}} />
       <Stack.Screen name="ConversationGroup" component={ConversationGroup} options={{headerShown : true,headerTitle:"Nhóm",headerStyle:{backgroundColor:'#C3F8FF'}}} />
+      <Stack.Screen name="VideoCall" component={VideoCall} options={{headerShown : false}}/>
     </Stack.Navigator>
   );
 }

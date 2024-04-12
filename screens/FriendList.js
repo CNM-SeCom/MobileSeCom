@@ -12,6 +12,8 @@ import { List } from 'react-native-paper';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPalette, faRightFromBracket,faBars } from '@fortawesome/free-solid-svg-icons';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+
 
 const FriendList = () => {
     const user = useSelector((state) => state.user.user);
@@ -22,6 +24,17 @@ const FriendList = () => {
     const [friendId, setFriendId] = useState('');
     const blockFriend = (id) => {
         console.log('Chặn' + id)
+    }
+    const navigation = useNavigation();
+    const reloadUser = async () => {
+        const idUser = await AsyncStorage.getItem('idUser');
+        const userToken = await AsyncStorage.getItem('userToken');
+
+        await axios.post('http://' + ip + ':3000/checkLoginWithToken', {refreshToken: userToken, idUser: idUser})
+        .then(res => {
+          console.log(res.data);
+          dispatch(setUser(res.data.data));
+        })
     }
     //Danh sach gửi yêu cầu kết bạn
     async function getSentRequestAddFriendByUserId(id) {
@@ -61,6 +74,7 @@ const FriendList = () => {
     }
     //Hủy kết bạn
     async function unFriend(idUser,idFriend) {
+
         console.log('idUser',idUser);
         console.log('idFriend',idFriend);
         const data={
@@ -69,6 +83,7 @@ const FriendList = () => {
         }
         await axios.post('http://' + ip + ':3000/unFriend',data).then((res) => {
         getListFriendByUserId(userId);
+        reloadUser();
         return res.data.data;
     }).catch((err) => {
       console.log(err);

@@ -92,6 +92,7 @@ const Chat = ({ navigation }) => {
   let chatData = useSelector((state) => state.chatData.chatData);
   const token = useSelector((state) => state.token.token);
   const user = useSelector((state) => state.user.user);
+  const typing = useSelector((state) => state.checkTyping.typing);
   const [imageMessage, setImageMessage] = useState([]);
   const [messages, setMessages] = useState(chatData);
   const dispatch = useDispatch();
@@ -106,6 +107,8 @@ const Chat = ({ navigation }) => {
   let mess
   // Khai báo biến docment để lưu tài liệu đính kèm
   // console.log('chatData', chatData);
+
+  console.log('chatData', chatData);
 
   imageMessage.forEach(element => {
     //nếu đuôi là jpg thì gửi ảnh
@@ -142,7 +145,19 @@ const Chat = ({ navigation }) => {
     }
   };
   
-  
+  const renderTypingStatus = () => {
+    if (typing) {
+      return (
+        <Text style={{
+          color: 'black', 
+          fontSize: 10,
+          position : 'absolute',
+          bottom :50,
+          left : 20,
+        }}>{name} đang soạn tin nhắn...</Text>
+      )
+    }
+  }
 
   useEffect(() => {
     setMessages(chatData);
@@ -153,7 +168,7 @@ const Chat = ({ navigation }) => {
     const unsubscribe = navigation.addListener('focus', () => {
       scrollToBottom();
     });
-  }, [navigation]);
+  }, [navigation, typing]);
 
   const openGallery = async () => {
     try {
@@ -226,7 +241,7 @@ const Chat = ({ navigation }) => {
               </View>
             ) : (
               <View style={{ backgroundColor: 'white', borderRadius: 10 }}>
-                <Text style={{ color: 'black', fontSize: 16 }}>{item.text}</Text>
+                <Text style={{ color: 'black', fontSize: 16, height : 35 }}>{item.text}</Text>
               </View>
             )
           }
@@ -292,7 +307,47 @@ const Chat = ({ navigation }) => {
             handleOpenLink(item.file)
           }}
         >
-          <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.user.name} đã gửi 1 tài liệu</Text>
+          <View style={{ 
+            color: 'black', fontSize: 16, backgroundColor : 'white'}}>
+            {
+              // Sử dụng cú pháp {} để đưa vào mã JavaScript
+              // Kiểm tra loại file và render hình ảnh tương ứng
+              item.text.includes('.doc') || item.text.includes('.docx') ?
+                <View
+                style={{ flexDirection: 'row',alignItems: 'flex-end', backgroundColor: '#fff', borderRadius: 10, marginTop : 15}}
+                >
+                  <Image source={require('../assets/logo-word.png')} style={{ width: 50, height: 50, borderRadius: 10 }} />
+                  <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.text}</Text>
+                </View>
+              :
+                item.text.includes('.pdf') ?
+                  <View
+                    style={{ flexDirection: 'row',alignItems: 'flex-end', backgroundColor: '#fff', borderRadius: 10, marginTop : 15}}
+                  >
+                    <Image source={require('../assets/logo-pdf.png')} style={{ width: 50, height: 60, borderRadius: 10 }} />
+                    <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.text}</Text>
+                  </View>
+                :
+                  item.text.includes('.xlsx') ?
+                  <View
+                    style={{ flexDirection: 'row',alignItems: 'flex-end', backgroundColor: '#fff', borderRadius: 10, marginTop : 15}}
+                  >
+                    <Image source={require('../assets/logo-excel.png')} style={{ width: 50, height: 50, borderRadius: 10 }} />
+                    <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.text}</Text>
+                  </View>
+                  :
+                    item.text.includes('.ppt') || item.text.includes('.pptx') ?
+                    <View
+                      style={{ flexDirection: 'row',alignItems: 'flex-end', backgroundColor: '#fff', borderRadius: 10, marginTop : 15}}
+                    >
+                      <Image source={require('../assets/logo-ppt.png')} style={{ width: 50, height: 50, borderRadius: 10 }} />
+                      <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.text}</Text>
+                    </View>
+                    :
+                    null
+            }
+          </View>
+
         </TouchableOpacity>
       );
     }
@@ -494,7 +549,7 @@ const Chat = ({ navigation }) => {
 //delete message
 const handleDeleteMesssage = () => {
     //xóa tin nhắn
-    axios.post('http://' + ip + ':3000/deleteMessageById', { messageId: messageId })
+    axios.post('http://' + ip + ':3000/deleteMessageById', { messageId: messageId , receiverId: otherParticipantId, chatId: id})
       .then((response) => {
         console.log(response.data);
         setMenuVisible(false);
@@ -507,7 +562,27 @@ const handleDeleteMesssage = () => {
       })
 }
 
-
+async function typingg(boolean) {
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      // 'Authorization': `Bearer ${token.accessToken}`
+    },
+    body: {
+      chatId: id,
+      receiverId: otherParticipantId,
+      typing : boolean,
+    }
+  }
+  await axios.post('http://' + ip + ':3000/ws/sendTypingToUser', config.body)
+    .then((response) => {
+      console.log(response.data);
+      console.log('typing');
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+}
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
@@ -546,7 +621,11 @@ const handleDeleteMesssage = () => {
             alignItems: 'center',
             marginLeft: 10,
           }}>
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('VideoCall')
+              }}
+            >
               <FontAwesomeIcon icon={faPhone} size={20} color="#fff" style={styles.iconHeader} />
             </TouchableOpacity>
             <FontAwesomeIcon icon={faCamera} size={20} color="#fff" style={styles.iconHeader} />
@@ -570,11 +649,20 @@ const handleDeleteMesssage = () => {
         <View
           style={{ flexDirection: 'row', alignItems: 'center', alignSelf: 'center', width: '100%' }}
         >
+          {renderTypingStatus()}
           <TextInput
-            style={[{ width: '95%' }, styles.inputMessage]}
+            style={[{ width: '95%', color : 'black' }, styles.inputMessage]}
             placeholder='Nhập tin
             nhắn...'
+            placeholderTextColor={'black'}
             value={text}
+            onFocus={() => {
+              console.log('typing');
+              typingg(true);
+            }}
+            onBlur={() => {
+              typingg(false);
+            }}
             onChangeText={setText}
           />
           <TouchableOpacity
@@ -590,11 +678,20 @@ const handleDeleteMesssage = () => {
         <View
           style={styles.sendMediaBar}
         >
+          {renderTypingStatus()}
           <TextInput
             style={[{ width: '75%' }, styles.inputMessage]}
             placeholder='Nhập tin
               nhắn...'
             value={text}
+            onFocus={() => {
+              console.log('typing');
+              typingg(true);
+            }}
+            onBlur={() => {
+              typingg(false);
+            }}
+            placeholderTextColor={'black'}
             onChangeText={setText}
           />
           <TouchableOpacity
