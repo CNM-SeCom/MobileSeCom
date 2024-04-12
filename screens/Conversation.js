@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useLayoutEffect, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, PermissionsAndroid, Image, Animated, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, PermissionsAndroid, Image, Animated, ActivityIndicator, ScrollView,Linking  } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { Avatar } from 'react-native-elements';
 import { faPhone, faCamera, faInfo, faCircleInfo, faArrowLeft, faPaperclip, faMicrophone, faVideo, faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -9,7 +9,7 @@ import { Icon } from 'react-native-elements'
 import WS from 'react-native-websocket'
 import axios, { formToJSON } from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
-import { setChatData, addChatData } from '../redux/chatDataSlice'
+import { setChatData, addChatData , removeLastMessage} from '../redux/chatDataSlice'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faImage } from '@fortawesome/free-solid-svg-icons';
 import chatId from '../redux/chatIdSlice';
@@ -19,6 +19,7 @@ import Video from 'react-native-video'
 import ip from '../data/ip'
 import RNFetchBlob from 'rn-fetch-blob';
 import { Provider, Portal, Modal, Button } from 'react-native-paper';
+
 
 
 const ITEM_HEIGHT = 50;
@@ -37,6 +38,7 @@ const Chat = ({ navigation }) => {
   const [loadVideo, setLoadVideo] = useState(true);
   const [messageId, setMessageId] = useState();
   const [isMyMessage, setIsMyMessage] = useState(false);
+
   const images = [{
     url: imageUri,
   }]
@@ -52,6 +54,15 @@ const Chat = ({ navigation }) => {
     setVideoUri(video);
 
   }
+
+  const handleOpenLink = (url) => {
+    console.log(url);
+    if (url) {
+      Linking.openURL(url);
+    } else {
+      console.log('No url to open');
+    }
+  };
 
   const handleLongPress = (id) => {
     setMessageId(id);
@@ -91,6 +102,8 @@ const Chat = ({ navigation }) => {
   const [image, setImage] = useState(null); // Khai báo biến image để lưu ảnh đính kèm
   const [video, setVideo] = useState(null); // Khai báo biến video để lưu video đính kèm
   const [docment, setDocment] = useState(null); 
+  let [forwardMessage, setForwardMessage] = useState(null);
+  let mess
   // Khai báo biến docment để lưu tài liệu đính kèm
   // console.log('chatData', chatData);
 
@@ -111,6 +124,25 @@ const Chat = ({ navigation }) => {
   handlePickVideo = () => {
     openGalleryVideo();
   }
+
+  const removeId = (message, forwardMessage) => {
+    // Kiểm tra xem message có tồn tại và có chứa trường _id không
+    if (message && message._id) {
+      // Tạo một bản sao của message mà không chứa trường _id
+      const { _id, ...rest } = message;
+      // Cập nhật state với object mới không chứa trường _id
+      console.log("LOG", rest);
+      setForwardMessage(rest);
+      console.log("LOG", forwardMessage);
+      console.log('=====================++');
+      // setForwardMessage(rest);
+      return rest;
+    } else {
+      console.log("Message does not contain _id field.");
+    }
+  };
+  
+  
 
   useEffect(() => {
     setMessages(chatData);
@@ -181,17 +213,20 @@ const Chat = ({ navigation }) => {
               setIsMyMessage(false);
             }
             console.log(isMyMessage);
-            handleLongPress(item._id)}}
+            handleLongPress(item._id)
+            removeId(item,forwardMessage)
+            }
+          }
         >
           {
             //nếu không thuộc từ a - z thì không có back grounf
-            item.text.match(/^[a-zA-Z0-9!@#$%^&*()_+{}\[\]:;'"|<,>.?\/\\\- ]+$/) ? (
+            item.text.match(/^[a-zA-Z0-9!@#$%^&*()_+{}\[\]:;'"|<,>.?\/\\\- \p{L}]+$/u ) ? (
               <View style={{ borderRadius: 10, padding: 10 }}>
                 <Text style={{ color: 'black', fontSize: 16 }}>{item.text}</Text>
               </View>
             ) : (
               <View style={{ backgroundColor: 'white', borderRadius: 10 }}>
-                <Text style={{ color: 'black', fontSize: 24 }}>{item.text}</Text>
+                <Text style={{ color: 'black', fontSize: 16 }}>{item.text}</Text>
               </View>
             )
           }
@@ -208,8 +243,13 @@ const Chat = ({ navigation }) => {
               setIsMyMessage(false);
             }
             console.log(isMyMessage);
-            handleLongPress(item._id)}}
-
+            handleLongPress(item.image)
+            removeId(item,forwardMessage)            
+          }    
+          }
+          onPress={()=>{
+            handleShowImage(item.image)
+          }}
         >
           <Image source={{ uri:item.image }} style={{ width: 200, height: 200, borderRadius: 10 }} />
         </TouchableOpacity>
@@ -226,13 +266,15 @@ const Chat = ({ navigation }) => {
               setIsMyMessage(false);
             }
             console.log(isMyMessage);
-            handleLongPress(item._id)}}
+            handleLongPress(item._id)
+            removeId(item,forwardMessage)
+           }}
           onPress={() => handleShowVideo(item.video)}
         >
           {/* <Text style={{ color: 'green', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.user.name} đã gửi 1 video, bấm để xem</Text> */}
           {loading && typeof item.video === 'string' && !item.video.includes('cloudinary') ? <View style={{ flexDirection: 'row' }}>
             <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.user.name} đang gửi 1 video</Text>
-            <ActivityIndicator size="large" color="#0000ff" animating={loading} />
+            <ActivityIndicator size="large" color="white" animating={loading} />
           </View> : <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15, textDecorationLine: 'underline' }}>{item.user.name} đã gửi 1 video, bấm để xem</Text>
           }
           {/* <Video
@@ -244,11 +286,19 @@ const Chat = ({ navigation }) => {
         </TouchableOpacity>
       );
     } else {
-      // Return null or handle other cases
-      return null;
+      return (
+        <TouchableOpacity
+          onPress={()=>{
+            handleOpenLink(item.file)
+          }}
+        >
+          <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.user.name} đã gửi 1 tài liệu</Text>
+        </TouchableOpacity>
+      );
     }
   }
 
+  
 
   handlesendText = () => {
     const config = {
@@ -270,10 +320,14 @@ const Chat = ({ navigation }) => {
         }
       }
     };
-
+    const newMessages = [...chatData, config.body.message];
+    console.log('L', config.body.message);
+    dispatch(addChatData(config.body.message));
     axios.post('http://' + ip + ':3000/ws/send-message-to-user', config.body)
       .then((response) => {
-        dispatch(addChatData(config.body.message));
+        const newMessagesWithoutData = chatData.filter((message) => message !== config.body.message);
+        dispatch(setChatData(newMessagesWithoutData))
+        dispatch(addChatData(response.data.data));
       })
       .catch((error) => {
         console.log(error);
@@ -501,6 +555,7 @@ const handleDeleteMesssage = () => {
         </View>
       ),
     });
+    scrollToBottom()
   }, [navigation, loading]);
 
   //load lại màn hình khi có tin nhắn mới
@@ -661,7 +716,14 @@ const handleDeleteMesssage = () => {
                 }}>
                   {isMyMessage ? <Text style={styles.messageOption}>Xóa tin nhắn</Text> : null}
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.buttonMessageOption}>
+                <TouchableOpacity 
+                onPress={() => {
+                  setMenuVisible(false);
+                  console.log("------");
+                  console.log(forwardMessage);
+                  navigation.navigate('ListFriendForward', { data : forwardMessage });
+                }}
+                style={styles.buttonMessageOption}>
                   <Text style={styles.messageOption}>Chuyển tiếp tin nhắn</Text>
                 </TouchableOpacity>
               </View>
@@ -801,6 +863,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderWidth: 1,
     margin: 10,
+    color: 'black',
   },
   sendTextButton: {
     color: '#fff',

@@ -8,6 +8,7 @@ import chatDataReducer from './chatDataSlice';
 import messageReducer from './messageSlice';
 import listChatReducer from './listChatSlice';
 import chatIdReducer from './chatIdSlice';
+import currentIdSlice from './currentIdSlice';
 
 const store = configureStore({
   reducer: {
@@ -20,6 +21,7 @@ const store = configureStore({
     message: messageReducer,
     listChat: listChatReducer,
     chatId: chatIdReducer,
+    currentId: currentIdSlice,
   },
 });
 

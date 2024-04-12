@@ -11,6 +11,7 @@ import ip from '../data/ip';
 import { useSelector,useDispatch } from 'react-redux';
 import { setChatData } from '../redux/chatDataSlice';
 import { setChatId } from '../redux/chatIdSlice';
+import { setCurrentId } from '../redux/currentIdSlice';
 import { useNavigation } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
@@ -75,7 +76,7 @@ const Chat = () => {
   }
   // load tin nhan
   const loadMessageData = (id, navigation, name, idUser, image) => {
-    console.log(image);
+    dispatch(setCurrentId(id));
     axios.post('http://'+ip+':3000/getMessageByChatId',{
       chatId: id
     }).then((response) => {

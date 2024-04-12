@@ -363,6 +363,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 20,
     fontWeight: 'bold',
+    color : 'black'
   },
   chooseCoverImageContainer: {
     width: '98%',

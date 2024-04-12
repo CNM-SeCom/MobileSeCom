@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { removeLastMessage } from "./messageSlice";
 
 const initialState = {
     chatData: [],
@@ -20,6 +21,9 @@ const chatDataSlice = createSlice({
         sortChatData: (state) => {
             state.chatData.sort((a, b) => b._id - a._id);
         },
+        removeLastMessage: (state) => {
+            state.chatData.pop();
+        }
     },
 });
 

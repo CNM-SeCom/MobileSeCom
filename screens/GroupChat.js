@@ -6,6 +6,7 @@ import ConversationUnit from '../components/ConversationUnit';
 import DataUser from '../data/dataUser';
 import DataGroupChat from '../data/dataGroupChat';
 import Avatar from '../components/Avatar';
+import { useNavigation } from '@react-navigation/native';
 
 import { useSelector } from 'react-redux';
 
@@ -14,6 +15,7 @@ const width = Dimensions.get('window').width;
 
 const GroupChat = () => {
 
+const navigation = useNavigation();
 const mode = useSelector((state) => state.mode.mode);
 const colors = useSelector((state) => {
   switch (mode) {
@@ -28,62 +30,63 @@ const colors = useSelector((state) => {
     <View style={[
       {backgroundColor: colors.background},
       styles.container]}>
- <View style={[
-  {backgroundColor: colors.background},
-  styles.container]}>
-      <View style={{
-          width: '100%',
-          height: 50,
-          justifyContent: 'center',
-          
-      }}>
-          <FontAwesomeIcon icon={faMagnifyingGlass} size={20} color="#001f3f" style={{
-              position: 'absolute',
-              top: 15,
-              left: 25,
-              zIndex: 1,
-          
-          }} />
-          <TextInput
-            style={styles.inputSearch}
-            placeholder="Tìm kiếm"
-            paddingLeft={40}
-            opacity={0.5}
+    <View style={[
+      {backgroundColor: colors.background},
+      styles.container]}>
+          <View style={{
+              width: '100%',
+              height: 50,
+              justifyContent: 'center',
+              
+          }}>
+              <FontAwesomeIcon icon={faMagnifyingGlass} size={20} color="#001f3f" style={{
+                  position: 'absolute',
+                  top: 15,
+                  left: 25,
+                  zIndex: 1,
+              
+              }} />
+              <TextInput
+                style={styles.inputSearch}
+                placeholder="Tìm kiếm"
+                paddingLeft={40}
+                opacity={0.5}
+              />
+          </View>
+          <View style={[
+            {backgroundColor: colors.background},
+            styles.users]}>
+          <FlatList
+            data={DataGroupChat}
+            showsHorizontalScrollIndicator = {false}
+            renderItem={({item}) => (
+                <Avatar
+                    image={'https://res.cloudinary.com/dkwb3ddwa/image/upload/v1710070408/avataDefaultSeCom/jfvpv2c7etp65u8ssaff.jpg'}
+                />
+            )}
+            keyExtractor={item => item.id}
+            horizontal={true}
           />
-      </View>
-      <View style={[
-        {backgroundColor: colors.background},
-        styles.users]}>
-      <FlatList
-        data={DataGroupChat}
-        showsHorizontalScrollIndicator = {false}
-        renderItem={({item}) => (
-            <Avatar
-                image={'https://res.cloudinary.com/dkwb3ddwa/image/upload/v1710070408/avataDefaultSeCom/jfvpv2c7etp65u8ssaff.jpg'}
+          </View>
+          <View style={{
+              width: '100%',
+              height: heigh * 0.7,
+              alignItems: 'center',
+          }}>
+            <FlatList
+              data={DataGroupChat}
+              renderItem={({item}) => (
+                <ConversationUnit
+                  name={item.name}
+                  image={'https://res.cloudinary.com/dkwb3ddwa/image/upload/v1710070408/avataDefaultSeCom/jfvpv2c7etp65u8ssaff.jpg'}
+                  newMess={item.lastMessage.message}
+                  onPress={()=>{navigation.navigate('ConversationGroup')}}
+                />
+              )}
+              // keyExtractor={item => item.id}
             />
-        )}
-        keyExtractor={item => item.id}
-        horizontal={true}
-      />
-      </View>
-      <View style={{
-          width: '100%',
-          height: heigh * 0.7,
-          alignItems: 'center',
-      }}>
-        <FlatList
-          data={DataGroupChat}
-          renderItem={({item}) => (
-            <ConversationUnit
-              name={item.name}
-              image={'https://res.cloudinary.com/dkwb3ddwa/image/upload/v1710070408/avataDefaultSeCom/jfvpv2c7etp65u8ssaff.jpg'}
-              newMess={item.lastMessage.message}
-            />
-          )}
-          // keyExtractor={item => item.id}
-        />
-      </View>
-    </View>    
+          </View>
+        </View>    
     </View>
   )
 }

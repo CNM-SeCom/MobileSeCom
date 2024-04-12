@@ -21,6 +21,7 @@ const width = Dimensions.get('window').width;
 
 const Home = ({ navigation }) => {
   const user = useSelector((state) => state.user.user);
+  const currentId = useSelector((state) => state.currentId.currentId);
   const dispatch = useDispatch();
   const chatData = useSelector((state) => state.chatData.chatData); 
   const token = useSelector((state) => state.token.token); 
@@ -132,7 +133,9 @@ const Home = ({ navigation }) => {
           showToast(data.user.name, data.text);
         }
         else{
-           add = dispatch(addChatData(data));
+           if( data.chatId === currentId){
+            add = dispatch(addChatData(data));
+           }
           // console.log(data)
           showToast(data.user.name, data.text);
           if (add) {
