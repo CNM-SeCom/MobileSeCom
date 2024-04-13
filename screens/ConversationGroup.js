@@ -362,7 +362,9 @@ useLayoutEffect(() => {
             <FontAwesomeIcon icon={faPhone} size={20} color="#fff" style={styles.iconHeader} />
           </TouchableOpacity>
           <FontAwesomeIcon icon={faCamera} size={20} color="#fff" style={styles.iconHeader} />
-          <FontAwesomeIcon icon={faCircleInfo} size={20} color="#fff" style={styles.iconHeader} />
+          <TouchableOpacity>
+            <FontAwesomeIcon icon={faCircleInfo} size={20} color="#fff" style={styles.iconHeader} />
+          </TouchableOpacity>
         </View>
       </View>
     ),

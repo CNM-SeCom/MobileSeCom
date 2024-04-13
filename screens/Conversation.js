@@ -56,7 +56,6 @@ const Chat = ({ navigation }) => {
   }
 
   const handleOpenLink = (url) => {
-    console.log(url);
     if (url) {
       Linking.openURL(url);
     } else {
@@ -108,7 +107,6 @@ const Chat = ({ navigation }) => {
   // Khai báo biến docment để lưu tài liệu đính kèm
   // console.log('chatData', chatData);
 
-  console.log('chatData', chatData);
 
   imageMessage.forEach(element => {
     //nếu đuôi là jpg thì gửi ảnh
@@ -134,10 +132,8 @@ const Chat = ({ navigation }) => {
       // Tạo một bản sao của message mà không chứa trường _id
       const { _id, ...rest } = message;
       // Cập nhật state với object mới không chứa trường _id
-      console.log("LOG", rest);
       setForwardMessage(rest);
-      console.log("LOG", forwardMessage);
-      console.log('=====================++');
+    
       // setForwardMessage(rest);
       return rest;
     } else {
@@ -280,7 +276,6 @@ const Chat = ({ navigation }) => {
             else{
               setIsMyMessage(false);
             }
-            console.log(isMyMessage);
             handleLongPress(item._id)
             removeId(item,forwardMessage)
            }}
@@ -376,7 +371,6 @@ const Chat = ({ navigation }) => {
       }
     };
     const newMessages = [...chatData, config.body.message];
-    console.log('L', config.body.message);
     dispatch(addChatData(config.body.message));
     axios.post('http://' + ip + ':3000/ws/send-message-to-user', config.body)
       .then((response) => {
@@ -551,7 +545,6 @@ const handleDeleteMesssage = () => {
     //xóa tin nhắn
     axios.post('http://' + ip + ':3000/deleteMessageById', { messageId: messageId , receiverId: otherParticipantId, chatId: id})
       .then((response) => {
-        console.log(response.data);
         setMenuVisible(false);
         chatData= chatData.filter((message) => message._id !== messageId);
         dispatch(setChatData(chatData));
@@ -576,7 +569,6 @@ async function typingg(boolean) {
   }
   await axios.post('http://' + ip + ':3000/ws/sendTypingToUser', config.body)
     .then((response) => {
-      console.log(response.data);
       console.log('typing');
     })
     .catch((error) => {
@@ -606,6 +598,7 @@ async function typingg(boolean) {
               onPress={() => {
                 console.log('back', loading);
                 if (!loading) {
+                  typingg(false);
                   navigation.navigate('Chat')
                 }
                 else {
@@ -816,8 +809,6 @@ async function typingg(boolean) {
                 <TouchableOpacity 
                 onPress={() => {
                   setMenuVisible(false);
-                  console.log("------");
-                  console.log(forwardMessage);
                   navigation.navigate('ListFriendForward', { data : forwardMessage });
                 }}
                 style={styles.buttonMessageOption}>

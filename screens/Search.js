@@ -114,7 +114,6 @@ const handleAddFriend = async(toIdUser, nameToUser, avatar) => {
     toUser:toIdUser,
     nameToUser : nameToUser, 
     avatarToUser : avatar,
-
   }
 
   
