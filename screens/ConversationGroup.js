@@ -85,9 +85,6 @@ const Chat = ({ navigation }) => {
 
 
   const route = useRoute();
-
-  console.log('route, ', route.params);
-
   const name = route.params.username;
   const id = route.params.chatId;
   const otherParticipantId = route.params.id;
