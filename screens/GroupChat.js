@@ -8,8 +8,12 @@ import DataGroupChat from '../data/dataGroupChat';
 import Avatar from '../components/Avatar';
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
-
-import { useSelector } from 'react-redux';
+import ip from '../data/ip'
+import { useFocusEffect } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { setChatData } from '../redux/chatDataSlice';
+import { setCurrentId } from '../redux/currentIdSlice';
+import axios from 'axios';
 
 const heigh = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -19,14 +23,19 @@ const GroupChat = () => {
   const navigation = useNavigation();
   const mode = useSelector((state) => state.mode.mode);
   const user = useSelector((state) => state.user.user);
+  let chatData = useSelector((state) => state.chatData.chatData);
+  const dispatch = useDispatch()
+
 ;
 
   const [add, setAdd] = useState(false);
   const [valid, setValid] = useState(false);
-  const [countmember, setCountmember] = useState(2);
+  const [countmember, setCountmember] = useState(0);
   const [listAdd, setListAdd] = useState([]);
   const [name , setName] = useState('');
   const [listFriendFilter, setListFriendFilter] = useState([]);
+  const [messageData, setMessageData] = useState([]);
+
 
   const [ participants, setParticipants] = useState([]);
 
@@ -41,16 +50,43 @@ const GroupChat = () => {
     }
   });
 
-  /*if (user != null) {
-    console.log('====================================');
-    console.log(user.listFriend);
-  }*/
+
+
+ 
 
   useEffect(() => {
-    console.log('====================================');
-    console.log(listAdd);
+
   },[listAdd]);
   
+  const getChatData = () => {
+    axios.post('http://'+ip+':3000/getChatByUserId',{
+      idUser: user.idUser
+  })
+    .then((response) => {
+      setMessageData(handleFilterGroupChat(response.data.data)); 
+      console.log('messageData', messageData);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }
+
+  const handleFilterGroupChat = (chatData) => {
+    const chat = chatData.filter((item) => item.participants.length > 2);
+    return chat;
+  }
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // Do something when the screen is focused
+      getChatData();
+      console.log('Chatgroup Screen focused');
+      return () => {
+        // Do something when the screen is unfocused
+        // Useful for cleanup functions
+      };
+    }, [])
+  );
 
   const renderAddBtnModal = (add, id) => {
     if ( listAdd.indexOf(id) === -1){
@@ -87,9 +123,7 @@ const searchFriendByName = (text) => {
     let filteredUser = {listFriend: user.listFriend.filter((item) => { 
         return item.name.toLowerCase().indexOf(text.toLowerCase()) > -1;
     })};
-    console.log('====================================');
     setListFriendFilter(filteredUser.listFriend);
-    console.log(listFriendFilter);
 }
 
 
@@ -100,8 +134,6 @@ const searchFriendByName = (text) => {
             onPress={
               () => {
                 setModalVisibleCreate(!modalVisibleCreate)
-                console.log('====================================');
-                console.log(listAdd);
                 handleCreateGroup();
                 setListAdd([]);
               }}
@@ -125,19 +157,55 @@ const searchFriendByName = (text) => {
         )
   }}
 
-  const handleCreateGroup = () => {
-    console.log('====================================');
-    console.log('Tạo nhóm thành công');
-    //các id có cả trong mảng listAdd và user.listFriend thì thêm vào mảng participants
+    // load tin nhan
+    const loadMessageData = (id, navigation, name, idUser, image, participants) => {
+      dispatch(setCurrentId(id));
+      axios.post('http://'+ip+':3000/getMessageByChatId',{
+        chatId: id
+      }).then((response) => {
+        dispatch(setChatData(response.data.data));
+        console.log(name)
+        navigation.navigate('ConversationGroup', {username: name, id : idUser, chatId: id,avatar: image, participants: participants});
+      }).catch((error) => {
+        console.log(error);
+      });
+    }
+
+  const handleCreateGroup = async() => {
+    //các id có cả trong mảng listAdd và user.listFriend thì thêm vào mảng participants và thêm trường "role" = "member"    
+    
     let listFriend = user.listFriend;
     let participants = [];
     listFriend.map((item) => {
       if(listAdd.indexOf(item.idUser) !== -1){
-        participants.push(item);
-      }
+        if(user.idUser !== item.idUser ){
+          let newItem = { ...item, role: "member" };
+          participants.push(newItem);      
+        }
+        }    
     });
-    console.log('====================================+');
-    console.log(participants);
+    let admin = { 
+      idUser: user.idUser,
+      name: user.name,
+      avatar: user.avatar,
+      role: "admin"
+    };
+    participants.push(admin);
+    let data = {
+      name: name ? name : "Nhóm mới " + user.name,
+      listParticipant: participants,
+      type: "group",
+      idAdmin : user.idUser,
+    };
+    
+    await axios.post('http://'+ip+':3000/createGroupChat', data )
+      .then((res) => {
+        
+      })
+  }
+
+  const handleChooseGroup =(item)=>{
+    navigation.navigate('ConversationGroup', {groupChat : item});
   }
 
   return (
@@ -171,11 +239,12 @@ const searchFriendByName = (text) => {
           { backgroundColor: colors.background },
           styles.users]}>
           <FlatList
-            data={DataGroupChat}
+            
+            data={messageData}
             showsHorizontalScrollIndicator={false}
             renderItem={({ item }) => (
               <Avatar
-                image={'https://res.cloudinary.com/dkwb3ddwa/image/upload/v1710070408/avataDefaultSeCom/jfvpv2c7etp65u8ssaff.jpg'}
+                image={item.avatar}
               />
             )}
             keyExtractor={item => item.id}
@@ -190,13 +259,20 @@ const searchFriendByName = (text) => {
          {
           user != null ? (
             <FlatList
-            data={DataGroupChat}
+            contentContainerStyle={{
+              paddingBottom : 100
+            }}
+            data={messageData}
             renderItem={({ item }) => (
               <ConversationUnit
-                name={item.name}
-                image={'https://res.cloudinary.com/dkwb3ddwa/image/upload/v1710070408/avataDefaultSeCom/jfvpv2c7etp65u8ssaff.jpg'}
+                name={item.groupName}
+                image={item.avatar}
                 newMess={item.lastMessage.message}
-                onPress={() => { navigation.navigate('ConversationGroup') }}
+                onPress={() => { 
+                  // navigation.navigate('ConversationGroup')
+                  // handleChooseGroup(item) 
+                  loadMessageData(item.id, navigation, item.groupName, user.idUser, item.avatar, item.participants)
+                }}
               />
             )}
           // keyExtractor={item => item.id}
@@ -233,6 +309,7 @@ const searchFriendByName = (text) => {
                   style={styles.textInputGroupName}
                   placeholder="Nhập tên nhóm"
                   placeholderTextColor={'#000'}
+                  onChangeText={(text) => setName(text)}
                 />
                 <TouchableOpacity
                   onPress={() => {
@@ -257,12 +334,12 @@ const searchFriendByName = (text) => {
                 {
                   user != null ? (
                     <FlatList
-                  style={{
+                    style={{
                     marginTop: 10,
                     width: '90%',
                     alignSelf: 'center',
                   }}
-                  data={ listFriendFilter != [] ? listFriendFilter : user.listFriend}
+                  data={ listFriendFilter.length > 0 ? listFriendFilter : user.listFriend}
                   renderItem={({ item }) => (
                     <View
                       style={[

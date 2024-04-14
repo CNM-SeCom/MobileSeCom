@@ -216,6 +216,7 @@ const Chat = ({ navigation }) => {
     if (item.type === 'text') {
       return (
         <TouchableOpacity
+          style={{ maxWidth: 270}}
           onLongPress={()=>{
             if(item.user.idUser === user.idUser){
               setIsMyMessage(true);
@@ -385,6 +386,7 @@ const Chat = ({ navigation }) => {
     setText('');
 
   }
+  
   const selectImage = async () => {
     const result = await launchImageLibrary({
       mediaType: 'mixed',
@@ -565,6 +567,7 @@ async function typingg(boolean) {
       chatId: id,
       receiverId: otherParticipantId,
       typing : boolean,
+      userId : user.idUser
     }
   }
   await axios.post('http://' + ip + ':3000/ws/sendTypingToUser', config.body)

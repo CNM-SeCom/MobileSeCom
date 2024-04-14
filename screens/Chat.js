@@ -68,12 +68,18 @@ const Chat = () => {
       idUser: user.idUser
   }, config)
     .then((response) => {
-      setMessageData(response.data.data); 
+      setMessageData(handleFilterSigleChat(response.data.data)); 
     })
     .catch((error) => {
       console.log(error);
     });
   }
+
+  const handleFilterSigleChat = (chatData) => {
+    const chat = chatData.filter((item) => item.participants.length === 2);
+    return chat;
+  }
+
   // load tin nhan
   const loadMessageData = (id, navigation, name, idUser, image) => {
     dispatch(setCurrentId(id));

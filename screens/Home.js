@@ -14,6 +14,7 @@ import { setTyping } from '../redux/checkTypingSlice'
 import { setUser } from '../redux/userSlice'
 import ip from '../data/ip'
 import Toast from 'react-native-toast-message';
+import { idText } from 'typescript'
 
 
 
@@ -152,12 +153,15 @@ const Home = ({ navigation }) => {
           }
           
         }
+        else if(data.type === 'RELOAD_CONVERSATION'){
+          console.log('RELOAD_CONVERSATION');
+        }
         else{
            if( data.chatId === currentId){
             add = dispatch(addChatData(data));
            }
           // console.log(data)
-          showToast(data.user.name, data.text);
+          // showToast(data.user.name, data.text);
           if (add) {
             
           }else {
