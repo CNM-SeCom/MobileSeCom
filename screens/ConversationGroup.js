@@ -78,11 +78,6 @@ const Chat = ({ navigation }) => {
     }
   };
 
-  useEffect(() => {
-    setMessages([chatData]);
-    scrollToBottom();
-  }, [chatData, text, image, video, docment]);
-
 
   const route = useRoute();
   const name = route.params.username;
@@ -158,13 +153,15 @@ const Chat = ({ navigation }) => {
   useEffect(() => {
     setMessages(chatData);
     scrollToBottom();
-  }, [chatData, text, image, video, docment]);
+  }, [chatData, text, video, docment]);
   //auto scroll to bottom when focus creen
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       scrollToBottom();
     });
-  }, [navigation, typing]);
+  }, [ typing]);
+
+
 
   const openGallery = async () => {
     try {
@@ -210,6 +207,9 @@ const Chat = ({ navigation }) => {
       console.log(error);
     }
   }
+
+
+
 
   renderMessage = (item) => {
   
@@ -266,7 +266,50 @@ const Chat = ({ navigation }) => {
           <Image source={{ uri:item.image }} style={{ width: 200, height: 200, borderRadius: 10 }} />
         </TouchableOpacity>
       );
-    } else if (item.type === 'video') {
+    } 
+    else if ( item.type === 'ADD_MEMBER'){
+      return (
+        <View style={{ backgroundColor: 'white', borderRadius: 10, paddingTop: 10 }}>
+          <Text style={{ color: 'black', fontSize: 10, height : 35 }}>{item.text}</Text>
+        </View>
+      );
+    }
+    else if ( item.type === 'KICKOUT_MEMBER' ){
+      return (
+        <View style={{ backgroundColor: 'white', borderRadius: 10, paddingTop: 10 }}>
+          <Text style={{ color: 'black', fontSize: 10, height : 35 }}>{item.text}</Text>
+        </View>
+      );
+    }
+    else if ( item.type === 'LEAVE_GROUP'){
+      return (
+        <View style={{ backgroundColor: 'white', borderRadius: 10, paddingTop: 10 }}>
+          <Text style={{ color: 'black', fontSize: 10, height : 35 }}>{item.text}</Text>
+        </View>
+      );
+    }
+    else if ( item.type === 'SET_ADMIN'){
+      return (
+        <View style={{ backgroundColor: 'white', borderRadius: 10, paddingTop: 10 }}>
+          <Text style={{ color: 'black', fontSize: 10, height : 35 }}>{item.text}</Text>
+        </View>
+      );
+    }
+    else if ( item.type === 'CHANGE_NAME'){
+      return (
+        <View style={{ backgroundColor: 'white', borderRadius: 10, paddingTop: 10 }}>
+          <Text style={{ color: 'black', fontSize: 10, height : 35 }}>{item.text}</Text>
+        </View>
+      );
+    }
+    else if ( item.type === 'CHANGE_AVATAR'){
+      return (
+        <View style={{ backgroundColor: 'white', borderRadius: 10, paddingTop: 10 }}>
+          <Text style={{ color: 'black', fontSize: 10, height : 35 }}>{item.text}</Text>
+        </View>
+      );
+    }
+    else if (item.type === 'video') {
 
       return (
         <TouchableOpacity
@@ -372,7 +415,6 @@ const Chat = ({ navigation }) => {
         }
       }
     };
-    const newMessages = [...chatData, config.body.message];
     dispatch(addChatData(config.body.message));
     axios.post('http://' + ip + ':3000/ws/send-message-to-group/'+route.params.chatId, config.body)
       .then((response) => {
@@ -645,10 +687,10 @@ async function typingg(boolean) {
   }, [navigation, loading]);
 
   //load lại màn hình khi có tin nhắn mới
-  useEffect(() => {
-    setMessages([chatData]);
-    scrollToBottom();
-  }, [ imageMessage]);
+  // useEffect(() => {
+  //   // setMessages([chatData]);
+  //   scrollToBottom();
+  // }, [ imageMessage]);
 
   const renderTyping = () => {
     if (text) {

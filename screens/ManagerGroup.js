@@ -12,6 +12,9 @@ import Modal from 'react-native-modal'
 import { useSelector } from 'react-redux'
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker'
 import { useNavigation } from '@react-navigation/native'
+import axios from 'axios'
+import ip from '../data/ip';
+import RNFetchBlob from 'rn-fetch-blob'
 
 
 const ManagerGroup = () => {
@@ -20,9 +23,8 @@ const ManagerGroup = () => {
     const route = useRoute().params.params
     const user = useSelector(state => state.user.user)
 
-    console.log(route.participants);
-    console.log(user);
-    
+    console.log(route);
+
     const [participants, setParticipants] = useState([route.participants])
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [isModalChangeNameVisible, setIsModalChangeNameVisible] = useState(false)
@@ -44,13 +46,23 @@ const ManagerGroup = () => {
 
     const handleCheckAddmin = () => {
         let idUser = user.idUser
-        console.log(idUser);
        //nếu user.IdUser có trong mảng participants và là admin thì trả về true
         const check = route.participants.find((item) => item.idUser === idUser && item.role === 'admin')
         if (check) {
             return true
         }
         return false
+    }
+
+    const checkAdmin = () => {
+        let idUser = user.idUser
+        console.log(idUser);
+        const check = route.participants.find((item) => item.idUser === idUser)
+        if (check) {
+            return true
+        }
+        return false
+    
     }
 
     useEffect(() => {
@@ -70,9 +82,20 @@ const ManagerGroup = () => {
                 {
                     text: 'OK',
                     onPress: () => {
+
+                        data = {
+                            idUser: index,
+                            chatId: route.chatId
+                        }
+                     
+
+                        axios.post('http://'+ip+':3000/leaveOrKickoutGroupChat', data)
+                        handleSendNotifyRemoveToGroup(route.participants.find((item) => item.idUser === index).name, index)
+
                         const newParticipants = route.participants.filter((item) => item.idUser !== index)
                         route.participants = newParticipants
                         setParticipants(newParticipants)
+                       
                         //set lại listFriend
                         const newFriend = user.listFriend.filter((item) => item.idUser === index)
                         setListFriend(newFriend)
@@ -82,6 +105,104 @@ const ManagerGroup = () => {
             { cancelable: false }
         );
     };
+
+    const handleSendNotifyRemoveToGroup = (name,idKick) => {
+        data = {
+            listReceiver: route.participants,
+            message: {
+            chatId: route.chatId,
+            text: name  + ' đã bị đuổi khỏi nhóm',
+            type: 'KICKOUT_MEMBER',
+            user: {
+                idUser: user.idUser,
+                avatar: user.avatar,
+                name: user.name,
+            },
+            receiverId: '',
+            idKickOut: idKick,
+            participants: route.participants
+            }
+        }
+        axios.post('http://'+ip+':3000/ws/send-message-to-group/'+route.chatId , data)
+    }
+
+
+
+    const handleSendNotifyAddToGroup = (name, newParticipant) => {
+        data = {
+            listReceiver: route.participants,
+            message: {
+            chatId: route.chatId,
+            text: name  + ' đã được mời vào nhóm',
+            type: 'ADD_MEMBER',
+            user: {
+                idUser: user.idUser,
+                avatar: user.avatar,
+                name: user.name,
+            },
+            receiverId: '',
+            participants: newParticipant
+            }
+        }
+        axios.post('http://'+ip+':3000/ws/send-message-to-group/'+route.chatId , data)
+    }
+
+    const handleSendNotifyLeaveGroup = (name, newParticipant) => {
+        data = {
+            listReceiver: route.participants,
+            message: {
+            chatId: route.chatId,
+            text: name  + ' đã rời nhóm',
+            type: 'LEAVE_GROUP',
+            user: {
+                idUser: user.idUser,
+                avatar: user.avatar,
+                name: user.name,
+            },
+            receiverId: '',
+            participants: newParticipant
+            }
+        }
+        axios.post('http://'+ip+':3000/ws/send-message-to-group/'+route.chatId , data)
+    }
+
+    const handleSendNotifySetAdmin = (name, listPaticipant) => {
+        data = {
+            listReceiver: route.participants,
+            message: {
+            chatId: route.chatId,
+            text: name  + ' đã được chỉ định làm admin',
+            type: 'SET_ADMIN',
+            user: {
+                idUser: user.idUser,
+                avatar: user.avatar,
+                name: user.name,
+            },
+            receiverId: '',
+            participants: listPaticipant
+            }
+        }
+        axios.post('http://'+ip+':3000/ws/send-message-to-group/'+route.chatId , data)
+    }
+
+    const handleSendNotifyDeleteGroup = () => {
+        data = {
+            listReceiver: route.participants,
+            message: {
+            chatId: route.chatId,
+            text: 'Nhóm đã bị giải tán',
+            type: 'DELETE_CHAT',
+            user: {
+                idUser: user.idUser,
+                avatar: user.avatar,
+                name: user.name,
+            },
+            receiverId: '',
+            // participants: route.participants
+            }
+        }
+        axios.post('http://'+ip+':3000/ws/send-message-to-group/'+route.chatId , data)
+      }
 
     const handleSearch = (text) => {
         //tìm cả hoa lẫn thường
@@ -95,6 +216,10 @@ const ManagerGroup = () => {
         route.participants.push(newParticipant)
         setParticipants(route.participants)
         //set lại listFriend
+
+        axios.post('http://'+ip+':3000/addMemberToGroupChat', {chatId: route.chatId, listMember: [newParticipant]})
+        handleSendNotifyAddToGroup(newParticipant.name, route.participant)
+
         const newFriend = user.listFriend.filter((item) => item.idUser !== idUser)
         setListFriend(newFriend)
     }
@@ -122,10 +247,57 @@ const ManagerGroup = () => {
         setListFriendSearch(newFriend)
     }
 
+
+
+    const handleDeleteGroup = () => {
+        Alert.alert(
+            'Xác nhận',
+            'Bạn có chắc chắn muốn xóa nhóm?',
+            [
+                {
+                    text: 'Cancel',
+                    onPress: () => console.log('Cancel Pressed'),
+                    style: 'cancel',
+                },
+                {
+                    text: 'OK',
+                    onPress: () => {
+                        axios.post('http://'+ip+':3000/deleteChat', { chatId: route.chatId })
+                        handleSendNotifyDeleteGroup()                    
+                        navigation.navigate('Home')
+                    },
+                },
+            ],
+            { cancelable: false }
+        );
+    }
+
     const handleChangeNameGroup = (nameGroup) => {
+
+        axios.post('http://'+ip+':3000/changeGroupName', { chatId: route.chatId, groupName: nameGroup })
+        handleSendNotifyChangeGroupName(nameGroup)
         setNameGroup(nameGroup)
         route.username = nameGroup
         setIsModalChangeNameVisible(false)
+    }
+
+    const handleSendNotifyChangeGroupName = (nameGroup) => {
+        data = {
+            listReceiver: route.participants,
+            message: {
+            chatId: route.chatId,
+            text: 'Tên nhóm đã được thay đổi thành ' + nameGroup,
+            type: 'CHANGE_NAME',
+            user: {
+                idUser: user.idUser,
+                avatar: user.avatar,
+                name: user.name,
+            },
+            receiverId: '',
+            groupName: nameGroup
+            }
+        }
+        axios.post('http://'+ip+':3000/ws/send-message-to-group/'+route.chatId , data)
     }
 
     const selectImage = async () => {
@@ -143,10 +315,52 @@ const ManagerGroup = () => {
         }
       };
 
+      const uploadImage = async (uri) => {
+        console.log('uploadImage', uri);
+        await RNFetchBlob.fetch('POST', 'http://' + ip + ':3000/uploadImageMessage', {
+          'Content-Type': 'multipart/form-data',
+        }, [
+          { name: 'image', filename: 'image.jpg', type: 'image/jpeg', data: RNFetchBlob.wrap(uri) }
+          ,
+          {
+            name: 'idUser', data: user.idUser
+          }
+        ]).then((response) => {
+          //format response to json
+          response = JSON.parse(response.data);
+          handleChangeAvatarGroup(response.uri);
+        }).catch((error) => {
+          console.error(error);
+        });
+      };
+
     const handleChangeAvatarGroup = (avatarGroup) => {
+        
+        axios.post('http://'+ip+':3000/changeAvatarGroup', { chatId: route.chatId, avatar: avatarGroup
+    })
+        handleSendNotifychangeAvatarGroup(avatarGroup)
         setAvatarGroup(avatarGroup)
         route.avatar = avatarGroup
         setIsModalChangeAvatarVisible(false)
+    }
+
+    const handleSendNotifychangeAvatarGroup = (avatarGroup) => {
+        data = {
+            listReceiver: route.participants,
+            message: {
+            chatId: route.chatId,
+            text: 'Ảnh đại diện nhóm đã được thay đổi',
+            type: 'CHANGE_AVATAR',
+            user: {
+                idUser: user.idUser,
+                avatar: user.avatar,
+                name: user.name,
+            },
+            receiverId: '',
+            avatarGroup: avatarGroup
+            }
+        }
+        axios.post('http://'+ip+':3000/ws/send-message-to-group/'+route.chatId , data)
     }
 
     const handleOrdainedAdmin = (idUser) => {
@@ -156,6 +370,13 @@ const ManagerGroup = () => {
             }
             return item
         })
+
+        data = {
+           chatId: route.chatId,
+           listParticipant : newParticipants
+        }
+        axios.post('http://'+ip+':3000/setAdminForMember', data)
+        handleSendNotifySetAdmin(route.participants.find((item) => item.idUser === idUser).name, newParticipants)
         route.participants = newParticipants
         setParticipants(newParticipants)
     }
@@ -167,6 +388,10 @@ const ManagerGroup = () => {
             }
             return item
         })
+
+  
+        
+
         route.participants = newParticipants
         setParticipants(newParticipants)
     }
@@ -186,6 +411,16 @@ const ManagerGroup = () => {
                     onPress: () => {
                         const newParticipants = route.participants.filter((item) => item.idUser !== user.idUser)
                         route.participants = newParticipants
+
+                        data = {
+                            idUser: user.idUser,
+                            chatId: route.chatId,
+                        }
+
+                        axios.post('http://'+ip+':3000/leaveOrKickoutGroupChat', data)
+                        handleSendNotifyLeaveGroup(user.name, newParticipants)
+                        navigation.navigate('Home')
+
                         setParticipants(newParticipants)
                         navigation.navigate('Home')
                     },
@@ -348,19 +583,7 @@ const ManagerGroup = () => {
                             style={styles.textChangeAvatar}
                         >Modal Change Avatar</Text>
                     </View>
-                    <View>
-                        <TextInput
-                            placeholderTextColor={'gray'}
-                            placeholder="Nhập tên mới"
-                            style={styles.textInputSearchModal}
-                            onChangeText={(text) => setNameGroup(text)}
-                        />
-                        <TouchableOpacity
-                            style={[styles.iconSearch, { marginTop: 15 }]}
-                        >
-                            <FontAwesomeIcon icon={faSearch} size={20} color='black' />
-                        </TouchableOpacity>
-                    </View>
+                
                    <View
                      style={styles.chageAvatarWrapper}
                    >
@@ -480,9 +703,7 @@ const ManagerGroup = () => {
                             Đổi avatar
                         </Text>
                     </TouchableOpacity>
-                   {
-                        isAdmin === false ? (
-                            <TouchableOpacity
+                    <TouchableOpacity
                             onPress={() => handleOutGroup()}
                             style={[styles.buttonControl, { marginBottom: 20 }]}
                         >
@@ -490,12 +711,6 @@ const ManagerGroup = () => {
                                 Rời nhóm
                             </Text>
                         </TouchableOpacity>
-                        ):
-                        (
-                            <View style={{marginBottom: 20}}>
-                            </View>
-                        )
-                   }
 
                 </View>
                 <View
@@ -546,26 +761,40 @@ const ManagerGroup = () => {
                                                         style={{ width: 40, height: 40, borderRadius: 20 }}
                                                     />
                                                     <Text style={[styles.textButton, { marginLeft: 10 }]}>{item.name}</Text>
-                                                    <TouchableOpacity
+                                                    {
+                                                        isAdmin === true ? (
+                                                            <TouchableOpacity
                                                         onPress={() => handleRemoveParticipant(item.idUser)}
                                                         style={{ position: 'absolute', right: 10 }}
                                                     >
                                                         <FontAwesomeIcon icon={faUserXmark} size={20} color='black' />
                                                     </TouchableOpacity>
-                                                    {
-                                                        isAdmin && (
+                                                        ): null
+                                                    }
+
+                                                   {
+                                                    handleCheckAddmin()?
+                                                    <View
+                                                        style={{ position: 'absolute', right: 0, bottom : 30}}
+                                                    >
+                                                        {
+                                                        (item.role === 'member') ? (
                                                             <TouchableOpacity
                                                                 onPress={() => {
                                                                     handleOrdainedAdmin(item.idUser),
-                                                                    handleRemoveAdmin(item.idUser)
+                                                                    // handleRemoveAdmin(user.idUser)
                                                                     setIsAdmin(false)
                                                                 }}
                                                                 style={{ position: 'absolute', right: 50 }}
                                                             >
                                                                 <FontAwesomeIcon icon={faKey} size={20} color='black' />
                                                             </TouchableOpacity>
-                                                        )
+                                                        ) :(null)
                                                     }
+                                                    </View>
+                                                    :null
+                                                    
+                                                   }
                                                 </View>
 
                                             ))
@@ -619,6 +848,7 @@ const ManagerGroup = () => {
                     {
                         isAdmin && (
                             <TouchableOpacity
+                                onPress={() => handleDeleteGroup()}
                                 style={[styles.buttonControl, { marginBottom: 10 }]}
                             >
                                 <Text style={styles.textButton}>

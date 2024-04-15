@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setChatData } from '../redux/chatDataSlice';
 import { setCurrentId } from '../redux/currentIdSlice';
 import axios from 'axios';
+import { set } from 'core-js/core/dict';
 
 const heigh = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -55,8 +56,8 @@ const GroupChat = () => {
  
 
   useEffect(() => {
-
-  },[listAdd]);
+    handleSortByLastMessage(messageData);
+  },[listAdd,messageData]);
   
   const getChatData = () => {
     axios.post('http://'+ip+':3000/getChatByUserId',{
@@ -72,7 +73,7 @@ const GroupChat = () => {
   }
 
   const handleFilterGroupChat = (chatData) => {
-    const chat = chatData.filter((item) => item.participants.length > 2);
+    const chat = chatData.filter((item) => item.type  === 'group' );
     return chat;
   }
 
@@ -171,6 +172,33 @@ const searchFriendByName = (text) => {
       });
     }
 
+  const handleReload = () => {
+    axios.post('http://'+ip+':3000/getChatByUserId',{
+      idUser: user.idUser
+    })
+    .then((response) => {
+      setMessageData(handleFilterGroupChat(response.data.data));
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+
+  }
+
+  const handleSortByLastMessage = (data) => {
+    data.sort((a, b) => {
+      if(a.lastMessageTime < b.lastMessageTime){
+        return -1; // Đảo ngược giá trị trả về
+      }
+      if(a.lastMessageTime > b.lastMessageTime){
+        return 1; // Đảo ngược giá trị trả về
+      }
+      return 0;
+    });
+    setMessageData(data);
+  }
+  
+
   const handleCreateGroup = async() => {
     //các id có cả trong mảng listAdd và user.listFriend thì thêm vào mảng participants và thêm trường "role" = "member"    
     
@@ -190,7 +218,7 @@ const searchFriendByName = (text) => {
       avatar: user.avatar,
       role: "admin"
     };
-    participants.push(admin);
+    participants.unshift(admin);
     let data = {
       name: name ? name : "Nhóm mới " + user.name,
       listParticipant: participants,
@@ -200,9 +228,13 @@ const searchFriendByName = (text) => {
     
     await axios.post('http://'+ip+':3000/createGroupChat', data )
       .then((res) => {
-        
+        setCountmember(0);
+        handleReload();
       })
+
   }
+
+
 
   const handleChooseGroup =(item)=>{
     navigation.navigate('ConversationGroup', {groupChat : item});
@@ -267,7 +299,7 @@ const searchFriendByName = (text) => {
               <ConversationUnit
                 name={item.groupName}
                 image={item.avatar}
-                newMess={item.lastMessage.message}
+                newMess={item.lastMessage}
                 onPress={() => { 
                   // navigation.navigate('ConversationGroup')
                   // handleChooseGroup(item) 

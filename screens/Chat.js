@@ -76,7 +76,7 @@ const Chat = () => {
   }
 
   const handleFilterSigleChat = (chatData) => {
-    const chat = chatData.filter((item) => item.participants.length === 2);
+    const chat = chatData.filter((item) => item.type === 'single');
     return chat;
   }
 
