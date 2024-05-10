@@ -10,6 +10,7 @@ import listChatReducer from './listChatSlice';
 import chatIdReducer from './chatIdSlice';
 import currentIdSlice from './currentIdSlice';
 import checkTypingSlice from './checkTypingSlice';
+import callStateSlice from './callStateSlice';
 
 const store = configureStore({
   reducer: {

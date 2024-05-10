@@ -1,100 +1,230 @@
-// import React, {useState} from 'react';
-// import AgoraUIKit from 'agora-rn-uikit';
-// import {Text} from 'react-native';
-// import { useSelector } from 'react-redux';
-// const {RtcTokenBuilder, RtmTokenBuilder, RtcRole, RtmRole} = require('agora-token')
+import React, {useEffect, useRef, useState} from 'react';
+import { View, StyleSheet } from 'react-native';
+import { WebView } from 'react-native-webview';
+const localHtmlFile = require('./CallView.html'); // Thay đổi đường dẫn tới tệp HTML của bạn
+import { useRoute } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { get, set } from 'core-js/core/dict';
+import { useNavigation } from '@react-navigation/native';
 
-// const App = () => {
+export default function App() {
+  const navigation = useNavigation();
 
-//   const user = useSelector((state) => state.user.user);
+  useEffect(() => {
+    
+  }, []);
+  let [token, setToken] = useState('');
+  let [callerId, setCallerId] = useState('');
+  let [calleeId, setCalleeId] = useState(''); 
+  let [checkCall, setCheckCall] = useState(false);
 
-//   //tạo token của agora
-//   const generateRtcToken = () => {
-//     // Rtc Examples
-//     const appId = '32d740730a2a4ef5a76bea03c694a608';
-//     const appCertificate = '3d346d52a1434b67adade897b60d7988';
-//     const channelName = 'SECOM'+user.idUser;
-//     const uid  = user.idUser;
-//     const userAccount = user.idUser;
-//     const role = RtcRole.PUBLISHER;
-  
-//     const expirationTimeInSeconds = 3600
-  
-//     const currentTimestamp = Math.floor(Date.now() / 1000)
-  
-//     const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds
-  
-//     // IMPORTANT! Build token with either the uid or with the user account. Comment out the option you do not want to use below.
-  
-//     // Build token with uid
-//     const tokenA = RtcTokenBuilder.buildTokenWithUid(
-//         appId,
-//         appCertificate,
-//         channelName,
-//         uid,
-//         role,
-//         expirationTimeInSeconds,
-//         privilegeExpiredTs
-//       );
-//     console.log("Token With Integer Number Uid: " + tokenA);
-  
-//     // Build token with user account
-//     const tokenB = RtcTokenBuilder.buildTokenWithUserAccount(
-//       appId,
-//       appCertificate,
-//       channelName,
-//       userAccount,
-//       role, 
-//       privilegeExpiredTs);
-//     console.log("Token With UserAccount: " + tokenB);
-//   }
-//   generateRtcToken()
+  const getToken = async () => {
+    try {
+      const data = await AsyncStorage.getItem('callToken');
+      const datacallerId = await AsyncStorage.getItem('callerId');
+      const datacalleeId = await AsyncStorage.getItem('calleeId');
+      const datacheckCall = await AsyncStorage.getItem('checkCall');
+      setToken(data);
+      setCallerId(datacallerId);
+      setCalleeId(datacalleeId);
+      setCheckCall(datacheckCall);
+      return data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  getToken();
+    
 
-//   const [videoCall, setVideoCall] = useState(true);
-//   const connectionData = {
-//     appId: 'db5a69d26a664f998401dd828bbcbd95',
-//     channel: "SECOM"+user.idUser,
-//      token: tokenA,
-//   };
-//   console.log("::::::::::::::::::::::::::::::");
-//   console.log(connectionData.channel);
-//   const rtcCallbacks = {
-//     EndCall: () => setVideoCall(false),
-//   };
-//   return videoCall ? (
-//     <AgoraUIKit connectionData={connectionData} rtcCallbacks={rtcCallbacks} />
-//   ) : (
-//     <Text onPress={()=>setVideoCall(true)}>Start Call</Text>
-//   );
-// };
 
-// export default App;
 
-// // import { StyleSheet, Text, View } from 'react-native'
-// // import React from 'react'
-
-// // const VideoCall = () => {
-// //   return (
-// //     <View>
-// //       <Text>VideoCall</Text>
-// //     </View>
-// //   )
-// // }
-
-// // export default VideoCall
-
-// // const styles = StyleSheet.create({})
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-
-const VideoCall = () => {
   return (
-    <View>
-      <Text>VideoCall</Text>
+    <View style={styles.container}>
+      <WebView
+        source={localHtmlFile}
+        style={styles.webview}
+        javaScriptEnabled={true}
+        domStorageEnabled={true} 
+        onMessage={(event) => {
+          if(event.nativeEvent.data === 'end'){
+            navigation.goBack();
+          }
+        }}
+        injectedJavaScript={`
+            
+        var callerId = 'user'+'${callerId}'
+        var calleeId = 'user'+'${calleeId}'
+        var token = '${token}'
+
+        
+
+        function settingCallEvent(call1, localVideo, remoteVideo, callButton, answerCallButton, endCallButton, rejectCallButton) {
+          call1.on('addremotestream', function (stream) {
+          // reset srcObject to work around minor bugs in Chrome and Edge.
+          console.log('addremotestream');
+          remoteVideo.srcObject = null;
+          remoteVideo.srcObject = stream;
+      });
+  
+      call1.on('addlocalstream', function (stream) {
+          // reset srcObject to work around minor bugs in Chrome and Edge.
+          console.log('addlocalstream');
+          localVideo.srcObject = null;
+          localVideo.srcObject = stream;
+      });
+  
+      call1.on('signalingstate', function (state) {
+          console.log('signalingstate ', state);
+  
+          if (state.code === 6 || state.code === 5)//end call or callee rejected
+          {
+              //gửi ngược về react native thông báo end call và log nó ra
+              callButton.show();
+              endCallButton.hide();
+              rejectCallButton.hide();
+              answerCallButton.hide();
+              localVideo.srcObject = null;
+              remoteVideo.srcObject = null;
+              $('#incoming-call-notice').hide();
+          }
+      });
+  
+      call1.on('mediastate', function (state) {
+          console.log('mediastate ', state);
+      });
+  
+      call1.on('info', function (info) {
+          console.log('on info:' + JSON.stringify(info));
+      });
+  }
+  
+  jQuery(function(){
+  
+      var localVideo = document.getElementById('localVideo');
+      var remoteVideo = document.getElementById('remoteVideo');
+      
+      var callButton = $('#callButton');
+      var answerCallButton = $('#answerCallButton');
+      var rejectCallButton = $('#rejectCallButton');
+      var endCallButton = $('#endCallButton');
+  
+      var currentCall = null;
+  
+      var client = new StringeeClient();
+      client.connect(token);
+    
+      client.on('connect', function(){
+          console.log('+++ connected!');
+      });
+  
+      client.on('authen', function(res){
+          console.log('+++ on authen: ', res);
+      });
+  
+      client.on('disconnect', function(res){
+          console.log('+++ disconnected');
+      });
+  
+      //MAKE CALL
+      const makeCall = () => {
+          currentCall = new StringeeCall(client, callerId, calleeId, true);
+
+          settingCallEvent(currentCall, localVideo, remoteVideo, callButton, answerCallButton, endCallButton, rejectCallButton);
+          currentCall.customParameters = {x: true};
+          currentCall.makeCall(function(res){
+              console.log('+++ call callback: ', res);
+              if (res.message === 'SUCCESS')
+              {
+                  document.dispatchEvent(new Event('connect_ok'));
+              }
+          });
+      }
+
+      if('${checkCall}'){
+        setTimeout(() => {
+          makeCall()
+        }, 500);
+       }
+
+  
+      //RECEIVE CALL
+      client.on('incomingcall', function(incomingcall){
+  
+          $('#incoming-call-notice').show();
+          currentCall = incomingcall;
+          settingCallEvent(currentCall, localVideo, remoteVideo, callButton, answerCallButton, endCallButton, rejectCallButton);
+  
+          callButton.hide();
+          answerCallButton.show();
+          rejectCallButton.show();
+          
+      });
+  
+      //Event handler for buttons
+      answerCallButton.on('click', function(){
+          $(this).hide();
+          rejectCallButton.hide();
+          endCallButton.show();
+          callButton.hide();
+          console.log('current call ', currentCall, typeof currentCall);
+          if (currentCall != null)
+          {
+              currentCall.answer(function(res){
+                  console.log('+++ answering call: ', res);
+              });
+          }
+          
+      });
+  
+      rejectCallButton.on('click', function(){
+          if (currentCall != null)
+          {
+              currentCall.reject(function(res){
+                  console.log('+++ reject call: ', res);
+              });
+          }
+  
+          callButton.show();
+          $(this).hide();
+          answerCallButton.hide();
+          
+      });
+  
+      endCallButton.on('click', function(){
+          if (currentCall != null)
+          {
+              currentCall.hangup(function(res){
+                  console.log('+++ hangup: ', res);
+                  window.ReactNativeWebView.postMessage("end")
+              });
+          }
+          callButton.show();
+          endCallButton.hide();
+          
+      });
+  
+  
+  
+      //event listener to show and hide the buttons
+      document.addEventListener('connect_ok', function(){
+          callButton.hide();
+          endCallButton.show();
+      });
+  
+  
+  });
+        
+        `}       
+      />
     </View>
-  )
+  );
 }
 
-export default VideoCall
-
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  webview: {
+    flex: 1,
+  },
+});

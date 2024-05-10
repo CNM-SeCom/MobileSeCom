@@ -176,6 +176,15 @@ const LoginScreen = () => {
             console.log(response.data.token);
             dispatch(setToken(response.data.token));
             set_IdUser(response.data.user.idUser)
+
+            axios.post('http://' + ip + ':3000/getCallAccessToken',{
+              userId: response.data.user.idUser
+            })
+            .then(async (response) => {
+              await AsyncStorage.setItem('callToken', response.data.data);
+               console.log('callToken:', response.data.data);
+            })
+
             navigation.navigate('TabHome');
             // sau 9p thì gọi update token để duy trì token
             updateToken(response.data.token.refreshToken, response.data.user.idUser);

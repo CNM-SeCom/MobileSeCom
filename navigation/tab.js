@@ -5,8 +5,10 @@ import Chat from '../screens/Chat';
 import Settings from '../screens/Setting';
 import TestTabView from '../screens/TabViewChat';
 import Test from '../screens/Test';
-// import VideoCall from '../screens/VideoCall';
+import VideoCall from '../screens/VideoCall';
 import Notification from '../screens/Notification';
+import CallingScreen from '../screens/CallingScreen';
+
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faHome,faComment, faUser, faPhone , faCamera,faBars, faBell} from '@fortawesome/free-solid-svg-icons';

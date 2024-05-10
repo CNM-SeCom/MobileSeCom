@@ -21,7 +21,6 @@ import RNFetchBlob from 'rn-fetch-blob';
 import { Provider, Portal, Modal, Button } from 'react-native-paper';
 
 
-
 const ITEM_HEIGHT = 50;
 
 
@@ -63,6 +62,8 @@ const Chat = ({ navigation }) => {
     }
   };
 
+
+
   const handleLongPress = (id) => {
     setMessageId(id);
     // Hiển thị menu lựa chọn
@@ -85,6 +86,7 @@ const Chat = ({ navigation }) => {
 
 
   const route = useRoute();
+  console.log("routeeeeeee", route.params.id);
   const name = route.params.username;
   const id = route.params.chatId;
   const otherParticipantId = route.params.id;
@@ -619,12 +621,19 @@ async function typingg(boolean) {
           }}>
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('VideoCall')
+                handleSendNotifyVideocall()
+                navigation.navigate('VideoCall', { calleeId: otherParticipantId, callerId: user.idUser})
               }}
             >
               <FontAwesomeIcon icon={faPhone} size={20} color="#fff" style={styles.iconHeader} />
             </TouchableOpacity>
-            <FontAwesomeIcon icon={faCamera} size={20} color="#fff" style={styles.iconHeader} />
+            <TouchableOpacity
+              onPress={()=>{
+                
+              }}
+            >
+                <FontAwesomeIcon icon={faCamera} size={20} color="#fff" style={styles.iconHeader} />
+            </TouchableOpacity>
             <FontAwesomeIcon icon={faCircleInfo} size={20} color="#fff" style={styles.iconHeader} />
           </View>
         </View>
@@ -746,6 +755,22 @@ async function typingg(boolean) {
       uploadVideo(imageMessage[0]);
       setImageMessage([]);
     }
+  }
+
+
+  const handleSendNotifyVideocall = async() => {
+    data = {
+       receiverId : otherParticipantId,
+       callerId : user.idUser,
+       name : user.name
+    }
+    console.log(data);
+    await axios.post('http://'+ip+':3000/ws/sendNotifyCallVideo', data ).then(res => {
+            console.log(res)
+        }).catch(err => {
+            console.log(err)
+        }
+      )
   }
 
   return (

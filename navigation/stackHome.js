@@ -16,6 +16,7 @@ import FriendList from '../screens/FriendList';
 import ListFriendForward from '../screens/ListFriendForward';
 import ConversationGroup from '../screens/ConversationGroup';
 import ManagerGroup from '../screens/ManagerGroup';
+import CallingScreen from '../screens/CallingScreen';
 
 import VideoCall from '../screens/VideoCall';
 

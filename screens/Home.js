@@ -15,6 +15,7 @@ import { setUser } from '../redux/userSlice'
 import ip from '../data/ip'
 import Toast from 'react-native-toast-message';
 import { idText } from 'typescript'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
@@ -123,7 +124,7 @@ const Home = ({ navigation }) => {
                   console.log('Open!');
                 }}
 
-                onMessage={(msg) => {
+                onMessage={async (msg) => {
                   let data = JSON.parse(msg.data);
                   let add;
                   //ảnh sẽ gắn mặc định
@@ -209,6 +210,22 @@ const Home = ({ navigation }) => {
                       }
                       );
                     }
+                  }
+                  else if (data.type==='CALL_VIDEO'){
+                    const dataCall = {
+                        token : await AsyncStorage.getItem('callToken'),
+                        callerId : user.idUser,
+                        calleeId : data.data,
+                        calleeName : data.name,
+                        checkCall : false
+                    }
+
+                    console.log("dataCall",dataCall);
+                    AsyncStorage.setItem('callerId', dataCall.callerId.toString());
+                    AsyncStorage.setItem('calleeId', dataCall.calleeId.toString());
+                    AsyncStorage.setItem('calleeName', dataCall.calleeName);
+                    AsyncStorage.setItem('checkCall', dataCall.checkCall.toString());
+                    navigation.navigate('VideoCall');
                   }
                   else if ( data.type === 'CHANGE_NAME' ){
                     showToast('Thông báo', 'Tên nhóm đã được thay đổi');
