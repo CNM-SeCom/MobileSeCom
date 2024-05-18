@@ -26,7 +26,6 @@ const Chat = () => {
     React.useCallback(() => {
       // Do something when the screen is focused
       getChatData();
-      console.log('Chat Screen focused');
       return () => {
         // Do something when the screen is unfocused
         // Useful for cleanup functions

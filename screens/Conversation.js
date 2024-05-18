@@ -19,6 +19,8 @@ import Video from 'react-native-video'
 import ip from '../data/ip'
 import RNFetchBlob from 'rn-fetch-blob';
 import { Provider, Portal, Modal, Button } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 
 const ITEM_HEIGHT = 50;
@@ -38,6 +40,13 @@ const Chat = ({ navigation }) => {
   const [messageId, setMessageId] = useState();
   const [isMyMessage, setIsMyMessage] = useState(false);
 
+  AsyncStorage.setItem('checkCall', "true");
+
+const x = async () => {
+  console.log('checkCall', await AsyncStorage.getItem('checkCall'));
+}
+
+x();
   const images = [{
     url: imageUri,
   }]
@@ -268,7 +277,40 @@ const Chat = ({ navigation }) => {
           <Image source={{ uri:item.image }} style={{ width: 200, height: 200, borderRadius: 10 }} />
         </TouchableOpacity>
       );
-    } else if (item.type === 'video') {
+    } 
+    if (item.type === 'video-call') {
+      return (
+        <TouchableOpacity
+          style={{ maxWidth: 270}}
+          onLongPress={()=>{
+            if(item.user.idUser === user.idUser){
+              setIsMyMessage(true);
+            }
+            else{
+              setIsMyMessage(false);
+            }
+            console.log(isMyMessage);
+            handleLongPress(item._id)
+            removeId(item,forwardMessage)
+            }
+          }
+        >
+          {
+            //nếu không thuộc từ a - z thì không có back grounf
+            item.text.match(/^[a-zA-Z0-9!@#$%^&*()_+{}\[\]:;'"|<,>.?\/\\\- \p{L}]+$/u ) ? (
+              <View style={{ borderRadius: 10, padding: 10 }}>
+                <Text style={{ color: 'black', fontSize: 16 }}>{item.text}</Text>
+              </View>
+            ) : (
+              <View style={{ backgroundColor: 'white', borderRadius: 10 }}>
+                <Text style={{ color: 'black', fontSize: 16, height : 35 }}>{item.text}</Text>
+              </View>
+            )
+          }
+        </TouchableOpacity>
+      );
+    }
+    else if (item.type === 'video') {
 
       return (
         <TouchableOpacity
@@ -290,12 +332,7 @@ const Chat = ({ navigation }) => {
             <ActivityIndicator size="large" color="white" animating={loading} />
           </View> : <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15, textDecorationLine: 'underline' }}>{item.user.name} đã gửi 1 video, bấm để xem</Text>
           }
-          {/* <Video
-          source={{ uri: item.video }}
-          style={{ width: 300, height: 170 }}
-          resizeMode="cover"
-          controls={true}
-        /> */}
+          
         </TouchableOpacity>
       );
     } else {
@@ -502,7 +539,7 @@ const Chat = ({ navigation }) => {
       name: 'video.mp4',
     });
     data.append('idUser', user.idUser); // Gửi idUser cùng với video
-
+   
 
     const message = {
       chatId: id,

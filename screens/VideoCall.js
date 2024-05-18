@@ -16,7 +16,9 @@ export default function App() {
   let [token, setToken] = useState('');
   let [callerId, setCallerId] = useState('');
   let [calleeId, setCalleeId] = useState(''); 
-  let [checkCall, setCheckCall] = useState(false);
+  let [checkCall, setCheckCall] = useState('');
+  let [calleeName, setCalleeName] = useState('');
+  let [time, setTime] = useState('');
 
   const getToken = async () => {
     try {
@@ -24,10 +26,17 @@ export default function App() {
       const datacallerId = await AsyncStorage.getItem('callerId');
       const datacalleeId = await AsyncStorage.getItem('calleeId');
       const datacheckCall = await AsyncStorage.getItem('checkCall');
+      console.log("checkDataCall121211 :"+ datacheckCall);
+      const datacalleeName = await AsyncStorage.getItem('calleeName');
       setToken(data);
       setCallerId(datacallerId);
       setCalleeId(datacalleeId);
       setCheckCall(datacheckCall);
+      console.log("checkCall121211 :"+ checkCall);
+      setCalleeName(datacalleeName);
+
+      console.log('checkCall :'+ checkCall);
+
       return data;
     } catch (error) {
       console.error(error);
@@ -55,10 +64,15 @@ export default function App() {
         var callerId = 'user'+'${callerId}'
         var calleeId = 'user'+'${calleeId}'
         var token = '${token}'
-
         
+          await axios.post('http://localhost:3000/ws/send-message-call-to-user', data).then((res) => {
+            //xóa đi data.message trong mảng messagesCurren
+          }).catch(() => {
+            console.log('Error when send message')
+          })
+        }
 
-        function settingCallEvent(call1, localVideo, remoteVideo, callButton, answerCallButton, endCallButton, rejectCallButton) {
+        function settingCallEvent(call1, localVideo, remoteVideo, callButton, answerCallButton, endCallButton, rejectCallButton,calleeName) {
           call1.on('addremotestream', function (stream) {
           // reset srcObject to work around minor bugs in Chrome and Edge.
           console.log('addremotestream');
@@ -75,7 +89,9 @@ export default function App() {
   
       call1.on('signalingstate', function (state) {
           console.log('signalingstate ', state);
-  
+          if (state.code === 3 ){
+              calleeName.hide();
+          }
           if (state.code === 6 || state.code === 5)//end call or callee rejected
           {
               //gửi ngược về react native thông báo end call và log nó ra
@@ -85,6 +101,8 @@ export default function App() {
               answerCallButton.hide();
               localVideo.srcObject = null;
               remoteVideo.srcObject = null;
+             
+              window.ReactNativeWebView.postMessage("end")
               $('#incoming-call-notice').hide();
           }
       });
@@ -107,6 +125,13 @@ export default function App() {
       var answerCallButton = $('#answerCallButton');
       var rejectCallButton = $('#rejectCallButton');
       var endCallButton = $('#endCallButton');
+      var toggleCameraButton = $('#toggleCamera');
+      var toggleMicroButton = $('#toggleMic');
+      var toggleCameraOn = $('#toggleCameraOn');
+      var toggleMicroOn = $('#toggleMicOn');
+      var calleeName = $('.loader');
+      
+      
   
       var currentCall = null;
   
@@ -115,10 +140,13 @@ export default function App() {
     
       client.on('connect', function(){
           console.log('+++ connected!');
+         
       });
   
       client.on('authen', function(res){
           console.log('+++ on authen: ', res);
+          // toggleCameraButton.show();
+          // toggleMicroButton.show();
       });
   
       client.on('disconnect', function(res){
@@ -128,10 +156,11 @@ export default function App() {
       //MAKE CALL
       const makeCall = () => {
           currentCall = new StringeeCall(client, callerId, calleeId, true);
-
-          settingCallEvent(currentCall, localVideo, remoteVideo, callButton, answerCallButton, endCallButton, rejectCallButton);
+          calleeName.hide();
+        
+          settingCallEvent(currentCall, localVideo, remoteVideo, callButton, answerCallButton, endCallButton, rejectCallButton, calleeName);
           currentCall.customParameters = {x: true};
-          currentCall.makeCall(function(res){
+           currentCall.makeCall(function(res){
               console.log('+++ call callback: ', res);
               if (res.message === 'SUCCESS')
               {
@@ -140,11 +169,18 @@ export default function App() {
           });
       }
 
-      if('${checkCall}'){
+      if('${checkCall}'==='true'){
         setTimeout(() => {
-          makeCall()
+          makeCall();
+          
         }, 500);
        }
+
+      if('${checkCall}'==='false'){
+        calleeName.text('${calleeName}'+ ' đang gọi');
+      }else{
+        // calleeName.text('Đang gọi ' + '${calleeName}');
+      }
 
   
       //RECEIVE CALL
@@ -152,12 +188,12 @@ export default function App() {
   
           $('#incoming-call-notice').show();
           currentCall = incomingcall;
-          settingCallEvent(currentCall, localVideo, remoteVideo, callButton, answerCallButton, endCallButton, rejectCallButton);
-  
+          settingCallEvent(currentCall, localVideo, remoteVideo, callButton, answerCallButton, endCallButton, rejectCallButton, calleeName);
+
+          calleeName.show();
           callButton.hide();
-          answerCallButton.show();
           rejectCallButton.show();
-          
+          answerCallButton.show()
       });
   
       //Event handler for buttons
@@ -165,7 +201,10 @@ export default function App() {
           $(this).hide();
           rejectCallButton.hide();
           endCallButton.show();
+          toggleCameraButton.show();
+          toggleMicroOn.show();
           callButton.hide();
+          calleeName.hide();
           console.log('current call ', currentCall, typeof currentCall);
           if (currentCall != null)
           {
@@ -180,12 +219,13 @@ export default function App() {
           if (currentCall != null)
           {
               currentCall.reject(function(res){
+                // AsyncStorage.setItem('checkCall', "true");
                   console.log('+++ reject call: ', res);
               });
           }
   
-          callButton.show();
           $(this).hide();
+          window.ReactNativeWebView.postMessage("end")
           answerCallButton.hide();
           
       });
@@ -195,20 +235,64 @@ export default function App() {
           {
               currentCall.hangup(function(res){
                   console.log('+++ hangup: ', res);
+                  // AsyncStorage.setItem('checkCall', "true");
+
                   window.ReactNativeWebView.postMessage("end")
               });
+              
           }
           callButton.show();
           endCallButton.hide();
           
       });
   
-  
+      toggleCameraButton.on('click', function(){
+        if (currentCall != null)
+        {
+           currentCall.enableLocalVideo(false);
+           toggleCameraButton.hide();
+           toggleCameraOn.show();
+        }
+        // Thêm điều kiện để thay đổi màu của nút button sau khi tắt camera
+      });
+
+      toggleCameraOn.on('click', function(){
+        if (currentCall != null)
+        {
+           currentCall.enableLocalVideo(true);
+           toggleCameraOn.hide();
+           toggleCameraButton.show();
+        }
+        // Thêm điều kiện để thay đổi màu của nút button sau khi bật camera
+      });
+    
+      toggleMicroOn.on('click', function(){
+        if (currentCall != null)
+        {
+           currentCall.mute(false);
+           toggleMicroOn.hide();
+           toggleMicroButton.show();
+        }
+        // Thêm điều kiện để thay đổi màu của nút button sau khi tắt mic
+      });
+
+      toggleMicroButton.on('click', function(){
+        if (currentCall != null)
+        {
+           currentCall.mute(true);
+           toggleMicroButton.hide();
+           toggleMicroOn.show();
+        }
+        // Thêm điều kiện để thay đổi màu của nút button sau khi bật mic
+      });
   
       //event listener to show and hide the buttons
       document.addEventListener('connect_ok', function(){
           callButton.hide();
           endCallButton.show();
+          toggleCameraButton.show();
+          toggleMicroOn.show();
+          calleeName.show();
       });
   
   

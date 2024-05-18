@@ -15,17 +15,18 @@ import { useNavigation } from '@react-navigation/native'
 import axios from 'axios'
 import ip from '../data/ip';
 import RNFetchBlob from 'rn-fetch-blob'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 
 const ManagerGroup = () => {
 
     const navigation = useNavigation()
-    const route = useRoute().params.params
+    let route = useRoute().params.params
     const user = useSelector(state => state.user.user)
 
-    console.log(route);
+    
 
-    const [participants, setParticipants] = useState([route.participants])
+    let [participants, setParticipants] = useState([route.participants])
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [isModalChangeNameVisible, setIsModalChangeNameVisible] = useState(false)
     const [isModalChangeAvatarVisible, setIsModalChangeAvatarVisible] = useState(false)
@@ -34,6 +35,26 @@ const ManagerGroup = () => {
     const [nameGroup, setNameGroup] = useState(route.username)
     const [avatarGroup, setAvatarGroup] = useState(route.avatar)
     const [isAdmin, setIsAdmin] = useState(false)
+
+    let participantsSlice = useSelector(state => state.groupInfo.groupInfo)
+
+    // console.log('participantsSlice', participantsSlice);
+
+    useEffect(() => {
+        if (participantsSlice) {
+            // console.log('participantsSlice', participantsSlice);
+            setParticipants(participantsSlice.participants)
+            //load lại listFriend
+            const newFriend = user.listFriend.filter((item) => item.idUser !== user.idUser)
+            setListFriend(newFriend)
+            //load lại participants
+            route.participants = participantsSlice.participants
+        }
+    }, [participantsSlice])
+
+    useEffect(() => {
+
+    }, [participants])
 
     //nếu idUser đã tồn tại trong mảng participants thì không thêm
     const checkExist = (idUser) => {
@@ -47,27 +68,16 @@ const ManagerGroup = () => {
     const handleCheckAddmin = () => {
         let idUser = user.idUser
        //nếu user.IdUser có trong mảng participants và là admin thì trả về true
-        const check = route.participants.find((item) => item.idUser === idUser && item.role === 'admin')
+        let check = route.participants.find((item) => item.idUser === idUser && item.role === 'admin')
         if (check) {
             return true
         }
         return false
     }
 
-    const checkAdmin = () => {
-        let idUser = user.idUser
-        console.log(idUser);
-        const check = route.participants.find((item) => item.idUser === idUser)
-        if (check) {
-            return true
-        }
-        return false
-    
-    }
 
     useEffect(() => {
-        setIsAdmin(handleCheckAddmin())
-    }, [isAdmin])
+    }, [handleCheckAddmin()])
 
     const handleRemoveParticipant = (index) => {
         Alert.alert(
@@ -94,7 +104,7 @@ const ManagerGroup = () => {
 
                         const newParticipants = route.participants.filter((item) => item.idUser !== index)
                         route.participants = newParticipants
-                        setParticipants(newParticipants)
+                        // setParticipants(newParticipants)
                        
                         //set lại listFriend
                         const newFriend = user.listFriend.filter((item) => item.idUser === index)
@@ -212,16 +222,16 @@ const ManagerGroup = () => {
     }
 
     const handleAddParticipant = (idUser) => {
-        const newParticipant = user.listFriend.find((item) => item.idUser === idUser)
-        route.participants.push(newParticipant)
-        setParticipants(route.participants)
-        //set lại listFriend
+        let newParticipant = user.listFriend.find((item) => item.idUser === idUser);
+        newParticipant = {...newParticipant, role: 'member'}
+        let newListParticipant = [...route.participants, newParticipant]
 
         axios.post('http://'+ip+':3000/addMemberToGroupChat', {chatId: route.chatId, listMember: [newParticipant]})
-        handleSendNotifyAddToGroup(newParticipant.name, route.participant)
+        handleSendNotifyAddToGroup(newParticipant.name,newListParticipant)
 
         const newFriend = user.listFriend.filter((item) => item.idUser !== idUser)
         setListFriend(newFriend)
+
     }
 
     const scrollViewRef = useRef()
@@ -451,7 +461,7 @@ const ManagerGroup = () => {
                     >
                         <Text
                             style={styles.textAddMember}
-                        >Modal Add Member</Text>
+                        >Thêm ai dô nè</Text>
                     </View>
                     <View>
                         <TextInput
@@ -489,7 +499,9 @@ const ManagerGroup = () => {
                                     {
                                         !checkExist(item.idUser) && (
                                             <TouchableOpacity
-                                                onPress={() => handleAddParticipant(item.idUser)}
+                                                onPress={() =>{
+                                                    handleAddParticipant(item.idUser)
+                                                }}
                                                 style={{ position: 'absolute', right: 10 }}
                                             >
                                                 <FontAwesomeIcon icon={faUserPlus} size={20} color='black' />
@@ -703,7 +715,9 @@ const ManagerGroup = () => {
                             Đổi avatar
                         </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
+                    {
+                        handleCheckAddmin() === false ? (
+                            <TouchableOpacity
                             onPress={() => handleOutGroup()}
                             style={[styles.buttonControl, { marginBottom: 20 }]}
                         >
@@ -711,6 +725,13 @@ const ManagerGroup = () => {
                                 Rời nhóm
                             </Text>
                         </TouchableOpacity>
+                        ) : (
+                            <View style={{ marginBottom : 10 }}>
+
+                            </View>
+                        )
+                        
+                    }
 
                 </View>
                 <View
@@ -748,56 +769,60 @@ const ManagerGroup = () => {
                                 {
                                     participants ?
                                         (
-                                            route.participants.map((item, index) => (
-                                                <View
-                                                    //nếu index cuối thì thêm marginBottom
-                                                    style={index === route.participants.length - 1 ?
-                                                        [{ marginBottom: 10 }, styles.buttonControl] :
-                                                        styles.buttonControl}
-                                                    key={index}
-                                                >
-                                                    <Image
-                                                        source={{ uri: item.avatar }}
-                                                        style={{ width: 40, height: 40, borderRadius: 20 }}
-                                                    />
-                                                    <Text style={[styles.textButton, { marginLeft: 10 }]}>{item.name}</Text>
-                                                    {
-                                                        isAdmin === true ? (
-                                                            <TouchableOpacity
-                                                        onPress={() => handleRemoveParticipant(item.idUser)}
-                                                        style={{ position: 'absolute', right: 10 }}
-                                                    >
-                                                        <FontAwesomeIcon icon={faUserXmark} size={20} color='black' />
-                                                    </TouchableOpacity>
-                                                        ): null
-                                                    }
-
-                                                   {
-                                                    handleCheckAddmin()?
-                                                    <View
-                                                        style={{ position: 'absolute', right: 0, bottom : 30}}
-                                                    >
-                                                        {
-                                                        (item.role === 'member') ? (
-                                                            <TouchableOpacity
-                                                                onPress={() => {
-                                                                    handleOrdainedAdmin(item.idUser),
-                                                                    // handleRemoveAdmin(user.idUser)
-                                                                    setIsAdmin(false)
-                                                                }}
-                                                                style={{ position: 'absolute', right: 50 }}
+                                            route.participants.map((item, index) => {
+                                                if(item.idUser !== user.idUser){
+                                                    return( 
+                                                        <View
+                                                            //nếu index cuối thì thêm marginBottom
+                                                            style={index === route.participants.length - 1 ?
+                                                                [{ marginBottom: 10 }, styles.buttonControl] :
+                                                                styles.buttonControl}
+                                                                key={index}
+                                                        >
+                                                            <Image
+                                                                source={{ uri: item.avatar }}
+                                                                style={{ width: 40, height: 40, borderRadius: 20 }}
+                                                            />
+                                                            <Text style={[styles.textButton, { marginLeft: 10 }]}>{item.name}</Text>
+                                                            {
+                                                                handleCheckAddmin() === true ? (
+                                                                    <TouchableOpacity
+                                                                onPress={() => handleRemoveParticipant(item.idUser)}
+                                                                style={{ position: 'absolute', right: 10 }}
                                                             >
-                                                                <FontAwesomeIcon icon={faKey} size={20} color='black' />
+                                                                <FontAwesomeIcon icon={faUserXmark} size={20} color='black' />
                                                             </TouchableOpacity>
-                                                        ) :(null)
-                                                    }
-                                                    </View>
-                                                    :null
-                                                    
-                                                   }
-                                                </View>
-
-                                            ))
+                                                                ): null
+                                                            }
+        
+                                                           {
+                                                            handleCheckAddmin() === true ?
+                                                            <View
+                                                                style={{ position: 'absolute', right: 0, bottom : 30}}
+                                                            >
+                                                                {
+                                                                (item.role === 'member') ? (
+                                                                    <TouchableOpacity
+                                                                        onPress={() => {
+                                                                            handleOrdainedAdmin(item.idUser)
+                                                                            //set lại role thành member
+                                                                            
+                                                                        }}
+                                                                        style={{ position: 'absolute', right: 50 }}
+                                                                    >
+                                                                        <FontAwesomeIcon icon={faKey} size={20} color='black' />
+                                                                    </TouchableOpacity>
+                                                                ) :(null)
+                                                            }
+                                                            </View>
+                                                            :null
+                                                            
+                                                           }
+                                                        </View>
+        
+                                                        )
+                                                }
+                                            })
                                         ) : (
                                             participants.map((item, index) => (
                                                 <View
@@ -846,7 +871,7 @@ const ManagerGroup = () => {
                         style={styles.linearGradient}
                     />
                     {
-                        isAdmin && (
+                        handleCheckAddmin() === true && (
                             <TouchableOpacity
                                 onPress={() => handleDeleteGroup()}
                                 style={[styles.buttonControl, { marginBottom: 10 }]}

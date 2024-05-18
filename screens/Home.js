@@ -16,6 +16,7 @@ import ip from '../data/ip'
 import Toast from 'react-native-toast-message';
 import { idText } from 'typescript'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setGroupInfo } from '../redux/groupInfoSlice';
 
 
 
@@ -141,6 +142,10 @@ const Home = ({ navigation }) => {
                       dispatch(setTyping(data.typing));
                     }
                   }
+                  else if (data.type === 'SET_ADMIN') {
+                    showToast('Thông báo', 'Admin đã thay đổi');
+                    dispatch(setGroupInfo(data))
+                  }
                   else if (data.type === 'RELOAD_MESSAGE') {
                     if (data.chatId === currentId) {
                       axios.post('http://' + ip + ':3000/getMessageByChatId', {
@@ -155,10 +160,18 @@ const Home = ({ navigation }) => {
 
                   }
                   else if (data.type === 'ADD_MEMBER') {
+                    showToast('Thông báo', 'Đã thêm thành viên mới');
                     if (data.chatId === currentId) {
                       axios.post('http://' + ip + ':3000/getMessageByChatId', {
                         chatId: currentId
                       }).then((response) => {
+                        data.participants = [...data.participants, data.user];
+                        //loại bỏ phần tử trùng trường role = undefined
+                        data.participants = data.participants.filter((item) => item.role !== undefined);
+                        
+                        console.log('data', data.participants);
+
+                        dispatch(setGroupInfo(data))
                         dispatch(setChatData(response.data.data));
                       }).catch((error) => {
                         console.log(error);
@@ -179,6 +192,38 @@ const Home = ({ navigation }) => {
                       );
                     }
                     navigation.navigate('Chat');
+                  }
+                  else if (data.type === 'KICKOUT_MEMBER') {
+                    console.log('data', data);
+                    showToast('Thông báo', 'Đã bị đuổi khỏi nhóm');
+                    if (data.chatId === currentId) {
+                      axios.post('http://' + ip + ':3000/getMessageByChatId', {
+                        chatId: currentId
+                      }).then((response) => {
+                        //bỏ phần tử data.participants có idUser = data.idKickOut
+                        data.participants = data.participants.filter((item) => item.idUser !== data.idKickOut);
+                        dispatch(setGroupInfo(data))
+                        dispatch(setChatData(response.data.data));
+                      }).catch((error) => {
+                        console.log(error);
+                      }
+                      );
+                    }
+                  }
+                  else if (data.type === 'LEAVE_GROUP') {
+                    showToast('Thông báo', '1 thành viên đã rời nhóm');
+                    console.log('out', data);
+                    if (data.chatId === currentId) {
+                      axios.post('http://' + ip + ':3000/getMessageByChatId', {
+                        chatId: currentId
+                      }).then((response) => {
+                        dispatch(setGroupInfo(data))
+                        dispatch(setChatData(response.data.data));
+                      }).catch((error) => {
+                        console.log(error);
+                      }
+                      );
+                    }
                   }
                   else if (data.type === 'RELOAD_CONVERSATION') {
                     axios.post('http://' + ip + ':3000/getChatByUserId', {

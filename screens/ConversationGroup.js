@@ -415,12 +415,12 @@ const Chat = ({ navigation }) => {
         }
       }
     };
-    dispatch(addChatData(config.body.message));
+  //  dispatch(addChatData(config.body.message));
     axios.post('http://' + ip + ':3000/ws/send-message-to-group/'+route.params.chatId, config.body)
       .then((response) => {
         const newMessagesWithoutData = chatData.filter((message) => message !== config.body.message);
-        dispatch(setChatData(newMessagesWithoutData))
-        dispatch(addChatData(response.data.data));
+        // dispatch(setChatData(newMessagesWithoutData))
+        // dispatch(addChatData(response.data.data));
       })
       .catch((error) => {
         console.log(error);
@@ -471,7 +471,7 @@ const Chat = ({ navigation }) => {
         }
       }
     }
-    dispatch(addChatData(config.body.message));
+    // dispatch(addChatData(config.body.message));
     axios.post('http://' + ip + ':3000/ws/send-message-to-group/'+route.params.chatId, config.body)
       .then((response) => {
         setLoading(false);
@@ -559,7 +559,7 @@ const Chat = ({ navigation }) => {
       },
       receiverId: otherParticipantId,
     }
-    dispatch(addChatData(message));
+    //  dispatch(addChatData(message));
 
     try {
       const response = await fetch('http://' + ip + ':3000/cloudinary/uploadVideo', {
@@ -686,11 +686,11 @@ async function typingg(boolean) {
     scrollToBottom()
   }, [navigation, loading]);
 
-  //load lại màn hình khi có tin nhắn mới
-  // useEffect(() => {
-  //   // setMessages([chatData]);
-  //   scrollToBottom();
-  // }, [ imageMessage]);
+  // load lại màn hình khi có tin nhắn mới
+  useEffect(() => {
+    // setMessages([chatData]);
+    scrollToBottom();
+  }, [ imageMessage]);
 
   const renderTyping = () => {
     if (text) {
@@ -790,7 +790,6 @@ async function typingg(boolean) {
   }
 
   const handleSendMedia = () => {
-    // uploadImage(imageMessage[0]);
     if (imageMessage[0].includes('.jpg' || '.png')) {
       uploadImage(imageMessage[0]);
       setImageMessage([]);

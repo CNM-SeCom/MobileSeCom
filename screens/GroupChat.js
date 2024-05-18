@@ -15,6 +15,7 @@ import { setChatData } from '../redux/chatDataSlice';
 import { setCurrentId } from '../redux/currentIdSlice';
 import axios from 'axios';
 import { set } from 'core-js/core/dict';
+import { setGroupInfo } from '../redux/groupInfoSlice';
 
 const heigh = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -31,7 +32,7 @@ const GroupChat = () => {
 
   const [add, setAdd] = useState(false);
   const [valid, setValid] = useState(false);
-  const [countmember, setCountmember] = useState(0);
+  let [countmember, setCountmember] = useState(1);
   const [listAdd, setListAdd] = useState([]);
   const [name , setName] = useState('');
   const [listFriendFilter, setListFriendFilter] = useState([]);
@@ -51,13 +52,9 @@ const GroupChat = () => {
     }
   });
 
-
-
- 
-
   useEffect(() => {
     handleSortByLastMessage(messageData);
-  },[listAdd,messageData]);
+  },[listAdd,messageData,countmember]);
   
   const getChatData = () => {
     axios.post('http://'+ip+':3000/getChatByUserId',{
@@ -65,7 +62,6 @@ const GroupChat = () => {
   })
     .then((response) => {
       setMessageData(handleFilterGroupChat(response.data.data)); 
-      console.log('messageData', messageData);
     })
     .catch((error) => {
       console.log(error);
@@ -79,12 +75,12 @@ const GroupChat = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      // Do something when the screen is focused
+      //loại bỏ hết các phần tử  trong mảng listAdd
+      setListAdd([]);
+      setCountmember(1);
       getChatData();
-      console.log('Chatgroup Screen focused');
       return () => {
-        // Do something when the screen is unfocused
-        // Useful for cleanup functions
+        
       };
     }, [])
   );
@@ -97,6 +93,7 @@ const GroupChat = () => {
           onPress={() => {
             setAdd(true);
             setCountmember(countmember + 1);
+            console.log('countmember', countmember);
             //xóa id khỏi mảng listAdd
             setListAdd(prevListAdd => [...prevListAdd, id]);
           }}
@@ -165,7 +162,7 @@ const searchFriendByName = (text) => {
         chatId: id
       }).then((response) => {
         dispatch(setChatData(response.data.data));
-        console.log(name)
+        dispatch(setGroupInfo({name: name, id: id, avatar: image, participants: participants}));
         navigation.navigate('ConversationGroup', {username: name, id : idUser, chatId: id,avatar: image, participants: participants});
       }).catch((error) => {
         console.log(error);
@@ -228,10 +225,11 @@ const searchFriendByName = (text) => {
     
     await axios.post('http://'+ip+':3000/createGroupChat', data )
       .then((res) => {
-        setCountmember(0);
+        setCountmember(1);
         handleReload();
       })
-
+    // setCountmember(1);
+    console.log('data', data);
   }
 
 

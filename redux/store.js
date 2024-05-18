@@ -11,6 +11,7 @@ import chatIdReducer from './chatIdSlice';
 import currentIdSlice from './currentIdSlice';
 import checkTypingSlice from './checkTypingSlice';
 import callStateSlice from './callStateSlice';
+import groupInfoSlice from './groupInfoSlice';
 
 const store = configureStore({
   reducer: {
@@ -25,6 +26,7 @@ const store = configureStore({
     chatId: chatIdReducer,
     currentId: currentIdSlice,
     checkTyping: checkTypingSlice,
+    groupInfo: groupInfoSlice,
   },
 });
 
