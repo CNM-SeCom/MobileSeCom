@@ -156,9 +156,17 @@
     <div id="video-container">
         <h3 id="calleeName"></h3>
 
-        <div class="loader">
-            <span class="loader-text">Calling......</span>
-            </div>
+        <div id="call" class="loader"
+            style="display: none;"
+        >
+            <span class="loader-text">Calling.......</span>
+        </div>
+
+        <div id="ring" class="loader" 
+            style="display: none;"
+        >
+            <span class="loader-text">Ringing.....</span>
+        </div>
 
 
         <video id="localVideo" autoplay muted 

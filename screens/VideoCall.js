@@ -18,7 +18,6 @@ export default function App() {
   let [calleeId, setCalleeId] = useState(''); 
   let [checkCall, setCheckCall] = useState('');
   let [calleeName, setCalleeName] = useState('');
-  let [time, setTime] = useState('');
 
   const getToken = async () => {
     try {
@@ -65,13 +64,7 @@ export default function App() {
         var calleeId = 'user'+'${calleeId}'
         var token = '${token}'
         
-          await axios.post('http://localhost:3000/ws/send-message-call-to-user', data).then((res) => {
-            //xóa đi data.message trong mảng messagesCurren
-          }).catch(() => {
-            console.log('Error when send message')
-          })
-        }
-
+         
         function settingCallEvent(call1, localVideo, remoteVideo, callButton, answerCallButton, endCallButton, rejectCallButton,calleeName) {
           call1.on('addremotestream', function (stream) {
           // reset srcObject to work around minor bugs in Chrome and Edge.
@@ -129,10 +122,14 @@ export default function App() {
       var toggleMicroButton = $('#toggleMic');
       var toggleCameraOn = $('#toggleCameraOn');
       var toggleMicroOn = $('#toggleMicOn');
-      var calleeName = $('.loader');
+      var calleeName = ''
       
-      
-  
+      if('${checkCall}'==='true'){  
+        calleeName = $('#call');
+      }else{
+        calleeName = $('#ring');
+      }   
+
       var currentCall = null;
   
       var client = new StringeeClient();
@@ -140,7 +137,6 @@ export default function App() {
     
       client.on('connect', function(){
           console.log('+++ connected!');
-         
       });
   
       client.on('authen', function(res){
@@ -172,12 +168,11 @@ export default function App() {
       if('${checkCall}'==='true'){
         setTimeout(() => {
           makeCall();
-          
         }, 500);
        }
 
       if('${checkCall}'==='false'){
-        calleeName.text('${calleeName}'+ ' đang gọi');
+        // calleeName.text('${calleeName}'+ ' đang gọi');
       }else{
         // calleeName.text('Đang gọi ' + '${calleeName}');
       }
