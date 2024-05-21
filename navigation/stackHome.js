@@ -17,6 +17,7 @@ import ListFriendForward from '../screens/ListFriendForward';
 import ConversationGroup from '../screens/ConversationGroup';
 import ManagerGroup from '../screens/ManagerGroup';
 import CallingScreen from '../screens/CallingScreen';
+import CreatePost from '../screens/CreatePost';
 
 import VideoCall from '../screens/VideoCall';
 
@@ -41,6 +42,7 @@ function MyStack() {
       <Stack.Screen name="ConversationGroup" component={ConversationGroup} options={{headerShown : true,headerTitle:"Nhóm",headerStyle:{backgroundColor:'#C3F8FF'}}} />
       <Stack.Screen name="ManagerGroup" component={ManagerGroup} options={{headerShown : true,headerTitle:"Quản lý nhóm",headerStyle:{backgroundColor:'#C3F8FF'}}} />
       <Stack.Screen name="VideoCall" component={VideoCall} options={{headerShown : false}}/>
+      <Stack.Screen name="CreatePost" component={CreatePost} options={{headerShown : false}}/>
     </Stack.Navigator>
   );
 }

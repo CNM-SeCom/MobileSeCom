@@ -37,7 +37,9 @@ const navigation = useNavigation();
             justifyContent: 'space-between',
             marginRight: 20,
           }}>
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('CreatePost')}
+            >
               <FontAwesomeIcon icon={faCirclePlus} size={25} color={colors.icon} style={styles.iconHeader} />
             </TouchableOpacity>
             <TouchableOpacity
