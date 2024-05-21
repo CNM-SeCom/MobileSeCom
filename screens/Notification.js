@@ -6,6 +6,9 @@ import { selectUser } from '../slices/userSlice'
 import axios from 'axios';
 import ip from '../data/ip';
 import { useFocusEffect } from '@react-navigation/native';
+import Load from '../components/Load';
+import { Provider, Portal, Modal, Button } from 'react-native-paper';
+
 
 const Notification = () => {
 
@@ -13,16 +16,16 @@ const Notification = () => {
 
     const user = useSelector((state) => state.user.user);
     let [listRequest, setListRequest] = useState([]);
-
+    let [loading, setLoading] = useState(false);
    
 
     const getListRequestAddFriend = async() => {
-        console.log('id' , user.idUser);
         await axios.post('http://' + ip + ':3000/getRequestAddFriendByUserId', { idUser : user.idUser })
             .then((response) => {
                 // console.log('++++++++++++++++++');
                 // console.log(response.data);
                 setListRequest(response.data.data);
+                setLoading(false);
                 return response.data;
             })
             .catch((error) => {
@@ -42,6 +45,7 @@ const Notification = () => {
     // let listRequestAddFriend = getListRequestAddFriend();
     useFocusEffect(
         React.useCallback(() => {
+            setLoading(true);
             getListRequestAddFriend();
             console.log('Notification Screen focused');
         }, [])
@@ -50,19 +54,22 @@ const Notification = () => {
 
 
     const handleAccept = async(item) => {
-        console.log(item);
-        console.log('==');
+
         await axios.post('http://' + ip + ':3000/acceptRequestAddFriend',  item )
             .then((response) => {
                 console.log(response.data);
                 //ẩn item vừa accept
+                setLoading(false);
                 setListRequest(listRequest.filter((request) => request.id !== item.id));
                 return response.data;
             })
     }
 
     const handleDecline = async(item) => {
+
+        setLoading(true);
         await axios.post('http://' + ip + ':3000/cancelRequestAddFriend',request).then((res) => {
+            setLoading(false);
             return res.data.data;
         }).catch((err) => {
           console.log(err);
@@ -105,7 +112,12 @@ const Notification = () => {
                                 style={styles.buttonGroup}
                             >
                                 <TouchableOpacity
-                                    onPress={() => handleAccept(item)}
+                                    onPress={() => 
+                                        {
+                                            handleAccept(item)
+                                            setLoading(true)
+                                        }
+                                    }
                                     style={styles.buttonAccept}
                                 >
                                     <Text
@@ -113,7 +125,9 @@ const Notification = () => {
                                     >Xác nhận</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
-                                    onPress={() => handleDecline(item.id)}
+                                    onPress={() => {handleDecline(item.id)
+                                        setLoading(true)
+                                    }}
                                     style={styles.buttonDecline}
                                 >
                                     <Text
@@ -122,6 +136,7 @@ const Notification = () => {
                                 </TouchableOpacity>
                             </View>
                         </View>
+                        
                     </View>
                 )}
             />
@@ -129,9 +144,12 @@ const Notification = () => {
     }
 
     return (
-        <View style={styles.container}>
-            {renderAddFriendRequest()}
-        </View>
+        <Provider>
+            <View style={styles.container}>
+                {renderAddFriendRequest()}
+                <Load show={loading} />
+            </View>
+        </Provider>
     )
 }
 
@@ -183,6 +201,8 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         margin: 10,
         marginLeaft: 100,
+        position: 'absolute',
+        right: 0,
     },
     message: {
         margin: 10,

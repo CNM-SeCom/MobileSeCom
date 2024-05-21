@@ -19,7 +19,7 @@ import Video from 'react-native-video'
 import ip from '../data/ip'
 import RNFetchBlob from 'rn-fetch-blob';
 import { Provider, Portal, Modal, Button } from 'react-native-paper';
-
+import Load from '../components/Load';
 
 
 const ITEM_HEIGHT = 50;
@@ -38,6 +38,7 @@ const Chat = ({ navigation }) => {
   const [loadVideo, setLoadVideo] = useState(true);
   const [messageId, setMessageId] = useState();
   const [isMyMessage, setIsMyMessage] = useState(false);
+  let [show, setShow] = useState(false);
 
   const images = [{
     url: imageUri,
@@ -450,6 +451,9 @@ const Chat = ({ navigation }) => {
 
 
   const handleSendImage = (uri) => {
+
+    setShow(true);
+
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -474,7 +478,8 @@ const Chat = ({ navigation }) => {
     // dispatch(addChatData(config.body.message));
     axios.post('http://' + ip + ':3000/ws/send-message-to-group/'+route.params.chatId, config.body)
       .then((response) => {
-        setLoading(false);
+        // setLoading(false);
+        setShow(false);
       })
       .catch((error) => {
         console.log(error);
@@ -484,6 +489,8 @@ const Chat = ({ navigation }) => {
 
 
   const handleSendVideo = (uri) => {
+
+    setShow(true);
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -509,6 +516,7 @@ const Chat = ({ navigation }) => {
     axios.post('http://' + ip + ':3000/ws/send-message-to-group/'+route.params.chatId, config.body)
       .then((response) => {
         setLoading(false);
+        setShow(false);
       })
       .catch((error) => {
         console.log(error);
@@ -931,6 +939,7 @@ async function typingg(boolean) {
           </Portal>
         </Portal>
       </View>
+      <Load show={show} />
     </Provider>
   );
 }

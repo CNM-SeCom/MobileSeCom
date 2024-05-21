@@ -13,6 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPalette, faRightFromBracket,faBars } from '@fortawesome/free-solid-svg-icons';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import Load from '../components/Load';
 
 
 const FriendList = () => {
@@ -21,6 +22,8 @@ const FriendList = () => {
     const [listFriend, setListFriend] = useState('');
     const userId = user.idUser;
     const [modalVisible, setModalVisible] = useState(false);
+    let [loading, setLoading] = useState(false);
+
     const [friendId, setFriendId] = useState('');
     const blockFriend = (id) => {
         console.log('Chặn' + id)
@@ -45,6 +48,7 @@ const FriendList = () => {
     await axios.post('http://' + ip + ':3000/getSentRequestAddFriendByUserId',data).then((res) => {
         console.log(res.data.data);
         setListFriendRequest(res.data.data);
+        setLoading(false);
         return res.data.data;
     }).catch((err) => {
       console.log(err);
@@ -58,6 +62,7 @@ const FriendList = () => {
         }
         await axios.post('http://' + ip + ':3000/getListFriendByUserId',data).then((res) => {
         setListFriend(res.data.data);
+        setLoading(false);
         return res.data.data;
     }).catch((err) => {
       console.log(err);
@@ -67,6 +72,7 @@ const FriendList = () => {
     async function cancelRequestAddFriend(request) {
         await axios.post('http://' + ip + ':3000/cancelRequestAddFriend',request).then((res) => {
         getSentRequestAddFriendByUserId(userId);
+        setLoading(false);
         return res.data.data;
     }).catch((err) => {
       console.log(err);
@@ -84,6 +90,7 @@ const FriendList = () => {
         await axios.post('http://' + ip + ':3000/unFriend',data).then((res) => {
         getListFriendByUserId(userId);
         reloadUser();
+        setLoading(false);
         return res.data.data;
     }).catch((err) => {
       console.log(err);
@@ -130,7 +137,10 @@ const FriendList = () => {
                         <TouchableOpacity
                                     style={styles.buttonDecline}
                                     onPress={() => {
-                                        cancelRequestAddFriend(item);
+                                        {
+                                        cancelRequestAddFriend(item)
+                                        setLoading(true)
+                                        }
                                     }}
                                 >
                                     <Text
@@ -172,12 +182,12 @@ const FriendList = () => {
                                 >{item.name}</Text>
                             </View>
                             <Modal
-                            animationType="none"
+                            animationType="slide"
                             transparent={true}
                             visible={modalVisible}
                             style={{backgroundColor:'white'}}
                             onRequestClose={() => {
-                            setModalVisible(!modalVisible);
+                            // setModalVisible(!modalVisible);
                             }}
                             >
                             <View style={styles.centeredView}>
@@ -189,6 +199,7 @@ const FriendList = () => {
                                     onPress={() => {
                                         unFriend(userId,friendId);
                                         setModalVisible(!modalVisible);
+                                        setLoading(true)
                                         }}
                                 >
                                     <Text style={styles.textStyle}>Hủy kết bạn</Text>
@@ -197,6 +208,7 @@ const FriendList = () => {
                                     style={styles.cancelFriendButton}
                                     onPress={() => {
                                         setModalVisible(!modalVisible);
+                                        setLoading(true)
                                         // Thực hiện hành động khi hủy kết bạn
                                         }}
                                 >
@@ -206,7 +218,7 @@ const FriendList = () => {
                                 <TouchableHighlight
                                 style={{ ...styles.closeButton }}
                                 onPress={() => {
-                                    
+                                    setLoading(true)
                                     setModalVisible(!modalVisible);
                                 }}
                                 >
@@ -225,7 +237,7 @@ const FriendList = () => {
                     setModalVisible(true);
                     }}>
                         <FontAwesomeIcon icon={faBars} size={25}/>
-                    </TouchableOpacity>
+                        </TouchableOpacity>
                     </View>
                     )}
                     />

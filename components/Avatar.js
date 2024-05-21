@@ -14,12 +14,12 @@ const Avatar = (props) => {
         <Image source={{ uri: image }} style={{ width: 60, height: 60, borderRadius: 30 }} />}
 
       </TouchableOpacity>
-      <View style={styles.status}>
+      {/* <View style={styles.status}>
 
-      </View>
-      <View style={styles.newMess}>
+      </View> */}
+      {/* <View style={styles.newMess}>
         <Text style={styles.newMessText}> 1 </Text>
-      </View>
+      </View> */}
     </View>
   )
 }

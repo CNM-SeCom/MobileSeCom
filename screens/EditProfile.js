@@ -524,7 +524,7 @@ const UpdateInfo = (  ) => {
           </TouchableOpacity>
         </Modal>
         {/* sửa tên người ngày sinh */}
-        <Modal visible={isModalVisible} onDismiss={toggleModalDob} contentContainerStyle={styles.modalIputNewName}>
+        <Modal visible={isModalVisible} onDismiss={()=>{toggleModalDob}} contentContainerStyle={styles.modalIputNewName}>
           <Text
             style={{
               color: '#000',

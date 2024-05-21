@@ -77,6 +77,7 @@
     "react-native-svg": "^14.1.0",
     "react-native-tab-view": "^3.5.2",
     "react-native-toast-message": "^2.2.0",
+    "react-native-ui-lib": "^7.22.0",
     "react-native-vector-icons": "^10.0.3",
     "react-native-video": "^5.2.1",
     "react-native-webrtc": "^118.0.7",

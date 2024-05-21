@@ -67,6 +67,14 @@ const Chat = () => {
       idUser: user.idUser
   }, config)
     .then((response) => {
+      // sort theo thoi gian lastMessageTime
+      response.data.data.sort((a, b) => {
+        return new Date(b.lastMessageTime) - new Date(a.lastMessageTime);
+      });
+      console.log( 'alo '+
+      //chỉ lấy thời gian cuối cùng là giờ phút
+      response.data.data[0].lastMessageTime.slice(11, 16)
+    );
       setMessageData(handleFilterSigleChat(response.data.data)); 
     })
     .catch((error) => {
@@ -146,9 +154,7 @@ const Chat = () => {
               showsHorizontalScrollIndicator = {false}
               renderItem={({item}) =>{ 
                 var otherParticipant;
-                  // Lặp qua mảng participants để tìm người tham gia khác người dùng hiện tại
-                  // dispatch(setChatId(item.id));
-                  // setChatId(item.id)
+                  
                   if (user) {
                      otherParticipant = item.participants.find(element => element.idUser !== user.idUser);
                      return (
@@ -190,6 +196,7 @@ const Chat = () => {
                     image={otherParticipant.avatar}
                     name={otherParticipant.name}
                     newMess={item.lastMessage}
+                    time={new Date(item.lastMessageTime).toLocaleTimeString()}
                     onPress={() => loadMessageData(item.id, navigation,otherParticipant.name,otherParticipant.idUser, otherParticipant.avatar)}
                   />
                 );

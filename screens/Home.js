@@ -151,6 +151,7 @@ const Home = ({ navigation }) => {
                       axios.post('http://' + ip + ':3000/getMessageByChatId', {
                         chatId: currentId
                       }).then((response) => {
+                        console.log('reload', response.data.data);
                         dispatch(setChatData(response.data.data));
                       }).catch((error) => {
                         console.log(error);

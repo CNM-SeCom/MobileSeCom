@@ -9,7 +9,7 @@ const heigh = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
 const ConversationUnit = (props) => {
-    const {image, name, newMess, onPress} = props;
+    const {image, name, newMess, onPress, time} = props;
 
 const navigation = useNavigation();
 
@@ -45,10 +45,16 @@ const colors = useSelector((state) => {
         }}>{newMess}</Text>
        
         </View>
-        <FontAwesomeIcon icon={faCircleCheck} size={20} color="#8BB5E4" style={{
+        <View style={{
             right : 10,
             position: 'absolute',
-        }} />
+        }} >
+            {time ? <Text style={{
+                fontSize: 12,
+                color: '#808080',
+                }}>{time}</Text> : null
+            }
+        </View>
     </TouchableOpacity>
   )
 }

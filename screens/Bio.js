@@ -112,10 +112,9 @@ const navigation = useNavigation();
             styles.profileText]}>Email : {user.email}</Text>
           <Text style={[
             {color: colors.text},
-            styles.profileText]}>Địa chỉ : {user.address}</Text>
-          <Text style={[
-            {color: colors.text},
-            styles.profileText]}>Ngày sinh : {user.dob}</Text>
+            styles.profileText]}>Ngày sinh : {
+              new Date(user.dob).getDate() + '/' + (new Date(user.dob).getMonth() + 1) + '/' + new Date(user.dob).getFullYear()
+            }</Text>
           </View>
           <TouchableOpacity 
           onPress={() => navigation.navigate('EditProfile')}
