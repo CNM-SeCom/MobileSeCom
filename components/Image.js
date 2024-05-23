@@ -8,7 +8,6 @@ const Imagee = (props) => {
 
 let { show, uri, close } = props;
 
-console.log(uri);
 const renderModalContent = (show) => (
     show === true ? 
     <View

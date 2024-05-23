@@ -9,10 +9,14 @@ import axios from 'axios';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Modal from 'react-native-modal';
 import Imagee from './Image';
+import { useNavigation } from '@react-navigation/native';
 
 import { useSelector } from 'react-redux';
 
 const Post = (props) => {
+
+  const user = useSelector((state) => state.user.user);
+  const navigation = useNavigation();
 
   const mode = useSelector((state) => state.mode.mode);
   const colors = useSelector((state) => {
@@ -26,14 +30,14 @@ const Post = (props) => {
     }
   });
 
-  const { title, description, image, content, userName, likes, comments, idUser } = props;
+  const { title, description, image, content, userName, likes, comments, idUser, idPost } = props;
+
   let [show, setShow] = useState(false);
   let [imageShow, setImageShow] = useState([]);
  //hiển thị ảnh phóng to lên modal
 
   //layout cho ảnh
   const renderImage = (images) => {
-    console.log('images', images);
     // Kiểm tra nếu đối tượng images tồn tại và có thuộc tính uri
     if (images && images.uri && Array.isArray(images.uri)) {
       // nếu có 2 ảnh
@@ -139,6 +143,13 @@ const Post = (props) => {
         return (
           <View style={styles.viewIamge}>
             <TouchableOpacity
+              style={{
+                width: '100%',
+                height: 300,
+                overflow: 'hidden',
+                backgroundColor: 'gray',
+                borderRadius: 10,
+              }}
               onPress={() => {
                 setShow(true);
                 setImageShow(images.uri[0]);
@@ -157,8 +168,32 @@ const Post = (props) => {
     return null; // Trả về null nếu không có images hoặc images không hợp lệ
   };
   
-  
+  const likePost = async () => {
+    try {
+      console.log('idPost', idPost);
+      console.log('idUser', idUser);
+      await axios.post('http://'+ip+':3003/post/like', {
+        id: idPost,
+        userId: idUser,
+      })
+        .then((response) => {
+          //gửi tín hiệu cho màn hình Home.js để load lại dữ liệu
+        });
+      
+    } catch (error) {
+      console.log(error);
+    }
+  }
  
+  const getPosts = async () => {
+    try {
+      await axios.get('http://' + ip + ':3003/post/findAll')
+        .then(res => {
+        })
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <View
@@ -203,10 +238,22 @@ const Post = (props) => {
         </View>
         <View style={styles.operation}>
           <TouchableOpacity
-          // onPress={() =>{getPosts()}}
+            onPress={() => likePost()}
           >
             <View style={styles.unitStatus}>
-              <FontAwesomeIcon icon={faThumbsUp} size={25} color="#808080" />
+              <FontAwesomeIcon icon={faThumbsUp} size={25} 
+                // color="#808080" 
+                //nếu user.idUser = idUser thì màu xanh
+                //nếu không thì màu đỏ
+                color={(
+                  props.likes ?
+                    props.likes.find((like) => like.userId === user.idUser) ?
+                      'blue' : '#808080'
+                    : '#808080'
+                  ) 
+                 }
+                    
+              />
               <Text style={[
                 { color: colors.text },
                 styles.unitStatusText]}>Like</Text>

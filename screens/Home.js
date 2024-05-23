@@ -89,6 +89,7 @@ const Home = ({ navigation }) => {
         await axios.get('http://' + ip + ':3003/post/findAll')
           .then(res => {
             setListPostFromServer(res.data);
+            console.log('listPostFromServer', res.data[4]);
           })
       } catch (error) {
         console.log(error);
@@ -96,6 +97,7 @@ const Home = ({ navigation }) => {
     }
 
 
+    
 
     useEffect(() => {
       getPosts();
@@ -129,7 +131,8 @@ const Home = ({ navigation }) => {
                 content={item.content.text}
                 likes={item.likes}
                 comments={item.comments}
-                idUser={item.idUser}
+                idUser={user.idUser}
+                idPost={item._id}
               />
             ))
           }
@@ -155,7 +158,6 @@ const Home = ({ navigation }) => {
                     showToast(data.user.name, data.text);
                   }
                   else if (data.type === 'ACCEPT_FRIEND') {
-                    console.log(data.data);
                     showToast(data.user.name, data.text);
                   }
                   else if (data.type === 'TYPING') {
