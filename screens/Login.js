@@ -101,10 +101,8 @@ const LoginScreen = () => {
         refreshToken: refreshToken,
         idUser: idUser
       }
-      console.log('data update token: ', data);
       axios.post('http://' + ip + ':3000/updateAccessToken', data)
         .then((response) => {
-          console.log('Update token: ', response.data);
           dispatch(setToken(response.data));
           if (user !== null) {
             updateToken(response.data.refreshToken, idUser)

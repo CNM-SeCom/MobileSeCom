@@ -26,7 +26,6 @@ export default function Intro() {
     try {
       await AsyncStorage.setItem('userToken', token);
       await AsyncStorage.setItem('idUser', id);
-      console.log('Trạng thái đăng nhập đã được lưu.');
     } catch (error) {
       console.error('Lỗi khi lưu trạng thái đăng nhập:', error);
     }
@@ -37,14 +36,10 @@ export default function Intro() {
       const userToken = await AsyncStorage.getItem('userToken');
       const idUser = await AsyncStorage.getItem('idUser');
    
-      console.log('Token:', userToken);
-      console.log('Id:', idUser);
       if (userToken) {
-        console.log('Người dùng đã đăng nhập:', userToken);
         // Thực hiện các hành động liên quan đến đăng nhập
         await axios.post('http://' + ip + ':3000/checkLoginWithToken', {refreshToken: userToken, idUser: idUser})
         .then(res => {
-          console.log(res.data);
           dispatch(setUser(res.data.data));
         })
         
@@ -55,10 +50,8 @@ export default function Intro() {
           refreshToken: userToken,
           idUser: idUser
         }
-        console.log('data update token: ', data);
        await axios.post('http://' + ip + ':3000/updateAccessToken', data)
           .then((response) => {
-            console.log('Update token: ', response.data);
             dispatch(setToken(response.data));
 
             saveLoginState(response.data.refreshToken, idUser);

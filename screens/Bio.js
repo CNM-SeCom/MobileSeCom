@@ -28,7 +28,6 @@ const Bio = () => {
       }
     });
     useEffect(() => {
-      console.log('user đã thay đổi');
       // Thực hiện các hành động bạn muốn khi màn hình được focus lại ở đây
       //load lại user
     }, [user]);

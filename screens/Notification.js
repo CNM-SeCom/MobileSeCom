@@ -50,7 +50,6 @@ const Notification = () => {
             console.log('Notification Screen focused');
         }, [])
     );
-    console.log('listRequestAddFriend', listRequest);
 
 
     const handleAccept = async(item) => {

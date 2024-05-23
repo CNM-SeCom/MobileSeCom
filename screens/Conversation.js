@@ -439,7 +439,6 @@ x();
     } else {
       imageMessage.push(result.assets[0].uri);
       setImageMessage([...imageMessage]);
-
     }
   };
 
@@ -514,13 +513,10 @@ x();
 
     await RNFetchBlob.fetch('POST', 'http://' + ip + ':3000/uploadImageMessage', {
       'Content-Type': 'multipart/form-data',
-    }, [
-      { name: 'image', filename: 'image.jpg', type: 'image/jpeg', data: RNFetchBlob.wrap(uri) }
-      ,
-      {
-        name: 'idUser', data: user.idUser
-      }
-    ]).then((response) => {
+    }, 
+    [{ name: 'image', filename: 'image.jpg', type: 'image/jpeg', data: RNFetchBlob.wrap(uri) }
+      , { name: 'idUser', data: user.idUser}])
+      .then((response) => {
       //format response to json
       response = JSON.parse(response.data);
       handleSendImage(response.uri);

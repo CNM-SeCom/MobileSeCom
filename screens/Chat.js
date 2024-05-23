@@ -71,10 +71,6 @@ const Chat = () => {
       response.data.data.sort((a, b) => {
         return new Date(b.lastMessageTime) - new Date(a.lastMessageTime);
       });
-      console.log( 'alo '+
-      //chỉ lấy thời gian cuối cùng là giờ phút
-      response.data.data[0].lastMessageTime.slice(11, 16)
-    );
       setMessageData(handleFilterSigleChat(response.data.data)); 
     })
     .catch((error) => {
@@ -116,6 +112,31 @@ const Chat = () => {
     }
   }, [user, messageData]);
   
+  const getTime = (currentTime, time) => {
+    // return số phút nếu giờ hiện tại bằng giờ tin nhắn cuối cùng
+    if (currentTime.getHours() === time.getHours()) {
+      //nếu âm thì trả về số phút
+      if(currentTime.getMinutes() < time.getMinutes()){
+        return time.getDate() + '/' + (time.getMonth() + 1);
+      }
+      //trả về 'vừa xong' nếu số phút hiện tại bằng số phút tin nhắn cuối cùng
+      else if(currentTime.getMinutes() - time.getMinutes() < 1){
+        return 'vừa xong';
+      }
+      else{
+        return currentTime.getMinutes() - time.getMinutes() + ' phút trước';
+      }
+    } 
+    // nếu âm thì trả về ngày tháng
+    else if(currentTime.getHours() < time.getHours() || currentTime.getMinutes() < time.getMinutes()){
+      return time.getDate() + '/' + (time.getMonth() + 1);
+    } 
+    else{
+      // return số giờ nếu giờ hiện tại khác giờ tin nhắn cuối cùng
+      return currentTime.getHours() - time.getHours() + ' giờ trước';
+    }
+  }
+
   return (
     <View style={[
       {backgroundColor : colors.background},
@@ -196,7 +217,9 @@ const Chat = () => {
                     image={otherParticipant.avatar}
                     name={otherParticipant.name}
                     newMess={item.lastMessage}
-                    time={new Date(item.lastMessageTime).toLocaleTimeString()}
+                    // time={new Date(item.lastMessageTime).toLocaleTimeString()}
+                    //lấy số phút hiện tại trừ đi số phút của tin nhắn cuối cùng
+                    time={getTime(new Date(), new Date(item.lastMessageTime))}
                     onPress={() => loadMessageData(item.id, navigation,otherParticipant.name,otherParticipant.idUser, otherParticipant.avatar)}
                   />
                 );

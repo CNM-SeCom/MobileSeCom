@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     },
     customHeader: {
         height: 50, 
-        width: width,
+        width: '100%',
         // backgroundColor: '#3c3c3c',
         alignItems: 'center',
         flexDirection: 'row',

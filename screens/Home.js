@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View, Dimensions, Image, ScrollView } from 'react-native'
 import React, { useLayoutEffect, useEffect, useState } from 'react'
+
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import Post from '../components/Post'
 import listPost from '../data/ListPost'
@@ -17,6 +18,8 @@ import Toast from 'react-native-toast-message';
 import { idText } from 'typescript'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setGroupInfo } from '../redux/groupInfoSlice';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 
 
@@ -55,6 +58,14 @@ const Home = ({ navigation }) => {
   //hàm load lại màn hình và lấy dữ liệu mới sau khi thêm chatData
 
 
+  useFocusEffect(
+    React.useCallback(() => {
+        // setLoading(true);
+        getPosts();
+        console.log('Home Screen focused');
+    }, [])
+);
+
   const config = {
     headers: {
       'Content-Type': 'application/json',
@@ -62,22 +73,6 @@ const Home = ({ navigation }) => {
     }
   };
 
-  //logout
-  const handleLogout = () => {
-    if (!user) {
-      navigation.navigate('Login');
-    } else {
-      axios.post('http://' + ip + ':3000/logout', { idUser: user.idUser }, config)
-        .then((response) => {
-
-          dispatch(setUser({}));
-          navigation.navigate('Login');
-        })
-        .catch((error) => {
-
-        });
-    }
-  };
   const showToast = (name, text) => {
     Toast.show({
       type: 'info',
@@ -86,6 +81,27 @@ const Home = ({ navigation }) => {
     });
   }
 
+
+    let [listPostFromServer, setListPostFromServer] = useState([]);
+    //get posts from server
+    const getPosts = async () => {
+      try {
+        await axios.get('http://' + ip + ':3003/post/findAll')
+          .then(res => {
+            setListPostFromServer(res.data);
+          })
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+
+
+    useEffect(() => {
+      getPosts();
+    }, []);
+    useEffect(() => {
+    }, [listPostFromServer]);
 
   return (
 
@@ -100,15 +116,20 @@ const Home = ({ navigation }) => {
         >
 
           {
-            listPost.map((item, index) => (
+            listPostFromServer.map((item, index) => (
               <Post
-
-                userName={listUser[item.idUser - 1].name}
+                userName={item.userCreated}
+                // userName={"Triet"}
                 key={index}
                 title={item.title}
-                description={item.description}
-                image={item.image}
-                content={item.content}
+                description={''}
+                image={
+                  item?.content?.images?.length < 1 ? source =  require('../assets/logo1.png')  : { uri : item?.content?.images }
+                }
+                content={item.content.text}
+                likes={item.likes}
+                comments={item.comments}
+                idUser={item.idUser}
               />
             ))
           }
@@ -318,7 +339,7 @@ export default Home
 
 const styles = StyleSheet.create({
   container: {
-    width: width,
+    width: '100%',
     height: height,
     alignItems: 'center',
 
@@ -336,7 +357,6 @@ const styles = StyleSheet.create({
   scrollContainer: {
     width: '100%',
     height: height - 100,
-    backgroundColor: '#C4B8E6',
     alignItems: 'center',
   },
   wrapperPost: {
