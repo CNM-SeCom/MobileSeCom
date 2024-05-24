@@ -17,8 +17,8 @@ export default function Intro() {
 
   const handlePress = () => {
     {
-      // navigation.navigate('Login');
-      checkLoginState();
+      navigation.navigate('Login');
+      // checkLoginState();
     };
   };
 
@@ -38,7 +38,7 @@ export default function Intro() {
    
       if (userToken) {
         // Thực hiện các hành động liên quan đến đăng nhập
-        await axios.post('http://' + ip + ':3000/checkLoginWithToken', {refreshToken: userToken, idUser: idUser})
+        await axios.post('http://' + ip + '/checkLoginWithToken', {refreshToken: userToken, idUser: idUser})
         .then(res => {
           dispatch(setUser(res.data.data));
         })
@@ -50,7 +50,7 @@ export default function Intro() {
           refreshToken: userToken,
           idUser: idUser
         }
-       await axios.post('http://' + ip + ':3000/updateAccessToken', data)
+       await axios.post('http://' + ip + '/updateAccessToken', data)
           .then((response) => {
             dispatch(setToken(response.data));
 

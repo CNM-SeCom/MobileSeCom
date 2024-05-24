@@ -99,7 +99,7 @@ const ManagerGroup = () => {
                         }
                      
 
-                        axios.post('http://'+ip+':3000/leaveOrKickoutGroupChat', data)
+                        axios.post('http://'+ip+'/leaveOrKickoutGroupChat', data)
                         handleSendNotifyRemoveToGroup(route.participants.find((item) => item.idUser === index).name, index)
 
                         const newParticipants = route.participants.filter((item) => item.idUser !== index)
@@ -133,7 +133,7 @@ const ManagerGroup = () => {
             participants: route.participants
             }
         }
-        axios.post('http://'+ip+':3000/ws/send-message-to-group/'+route.chatId , data)
+        axios.post('http://'+ip+'/ws/send-message-to-group/'+route.chatId , data)
     }
 
 
@@ -154,7 +154,7 @@ const ManagerGroup = () => {
             participants: newParticipant
             }
         }
-        axios.post('http://'+ip+':3000/ws/send-message-to-group/'+route.chatId , data)
+        axios.post('http://'+ip+'/ws/send-message-to-group/'+route.chatId , data)
     }
 
     const handleSendNotifyLeaveGroup = (name, newParticipant) => {
@@ -173,7 +173,7 @@ const ManagerGroup = () => {
             participants: newParticipant
             }
         }
-        axios.post('http://'+ip+':3000/ws/send-message-to-group/'+route.chatId , data)
+        axios.post('http://'+ip+'/ws/send-message-to-group/'+route.chatId , data)
     }
 
     const handleSendNotifySetAdmin = (name, listPaticipant) => {
@@ -192,7 +192,7 @@ const ManagerGroup = () => {
             participants: listPaticipant
             }
         }
-        axios.post('http://'+ip+':3000/ws/send-message-to-group/'+route.chatId , data)
+        axios.post('http://'+ip+'/ws/send-message-to-group/'+route.chatId , data)
     }
 
     const handleSendNotifyDeleteGroup = () => {
@@ -211,7 +211,7 @@ const ManagerGroup = () => {
             // participants: route.participants
             }
         }
-        axios.post('http://'+ip+':3000/ws/send-message-to-group/'+route.chatId , data)
+        axios.post('http://'+ip+'/ws/send-message-to-group/'+route.chatId , data)
       }
 
     const handleSearch = (text) => {
@@ -226,7 +226,7 @@ const ManagerGroup = () => {
         newParticipant = {...newParticipant, role: 'member'}
         let newListParticipant = [...route.participants, newParticipant]
 
-        axios.post('http://'+ip+':3000/addMemberToGroupChat', {chatId: route.chatId, listMember: [newParticipant]})
+        axios.post('http://'+ip+'/addMemberToGroupChat', {chatId: route.chatId, listMember: [newParticipant]})
         handleSendNotifyAddToGroup(newParticipant.name,newListParticipant)
 
         const newFriend = user.listFriend.filter((item) => item.idUser !== idUser)
@@ -272,7 +272,7 @@ const ManagerGroup = () => {
                 {
                     text: 'OK',
                     onPress: () => {
-                        axios.post('http://'+ip+':3000/deleteChat', { chatId: route.chatId })
+                        axios.post('http://'+ip+'/deleteChat', { chatId: route.chatId })
                         handleSendNotifyDeleteGroup()                    
                         navigation.navigate('Home')
                     },
@@ -284,7 +284,7 @@ const ManagerGroup = () => {
 
     const handleChangeNameGroup = (nameGroup) => {
 
-        axios.post('http://'+ip+':3000/changeGroupName', { chatId: route.chatId, groupName: nameGroup })
+        axios.post('http://'+ip+'/changeGroupName', { chatId: route.chatId, groupName: nameGroup })
         handleSendNotifyChangeGroupName(nameGroup)
         setNameGroup(nameGroup)
         route.username = nameGroup
@@ -307,7 +307,7 @@ const ManagerGroup = () => {
             groupName: nameGroup
             }
         }
-        axios.post('http://'+ip+':3000/ws/send-message-to-group/'+route.chatId , data)
+        axios.post('http://'+ip+'/ws/send-message-to-group/'+route.chatId , data)
     }
 
     const selectImage = async () => {
@@ -327,7 +327,7 @@ const ManagerGroup = () => {
 
       const uploadImage = async (uri) => {
         console.log('uploadImage', uri);
-        await RNFetchBlob.fetch('POST', 'http://' + ip + ':3000/uploadImageMessage', {
+        await RNFetchBlob.fetch('POST', 'http://' + ip + '/uploadImageMessage', {
           'Content-Type': 'multipart/form-data',
         }, [
           { name: 'image', filename: 'image.jpg', type: 'image/jpeg', data: RNFetchBlob.wrap(uri) }
@@ -346,7 +346,7 @@ const ManagerGroup = () => {
 
     const handleChangeAvatarGroup = (avatarGroup) => {
         
-        axios.post('http://'+ip+':3000/changeAvatarGroup', { chatId: route.chatId, avatar: avatarGroup
+        axios.post('http://'+ip+'/changeAvatarGroup', { chatId: route.chatId, avatar: avatarGroup
     })
         handleSendNotifychangeAvatarGroup(avatarGroup)
         setAvatarGroup(avatarGroup)
@@ -370,7 +370,7 @@ const ManagerGroup = () => {
             avatarGroup: avatarGroup
             }
         }
-        axios.post('http://'+ip+':3000/ws/send-message-to-group/'+route.chatId , data)
+        axios.post('http://'+ip+'/ws/send-message-to-group/'+route.chatId , data)
     }
 
     const handleOrdainedAdmin = (idUser) => {
@@ -385,7 +385,7 @@ const ManagerGroup = () => {
            chatId: route.chatId,
            listParticipant : newParticipants
         }
-        axios.post('http://'+ip+':3000/setAdminForMember', data)
+        axios.post('http://'+ip+'/setAdminForMember', data)
         handleSendNotifySetAdmin(route.participants.find((item) => item.idUser === idUser).name, newParticipants)
         route.participants = newParticipants
         setParticipants(newParticipants)
@@ -427,7 +427,7 @@ const ManagerGroup = () => {
                             chatId: route.chatId,
                         }
 
-                        axios.post('http://'+ip+':3000/leaveOrKickoutGroupChat', data)
+                        axios.post('http://'+ip+'/leaveOrKickoutGroupChat', data)
                         handleSendNotifyLeaveGroup(user.name, newParticipants)
                         navigation.navigate('Home')
 

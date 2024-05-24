@@ -131,8 +131,9 @@ const Home = ({ navigation }) => {
                 content={item.content.text}
                 likes={item.likes}
                 comments={item.comments}
-                idUser={user.idUser}
-                idPost={item._id}
+                idUser={user?.idUser}
+                idPost={item?._id}
+                idUserCreated={item?.idUser.toString()}
               />
             ))
           }
@@ -143,7 +144,7 @@ const Home = ({ navigation }) => {
             user ?
               <WS
                 ref={ref => { this.ws = ref }}
-                url={`ws://${ip}:3001/?idUser=` + user.idUser}
+                url={`wss://${ip}/?idUser=` + user.idUser}
 
                 onOpen={() => {
                   console.log('Open!');
@@ -171,7 +172,7 @@ const Home = ({ navigation }) => {
                   }
                   else if (data.type === 'RELOAD_MESSAGE') {
                     if (data.chatId === currentId) {
-                      axios.post('http://' + ip + ':3000/getMessageByChatId', {
+                      axios.post('http://' + ip + '/getMessageByChatId', {
                         chatId: currentId
                       }).then((response) => {
                         console.log('reload', response.data.data);
@@ -186,7 +187,7 @@ const Home = ({ navigation }) => {
                   else if (data.type === 'ADD_MEMBER') {
                     showToast('Thông báo', 'Đã thêm thành viên mới');
                     if (data.chatId === currentId) {
-                      axios.post('http://' + ip + ':3000/getMessageByChatId', {
+                      axios.post('http://' + ip + '/getMessageByChatId', {
                         chatId: currentId
                       }).then((response) => {
                         data.participants = [...data.participants, data.user];
@@ -206,7 +207,7 @@ const Home = ({ navigation }) => {
                   else if (data.type === 'KICKOUT_MEMBER' && data.idKickOut === user.idUser) {
                     showToast('Thông báo', 'Bạn đã bị đuổi khỏi nhóm');
                     if (data.chatId === currentId) {
-                      axios.post('http://' + ip + ':3000/getMessageByChatId', {
+                      axios.post('http://' + ip + '/getMessageByChatId', {
                         chatId: currentId
                       }).then((response) => {
                         dispatch(setChatData(response.data.data));
@@ -221,7 +222,7 @@ const Home = ({ navigation }) => {
                     console.log('data', data);
                     showToast('Thông báo', 'Đã bị đuổi khỏi nhóm');
                     if (data.chatId === currentId) {
-                      axios.post('http://' + ip + ':3000/getMessageByChatId', {
+                      axios.post('http://' + ip + '/getMessageByChatId', {
                         chatId: currentId
                       }).then((response) => {
                         //bỏ phần tử data.participants có idUser = data.idKickOut
@@ -238,7 +239,7 @@ const Home = ({ navigation }) => {
                     showToast('Thông báo', '1 thành viên đã rời nhóm');
                     console.log('out', data);
                     if (data.chatId === currentId) {
-                      axios.post('http://' + ip + ':3000/getMessageByChatId', {
+                      axios.post('http://' + ip + '/getMessageByChatId', {
                         chatId: currentId
                       }).then((response) => {
                         dispatch(setGroupInfo(data))
@@ -250,7 +251,7 @@ const Home = ({ navigation }) => {
                     }
                   }
                   else if (data.type === 'RELOAD_CONVERSATION') {
-                    axios.post('http://' + ip + ':3000/getChatByUserId', {
+                    axios.post('http://' + ip + '/getChatByUserId', {
                       idUser: user.idUser
                     })
                       .then((response) => {
@@ -270,7 +271,7 @@ const Home = ({ navigation }) => {
                   else if (data.type === 'CHANGE_AVATAR') {
                     showToast('Thông báo', 'Ảnh nhóm đã được thay đổi');
                     if (data.chatId === currentId) {
-                      axios.post('http://' + ip + ':3000/getMessageByChatId', {
+                      axios.post('http://' + ip + '/getMessageByChatId', {
                         chatId: currentId
                       }).then((response) => {
                         dispatch(setChatData(response.data.data));
@@ -299,7 +300,7 @@ const Home = ({ navigation }) => {
                   else if ( data.type === 'CHANGE_NAME' ){
                     showToast('Thông báo', 'Tên nhóm đã được thay đổi');
                     if (data.chatId === currentId) {
-                      axios.post('http://' + ip + ':3000/getMessageByChatId', {
+                      axios.post('http://' + ip + '/getMessageByChatId', {
                         chatId: currentId
                       }).then((response) => {
                         dispatch(setChatData(response.data.data));

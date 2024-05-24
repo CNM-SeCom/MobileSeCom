@@ -89,7 +89,7 @@ const UpdateInfo = (  ) => {
   if (!regexName.test(newName)) {
     alert('Chữ cái đầu phải viết hoa');
   } else {
-    axios.post('http://' + ip + ':3000/changeProfile',params).then((res) => {
+    axios.post('http://' + ip + '/changeProfile',params).then((res) => {
       
     alert('Cập nhật tên thành công');
     navigation.goBack();

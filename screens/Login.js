@@ -83,7 +83,7 @@ const LoginScreen = () => {
     const data = {
       phone: phone
     }
-    await axios.post('http://' + ip + ':3000/findEmailByPhone', data)
+    await axios.post('http://' + ip + '/findEmailByPhone', data)
       .then((response) => {
         setEmail(response.data.data);
         console.log('Email: ', response.data.data);
@@ -101,7 +101,7 @@ const LoginScreen = () => {
         refreshToken: refreshToken,
         idUser: idUser
       }
-      axios.post('http://' + ip + ':3000/updateAccessToken', data)
+      axios.post('http://' + ip + '/updateAccessToken', data)
         .then((response) => {
           dispatch(setToken(response.data));
           if (user !== null) {
@@ -158,7 +158,7 @@ const LoginScreen = () => {
         phone: phone,
         pass: password
       }
-      await axios.post('http://' + ip + ':3000/login', data)
+      await axios.post('http://' + ip + '/login', data)
         .then((response) => {
           console.log("cos log 22");
           if (response.data.error) {
@@ -175,7 +175,7 @@ const LoginScreen = () => {
             dispatch(setToken(response.data.token));
             set_IdUser(response.data.user.idUser)
 
-            axios.post('http://' + ip + ':3000/getCallAccessToken',{
+            axios.post('http://' + ip + '/getCallAccessToken',{
               userId: response.data.user.idUser
             })
             .then(async (response) => {

@@ -63,7 +63,7 @@ const Chat = () => {
   const [messageData, setMessageData] = useState([]);
 
   const getChatData = () => {
-    axios.post('http://'+ip+':3000/getChatByUserId',{
+    axios.post('http://'+ip+'/getChatByUserId',{
       idUser: user.idUser
   }, config)
     .then((response) => {
@@ -86,7 +86,7 @@ const Chat = () => {
   // load tin nhan
   const loadMessageData = (id, navigation, name, idUser, image) => {
     dispatch(setCurrentId(id));
-    axios.post('http://'+ip+':3000/getMessageByChatId',{
+    axios.post('http://'+ip+'/getMessageByChatId',{
       chatId: id
     }).then((response) => {
       dispatch(setChatData(response.data.data));

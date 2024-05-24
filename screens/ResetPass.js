@@ -46,7 +46,7 @@ const ResetPass = () => {
   console.log('data', data);
 
   let handleResetPass = () => {
-    axios.post('http://' + ip + ':3000/forgotPassword', data)
+    axios.post('http://' + ip + '/forgotPassword', data)
     .then(res => {
       console.log(res.data);
     })
@@ -101,7 +101,7 @@ const ResetPass = () => {
     } else {
       
       console.log(data.phone)
-      await axios.post('http://' + ip + ':3000/changePassword',data).then((res) => {
+      await axios.post('http://' + ip + '/changePassword',data).then((res) => {
       
       alert('Cập nhật mật khẩu thành công');
       navigation.navigate('Setting');

@@ -1,10 +1,10 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, KeyboardAvoidingView, Dimensions } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, Image, KeyboardAvoidingView, Dimensions,ScrollView } from 'react-native'
 import { TextInput } from 'react-native-paper';
 import React, { useState, useEffect } from 'react'
 import { useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faCirclePlus, faArrowAltCircleLeft, faEllipsis } from '@fortawesome/free-solid-svg-icons';
+import { faCirclePlus, faArrowAltCircleLeft, faEllipsis, faImages } from '@fortawesome/free-solid-svg-icons';
 import KeyboardAccessoryView from 'react-native-ui-lib/lib/components/Keyboard/KeyboardInput/KeyboardAccessoryView';
 import { PaperProvider } from 'react-native-paper';
 import axios from 'axios';
@@ -30,13 +30,40 @@ const CreatePost = () => {
         }
     });
 
-    useEffect(() => {
-        console.log('nội dung đã thay đổi', content);
-    }, [content]);
+   
 
     const navigation = useNavigation();
     let images = [];
     let imageUploaded = [];
+    const [listImage, setListImage] = useState([]);
+    let [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        console.log('nội dung đã thay đổi', content);
+    }, [content]);
+
+    useEffect(() => {
+        console.log('visible', visible);
+    }, [visible]);
+
+    const renderListImage = () => {
+        //map listImage để hiển thị ảnh đã chọn
+       if(visible === true){
+        return (
+            listImage.map((item) => {
+                return (
+                    <Image
+                        source={{ uri: item }}
+                        style={{ width: 70, height: 70, margin: 5 }}
+                    />
+                )
+            })
+           )
+       }
+       else {
+              return null;
+       }
+    }
 
     //chọn ảnh
     const selectImage = async () => {
@@ -54,14 +81,15 @@ const CreatePost = () => {
         } else {
             result.assets.map((item) => {
                 images.push(item.uri);
+                listImage.push(item.uri);                
+                console.log('images', listImage);
             });
-            console.log("images", images);
         }
     };
     //upload ảnh
     const uploadImage = async (uri) => {
 
-        await RNFetchBlob.fetch('POST', 'http://' + ip + ':3000/uploadImageMessage', {
+        await RNFetchBlob.fetch('POST', 'http://' + ip + '/uploadImageMessage', {
             'Content-Type': 'multipart/form-data',
         },
             [{ name: 'image', filename: 'image.jpg', type: 'image/jpeg', data: RNFetchBlob.wrap(uri) }
@@ -70,7 +98,8 @@ const CreatePost = () => {
                 //format response to json
                 response = JSON.parse(response.data);
                 imageUploaded.push(response.uri);
-                console.log('response', response);
+
+                console.log('imageUploaded', imageUploaded);
             }).catch((error) => {
                 console.error(error);
             });
@@ -123,11 +152,13 @@ const CreatePost = () => {
             style={{
                 flex: 1,
                 justifyContent: 'center',
-                paddingTop: 15,
             }}
         >
 
-            <View
+            <ScrollView
+                contentContainerStyle={{
+                    backgroundColor: colors.background,
+                }}
                 style={[styles.container, { backgroundColor: colors.background }]}
             >
                 {/* Header */}
@@ -195,12 +226,28 @@ const CreatePost = () => {
                         onChangeText={(text) => setContent(text)}
                     >
                     </TextInput>
+                    <View
+                        style={{
+                            height: 'fit-content',
+                            width: '95%',
+                            flexDirection: 'row',
+                            justifyContent: 'flex-start',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            alignSelf: 'center',
+
+                        }}
+                    >
+                    {renderListImage()}
+                    </View>
                 </View>
                 <View
                     style={styles.extensionView}
                 >
                     <TouchableOpacity
-                        onPress={() => selectImage()}
+                        onPress={() => {
+                            selectImage()  
+                        }}
                         style={styles.buttonExtension}
                     >
                         <Image
@@ -209,6 +256,7 @@ const CreatePost = () => {
                         />
                     </TouchableOpacity>
                     <TouchableOpacity
+                        // onPress={() => setVisible(!visible)}
                         style={styles.buttonExtension}
                     >
                         <Image
@@ -245,8 +293,23 @@ const CreatePost = () => {
                     >
                         <FontAwesomeIcon icon={faEllipsis} size={30} color={'white'} />
                     </TouchableOpacity>
+                    
                 </View>
-            </View>
+                {/* <TouchableOpacity
+                        onPress={()=>{
+                            setVisible(!visible)
+                        }}
+                        style={[styles.buttonExtension,
+                            {
+                                position: 'absolute',
+                                top :50,
+                                right: 0,
+                            }
+                        ]}
+                    >
+                        <FontAwesomeIcon icon={faImages} size={30} color={'white'} />
+                    </TouchableOpacity> */}
+            </ScrollView>
         </KeyboardAvoidingView>
     )
 }
@@ -256,7 +319,7 @@ export default CreatePost
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        height: heigh,
+        height: '105%',
     },
     header: {
         width: '95%',
@@ -289,7 +352,7 @@ const styles = StyleSheet.create({
         height: 'fit-content',
         flexDirection: 'row',
         borderBottomWidth: 1,
-        borderColor: 'gray',
+        // borderColor: 'gray',
         //cắt ngăn border 
         overflow: 'hidden',
         alignSelf: 'center',
@@ -316,7 +379,7 @@ const styles = StyleSheet.create({
     },
     input: {
         width: '95%',
-        height: 500,
+        height: 450,
         alignSelf: 'center',
         marginTop: 10,
         marginBottom: 10,
@@ -339,7 +402,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         borderRadius: 2,
         borderWidth: 1,
-        borderColor: 'gray',
+        // borderColor: 'gray',
     },
     extensionView: {
         width: '95%',

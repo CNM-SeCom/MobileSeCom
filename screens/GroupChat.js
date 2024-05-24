@@ -57,7 +57,7 @@ const GroupChat = () => {
   },[listAdd,messageData,countmember]);
   
   const getChatData = () => {
-    axios.post('http://'+ip+':3000/getChatByUserId',{
+    axios.post('http://'+ip+'/getChatByUserId',{
       idUser: user.idUser
   })
     .then((response) => {
@@ -158,7 +158,7 @@ const searchFriendByName = (text) => {
     // load tin nhan
     const loadMessageData = (id, navigation, name, idUser, image, participants) => {
       dispatch(setCurrentId(id));
-      axios.post('http://'+ip+':3000/getMessageByChatId',{
+      axios.post('http://'+ip+'/getMessageByChatId',{
         chatId: id
       }).then((response) => {
         dispatch(setChatData(response.data.data));
@@ -170,7 +170,7 @@ const searchFriendByName = (text) => {
     }
 
   const handleReload = () => {
-    axios.post('http://'+ip+':3000/getChatByUserId',{
+    axios.post('http://'+ip+'/getChatByUserId',{
       idUser: user.idUser
     })
     .then((response) => {
@@ -223,7 +223,7 @@ const searchFriendByName = (text) => {
       idAdmin : user.idUser,
     };
     
-    await axios.post('http://'+ip+':3000/createGroupChat', data )
+    await axios.post('http://'+ip+'/createGroupChat', data )
       .then((res) => {
         setCountmember(1);
         handleReload();

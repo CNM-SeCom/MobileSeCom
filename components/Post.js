@@ -1,9 +1,9 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
-import React,{useState} from 'react'
+import React,{useState, useEffect} from 'react'
 import Video from 'react-native-video'
 import LinearGradient from 'react-native-linear-gradient';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faComment, faShare, faThumbsUp, faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faComment, faShare, faThumbsUp, faHeart,faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import ip from '../data/ip';
 import axios from 'axios';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -30,11 +30,37 @@ const Post = (props) => {
     }
   });
 
-  const { title, description, image, content, userName, likes, comments, idUser, idPost } = props;
+  const { title, description, image, content, userName, likes, comments, idUser, idPost,idUserCreated } = props;
 
+  let [isLike, setIsLike] = useState(false);
   let [show, setShow] = useState(false);
   let [imageShow, setImageShow] = useState([]);
- //hiển thị ảnh phóng to lên modal
+  let [visibleOption, setVisibleOption] = useState(false);
+
+console.log('idUSer', idUserCreated);
+console.log('idUser', user?.idUser);
+
+//check sở hữu bài viết
+const checkOwner = () => {
+  if (idUserCreated === user?.idUser) {
+    return true;
+  }
+  return false;
+}
+
+useEffect(() => {
+  if (props.likes) {
+    if (props?.likes.find((like) => like?.userId === user?.idUser)) {
+      setIsLike(true);
+      console.log('true' , isLike);
+    }
+  }
+}, [props.likes]);
+
+const toggleLike = () => {
+  setIsLike(!isLike);
+}
+useEffect(() => {}, [isLike]);
 
   //layout cho ảnh
   const renderImage = (images) => {
@@ -170,14 +196,13 @@ const Post = (props) => {
   
   const likePost = async () => {
     try {
-      console.log('idPost', idPost);
-      console.log('idUser', idUser);
+     
       await axios.post('http://'+ip+':3003/post/like', {
         id: idPost,
         userId: idUser,
       })
         .then((response) => {
-          //gửi tín hiệu cho màn hình Home.js để load lại dữ liệu
+          toggleLike();
         });
       
     } catch (error) {
@@ -195,6 +220,57 @@ const Post = (props) => {
     }
   }
 
+  const renderOptions = () => {
+    if (visibleOption === true) {
+      return (
+        <View
+        style={{
+          width:  100,
+          height: 'fit-content',
+          position: 'absolute',
+          top: 0,
+          right: 10,
+          backgroundColor: colors.background,
+          zIndex: 2,
+          padding: 10,
+          borderRadius: 10,
+        }}
+      >
+          <TouchableOpacity
+            style={styles.opionButton}
+          >
+            <Text
+              style={[styles.textOption,{
+                color: colors.text,
+              
+              }]}
+            >
+              Xóa bài viết
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.opionButton}
+            onPress={()=>{
+              setVisibleOption(!visibleOption);
+            }}
+          >
+            <Text
+               style={[styles.textOption,{
+                color: colors.text,
+              
+              }]}
+            >
+              Đóng
+            </Text>
+          </TouchableOpacity>
+      </View>
+      )
+    } else {
+      return null
+    }
+  }
+
+
   return (
     <View
       style={[
@@ -203,6 +279,7 @@ const Post = (props) => {
       <View style={[
         { backgroundColor: colors.card },
         styles.container]}>
+          
         <View style={{
           flexDirection: 'row',
           justifyContent: 'space-between',
@@ -213,8 +290,24 @@ const Post = (props) => {
             styles.userName]}>{userName}</Text>
           <Text style={[
             { color: colors.text },
-            { marginRight: 10 }]}>{description}</Text>
-        </View>
+            { marginRight: 10 }]}>{description}</Text>  
+
+            {
+              checkOwner() === true ?(
+                
+                <View>
+                  {renderOptions()}
+                  <TouchableOpacity
+                    onPress={()=>{
+                      setVisibleOption(!visibleOption);
+                    }}
+                  >
+                    <FontAwesomeIcon style={{right : 10}} icon={faEllipsis} size={20} color="#808080"/>
+                  </TouchableOpacity> 
+                </View>
+              ) : null
+            }    
+          </View>
         <Text style={[
           { color: colors.text },
           styles.content]}>{content}</Text>
@@ -242,15 +335,9 @@ const Post = (props) => {
           >
             <View style={styles.unitStatus}>
               <FontAwesomeIcon icon={faThumbsUp} size={25} 
-                // color="#808080" 
-                //nếu user.idUser = idUser thì màu xanh
-                //nếu không thì màu đỏ
-                color={(
-                  props.likes ?
-                    props.likes.find((like) => like.userId === user.idUser) ?
-                      'blue' : '#808080'
-                    : '#808080'
-                  ) 
+                color={
+              
+                  isLike === true ? 'blue' : '#808080'
                  }
                     
               />
@@ -283,6 +370,7 @@ const Post = (props) => {
           () => setShow(false)}
           />
       </View>
+      
     </View>
   )
 }
@@ -384,6 +472,15 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     padding: 10,
     margin: 10,
-   
+  },
+  opionButton: {
+    backgroundColor: 'gray',
+    marginTop: 5,
+    padding: 5,
+    borderRadius: 5,
+  },
+  textOption: {
+    fontSize: 14,
+    fontWeight: 'bold',
   }
 })

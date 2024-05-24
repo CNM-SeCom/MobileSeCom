@@ -68,7 +68,7 @@ const Register = () => {
             alert('Mật khẩu không khớp');
         }
         else{
-         await  axios.post('http://'+ip+':3000/checkPhoneExist', {phone : phone})
+         await  axios.post('http://'+ip+'/checkPhoneExist', {phone : phone})
         .then((response) => {
             navigation.navigate('ConfirmOTP', { email: mail, type: 'register',phone: phone, password: password, name: name,
             gender : gender, dob: dob.toDateString()})

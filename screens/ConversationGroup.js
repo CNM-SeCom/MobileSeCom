@@ -417,7 +417,7 @@ const Chat = ({ navigation }) => {
       }
     };
   //  dispatch(addChatData(config.body.message));
-    axios.post('http://' + ip + ':3000/ws/send-message-to-group/'+route.params.chatId, config.body)
+    axios.post('http://' + ip + '/ws/send-message-to-group/'+route.params.chatId, config.body)
       .then((response) => {
         const newMessagesWithoutData = chatData.filter((message) => message !== config.body.message);
         // dispatch(setChatData(newMessagesWithoutData))
@@ -476,7 +476,7 @@ const Chat = ({ navigation }) => {
       }
     }
     // dispatch(addChatData(config.body.message));
-    axios.post('http://' + ip + ':3000/ws/send-message-to-group/'+route.params.chatId, config.body)
+    axios.post('http://' + ip + '/ws/send-message-to-group/'+route.params.chatId, config.body)
       .then((response) => {
         // setLoading(false);
         setShow(false);
@@ -513,7 +513,7 @@ const Chat = ({ navigation }) => {
       }
     }
     // dispatch(addChatData(config.body.message));
-    axios.post('http://' + ip + ':3000/ws/send-message-to-group/'+route.params.chatId, config.body)
+    axios.post('http://' + ip + '/ws/send-message-to-group/'+route.params.chatId, config.body)
       .then((response) => {
         setLoading(false);
         setShow(false);
@@ -526,7 +526,7 @@ const Chat = ({ navigation }) => {
 
   const uploadImage = async (uri) => {
 
-    await RNFetchBlob.fetch('POST', 'http://' + ip + ':3000/uploadImageMessage', {
+    await RNFetchBlob.fetch('POST', 'http://' + ip + '/uploadImageMessage', {
       'Content-Type': 'multipart/form-data',
     }, [
       { name: 'image', filename: 'image.jpg', type: 'image/jpeg', data: RNFetchBlob.wrap(uri) }
@@ -570,7 +570,7 @@ const Chat = ({ navigation }) => {
     //  dispatch(addChatData(message));
 
     try {
-      const response = await fetch('http://' + ip + ':3000/cloudinary/uploadVideo', {
+      const response = await fetch('http://' + ip + '/cloudinary/uploadVideo', {
         method: 'POST',
         body: data,
         headers: {
@@ -598,7 +598,7 @@ const Chat = ({ navigation }) => {
 //delete message
 const handleDeleteMesssage = () => {
     //xóa tin nhắn
-    axios.post('http://' + ip + ':3000/deleteMessageById', { messageId: messageId , receiverId: otherParticipantId, chatId: id,
+    axios.post('http://' + ip + '/deleteMessageById', { messageId: messageId , receiverId: otherParticipantId, chatId: id,
       listReceiver : route.params.participants
   })
       .then((response) => {
@@ -625,7 +625,7 @@ async function typingg(boolean) {
       userId : user.idUser
     }
   }
-  await axios.post('http://' + ip + ':3000/ws/sendTypingToUser', config.body)
+  await axios.post('http://' + ip + '/ws/sendTypingToUser', config.body)
     .then((response) => {
       console.log('typing');
     })

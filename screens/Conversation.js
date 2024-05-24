@@ -412,7 +412,7 @@ x();
     };
     const newMessages = [...chatData, config.body.message];
     dispatch(addChatData(config.body.message));
-    axios.post('http://' + ip + ':3000/ws/send-message-to-user', config.body)
+    axios.post('http://' + ip + '/ws/send-message-to-user', config.body)
       .then((response) => {
         const newMessagesWithoutData = chatData.filter((message) => message !== config.body.message);
         dispatch(setChatData(newMessagesWithoutData))
@@ -466,7 +466,7 @@ x();
       }
     }
     dispatch(addChatData(config.body.message));
-    axios.post('http://' + ip + ':3000/ws/send-message-to-user', config.body)
+    axios.post('http://' + ip + '/ws/send-message-to-user', config.body)
       .then((response) => {
         setLoading(false);
       })
@@ -499,7 +499,7 @@ x();
       }
     }
     // dispatch(addChatData(config.body.message));
-    axios.post('http://' + ip + ':3000/ws/send-message-to-user', config.body)
+    axios.post('http://' + ip + '/ws/send-message-to-user', config.body)
       .then((response) => {
         setLoading(false);
       })
@@ -511,7 +511,7 @@ x();
 
   const uploadImage = async (uri) => {
 
-    await RNFetchBlob.fetch('POST', 'http://' + ip + ':3000/uploadImageMessage', {
+    await RNFetchBlob.fetch('POST', 'http://' + ip + '/uploadImageMessage', {
       'Content-Type': 'multipart/form-data',
     }, 
     [{ name: 'image', filename: 'image.jpg', type: 'image/jpeg', data: RNFetchBlob.wrap(uri) }
@@ -552,7 +552,7 @@ x();
     dispatch(addChatData(message));
 
     try {
-      const response = await fetch('http://' + ip + ':3000/cloudinary/uploadVideo', {
+      const response = await fetch('http://' + ip + '/cloudinary/uploadVideo', {
         method: 'POST',
         body: data,
         headers: {
@@ -580,7 +580,7 @@ x();
 //delete message
 const handleDeleteMesssage = () => {
     //xóa tin nhắn
-    axios.post('http://' + ip + ':3000/deleteMessageById', { messageId: messageId , receiverId: otherParticipantId, chatId: id})
+    axios.post('http://' + ip + '/deleteMessageById', { messageId: messageId , receiverId: otherParticipantId, chatId: id})
       .then((response) => {
         setMenuVisible(false);
         chatData= chatData.filter((message) => message._id !== messageId);
@@ -605,7 +605,7 @@ async function typingg(boolean) {
       userId : user.idUser
     }
   }
-  await axios.post('http://' + ip + ':3000/ws/sendTypingToUser', config.body)
+  await axios.post('http://' + ip + '/ws/sendTypingToUser', config.body)
     .then((response) => {
       console.log('typing');
     })
@@ -798,7 +798,7 @@ async function typingg(boolean) {
        name : user.name
     }
     console.log(data);
-    await axios.post('http://'+ip+':3000/ws/sendNotifyCallVideo', data ).then(res => {
+    await axios.post('http://'+ip+'/ws/sendNotifyCallVideo', data ).then(res => {
             console.log(res)
         }).catch(err => {
             console.log(err)

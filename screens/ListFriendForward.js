@@ -33,7 +33,7 @@ const colors = useSelector((state) => {
 
 
 const getChatData = async() => {
-  await axios.post('http://'+ip+':3000/getChatByUserId',{
+  await axios.post('http://'+ip+'/getChatByUserId',{
     idUser: user.idUser
 }, config)
   .then((response) => {
@@ -66,7 +66,7 @@ const handleForward = async(item) => {
     }
   }
 
-  axios.post('http://' + ip + ':3000/ws/send-message-to-user', config.body)
+  axios.post('http://' + ip + '/ws/send-message-to-user', config.body)
     .then((response) => {
       if(chatData.id == config.body.message.chatId){
         dispatch(addChatData(config.body.message));

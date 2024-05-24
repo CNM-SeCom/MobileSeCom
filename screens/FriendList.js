@@ -33,7 +33,7 @@ const FriendList = () => {
         const idUser = await AsyncStorage.getItem('idUser');
         const userToken = await AsyncStorage.getItem('userToken');
 
-        await axios.post('http://' + ip + ':3000/checkLoginWithToken', {refreshToken: userToken, idUser: idUser})
+        await axios.post('http://' + ip + '/checkLoginWithToken', {refreshToken: userToken, idUser: idUser})
         .then(res => {
           console.log(res.data);
           dispatch(setUser(res.data.data));
@@ -45,7 +45,7 @@ const FriendList = () => {
         const data={
             idUser: id
         }
-    await axios.post('http://' + ip + ':3000/getSentRequestAddFriendByUserId',data).then((res) => {
+    await axios.post('http://' + ip + '/getSentRequestAddFriendByUserId',data).then((res) => {
         console.log(res.data.data);
         setListFriendRequest(res.data.data);
         setLoading(false);
@@ -60,7 +60,7 @@ const FriendList = () => {
             idUser: id,
             listFriend:listFriend
         }
-        await axios.post('http://' + ip + ':3000/getListFriendByUserId',data).then((res) => {
+        await axios.post('http://' + ip + '/getListFriendByUserId',data).then((res) => {
         setListFriend(res.data.data);
         setLoading(false);
         return res.data.data;
@@ -70,7 +70,7 @@ const FriendList = () => {
     }
     //Huy loi moi ket ban
     async function cancelRequestAddFriend(request) {
-        await axios.post('http://' + ip + ':3000/cancelRequestAddFriend',request).then((res) => {
+        await axios.post('http://' + ip + '/cancelRequestAddFriend',request).then((res) => {
         getSentRequestAddFriendByUserId(userId);
         setLoading(false);
         return res.data.data;
@@ -87,7 +87,7 @@ const FriendList = () => {
             idUser:idUser,
             friendId:idFriend
         }
-        await axios.post('http://' + ip + ':3000/unFriend',data).then((res) => {
+        await axios.post('http://' + ip + '/unFriend',data).then((res) => {
         getListFriendByUserId(userId);
         reloadUser();
         setLoading(false);

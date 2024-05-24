@@ -127,7 +127,7 @@ const ForgotPass = () => {
         dob: dob,
       }
       console.log(data);
-      axios.post('http://' + ip + ':3000/create', data)
+      axios.post('http://' + ip + '/create', data)
         .then((response) => {
 
             alert('Tạo tài khoản thành công');
@@ -156,7 +156,7 @@ const ForgotPass = () => {
     const data = {
       email: email,
     }
-    await axios.post('http://' + ip + ':3000/sendOTP', data)
+    await axios.post('http://' + ip + '/sendOTP', data)
       .then(res => {
         if (res.data.success === true) {
           // setIsCorrect(true);
@@ -187,7 +187,7 @@ const ForgotPass = () => {
       otp: otp,
 
     }
-    await axios.post('http://' + ip + ':3000/verifyOTP', data)
+    await axios.post('http://' + ip + '/verifyOTP', data)
       .then(res => {
         if (res.data.success === true) {
           setIsCorrect(true);
@@ -219,7 +219,7 @@ const ForgotPass = () => {
     const data = {
       phone: phone
     }
-    await axios.post('http://' + ip + ':3000/findEmailByPhone', data)
+    await axios.post('http://' + ip + '/findEmailByPhone', data)
       .then((response) => {
         setEmail(response.data.data);
         console.log('email', email);
@@ -438,7 +438,7 @@ const ForgotPass = () => {
                         phone: phoneForgot
                       }
 
-                      await axios.post('http://' + ip + ':3000/findEmailByPhone', data)
+                      await axios.post('http://' + ip + '/findEmailByPhone', data)
                         .then((response) => {
                           console.log('+++++')
                           setEmail(response.data.data);

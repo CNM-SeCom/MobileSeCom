@@ -20,7 +20,7 @@ const Notification = () => {
    
 
     const getListRequestAddFriend = async() => {
-        await axios.post('http://' + ip + ':3000/getRequestAddFriendByUserId', { idUser : user.idUser })
+        await axios.post('http://' + ip + '/getRequestAddFriendByUserId', { idUser : user.idUser })
             .then((response) => {
                 // console.log('++++++++++++++++++');
                 // console.log(response.data);
@@ -36,7 +36,7 @@ const Notification = () => {
     // getListRequestAddFriend();
     // hủy lời mời kết bạn
     async function cancelRequestAddFriend(request) {
-        await axios.post('http://' + ip + ':3000/cancelRequestAddFriend',request).then((res) => {
+        await axios.post('http://' + ip + '/cancelRequestAddFriend',request).then((res) => {
         return res.data.data;
     }).catch((err) => {
       console.log(err);
@@ -54,7 +54,7 @@ const Notification = () => {
 
     const handleAccept = async(item) => {
 
-        await axios.post('http://' + ip + ':3000/acceptRequestAddFriend',  item )
+        await axios.post('http://' + ip + '/acceptRequestAddFriend',  item )
             .then((response) => {
                 console.log(response.data);
                 //ẩn item vừa accept
@@ -67,7 +67,7 @@ const Notification = () => {
     const handleDecline = async(item) => {
 
         setLoading(true);
-        await axios.post('http://' + ip + ':3000/cancelRequestAddFriend',request).then((res) => {
+        await axios.post('http://' + ip + '/cancelRequestAddFriend',request).then((res) => {
             setLoading(false);
             return res.data.data;
         }).catch((err) => {

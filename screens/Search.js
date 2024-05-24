@@ -50,7 +50,7 @@ const Search = () => {
   };
   
   const handleSearch = async(textSearch) => {
-    await axios.post('http://'+ip+':3000/getListUserByName', {name : textSearch, idUser : user.idUser},config)
+    await axios.post('http://'+ip+'/getListUserByName', {name : textSearch, idUser : user.idUser},config)
       .then((response) => {
         setFilteredDataSource(response.data.data);
       })
@@ -97,7 +97,7 @@ const handleNotify = (receiverId, name) => {
     name : name
   }
 
-  axios.post('http://'+ip+':3000/ws/sendNotifyAddFriendToUser', {data})
+  axios.post('http://'+ip+'/ws/sendNotifyAddFriendToUser', {data})
   .then((response) => {
     
     console.log(response.data);
@@ -118,7 +118,7 @@ const handleAddFriend = async(toIdUser, nameToUser, avatar) => {
 
   
 
-  await axios.post('http://'+ip+':3000/sendRequestAddFriend', data,config)
+  await axios.post('http://'+ip+'/sendRequestAddFriend', data,config)
   .then((response) => {
     handleNotify(toIdUser, data.nameFromUser);
    console.log('==================');
