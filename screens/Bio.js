@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Image, Dimensions,ScrollView, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React,{useState} from 'react'
 import Post from '../components/Post'
 import listPost from '../data/ListPost'
 import listUser from '../data/dataUser'
@@ -7,6 +7,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faEdit } from '@fortawesome/free-solid-svg-icons'
 import { useFocusEffect } from '@react-navigation/native';
 import { useEffect } from 'react';
+import axios from 'axios';
+import ipp from '../data/ipPost'
 
 import {useNavigation} from '@react-navigation/native';
 
@@ -32,6 +34,38 @@ const Bio = () => {
       //load lại user
     }, [user]);
 
+    
+    let [listPostFromServer, setListPostFromServer] = useState([]);
+    //get posts from server
+    const getPosts = async () => {
+      try {
+        await axios.get('http://' + ipp + '/post/findAll')
+          .then(res => {
+            setListPostFromServer(res.data);
+            //nếu 
+          })
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    const deletePost=(id) => {
+      console.log('delete', id);
+      console.log('id', id);
+      setListPostFromServer(listPostFromServer.filter((item) => item._id !== id));
+
+    }
+    useFocusEffect(
+      React.useCallback(() => {
+          // setLoading(true);
+          getPosts();
+          console.log('Bio Screen focused');
+      }, [])
+  );
+    
+    useEffect(() => {
+    }, [listPostFromServer]);
+
 const navigation = useNavigation();
 
   return (
@@ -39,7 +73,9 @@ const navigation = useNavigation();
     lazyLoad={true}
     scrollEventThrottle={90}
     contentContainerStyle={styles.wrapperPost}
-    style={styles.container}>
+    style={[styles.container,{
+      backgroundColor: colors.background,
+    }]}>
        {
         user ?
         <View style={[{backgroundColor : colors.background },styles.scrollContainer]}>
@@ -132,20 +168,32 @@ const navigation = useNavigation();
               width: width,
               height: 'fit-content',
               alignItems: 'center',
+              backgroundColor: colors.background,
             }}>
 
-              {
-                listPost.map((item, index) => (
-                  <Post
-                    userName={listUser[item.idUser - 1].name}
-                    key={index}
-                    title={item.title}
-                    description={item.description}
-                    image={item.image}
-                    content={item.content} 
-                    />
-                ))
-              }
+          {
+            listPostFromServer.map((item, index) => (
+              item.idUser == user.idUser ?
+              <Post
+                userName={item.userCreated}
+                // userName={"Triet"}
+                key={index}
+                title={item.title}
+                description={''}
+                image={
+                  item?.content?.images?.length < 1 ? source =  require('../assets/logo1.png')  : { uri : item?.content?.images }
+                }
+                content={item.content.text}
+                likes={item.likes}
+                comments={item.comments}
+                idUser={user?.idUser}
+                idPost={item?._id}
+                idUserCreated={item?.idUser.toString()}
+                deletePost={()=>deletePost(item._id)}
+                getPosts={getPosts}
+              /> : null
+            ))
+          }
             </View>
       </View>:
       null

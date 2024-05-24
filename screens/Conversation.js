@@ -466,7 +466,7 @@ x();
       }
     }
     dispatch(addChatData(config.body.message));
-    axios.post('http://' + ip + '/ws/send-message-to-user', config.body)
+    axios.post('https://' + ip + '/ws/send-message-to-user', config.body)
       .then((response) => {
         setLoading(false);
       })
@@ -499,7 +499,7 @@ x();
       }
     }
     // dispatch(addChatData(config.body.message));
-    axios.post('http://' + ip + '/ws/send-message-to-user', config.body)
+    axios.post('https://' + ip + '/ws/send-message-to-user', config.body)
       .then((response) => {
         setLoading(false);
       })
@@ -511,7 +511,7 @@ x();
 
   const uploadImage = async (uri) => {
 
-    await RNFetchBlob.fetch('POST', 'http://' + ip + '/uploadImageMessage', {
+    await RNFetchBlob.fetch('POST', 'https://' + ip + '/uploadImageMessage', {
       'Content-Type': 'multipart/form-data',
     }, 
     [{ name: 'image', filename: 'image.jpg', type: 'image/jpeg', data: RNFetchBlob.wrap(uri) }
@@ -552,7 +552,7 @@ x();
     dispatch(addChatData(message));
 
     try {
-      const response = await fetch('http://' + ip + '/cloudinary/uploadVideo', {
+      const response = await fetch('https://' + ip + '/cloudinary/uploadVideo', {
         method: 'POST',
         body: data,
         headers: {
@@ -580,7 +580,7 @@ x();
 //delete message
 const handleDeleteMesssage = () => {
     //xóa tin nhắn
-    axios.post('http://' + ip + '/deleteMessageById', { messageId: messageId , receiverId: otherParticipantId, chatId: id})
+    axios.post('https://' + ip + '/deleteMessageById', { messageId: messageId , receiverId: otherParticipantId, chatId: id})
       .then((response) => {
         setMenuVisible(false);
         chatData= chatData.filter((message) => message._id !== messageId);
@@ -605,7 +605,7 @@ async function typingg(boolean) {
       userId : user.idUser
     }
   }
-  await axios.post('http://' + ip + '/ws/sendTypingToUser', config.body)
+  await axios.post('https://' + ip + '/ws/sendTypingToUser', config.body)
     .then((response) => {
       console.log('typing');
     })

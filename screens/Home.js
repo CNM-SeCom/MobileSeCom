@@ -14,6 +14,7 @@ import { setMessages, addMessage } from '../redux/messageSlice'
 import { setTyping } from '../redux/checkTypingSlice'
 import { setUser } from '../redux/userSlice'
 import ip from '../data/ip'
+import ipp from '../data/ipPost'
 import Toast from 'react-native-toast-message';
 import { idText } from 'typescript'
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -86,10 +87,9 @@ const Home = ({ navigation }) => {
     //get posts from server
     const getPosts = async () => {
       try {
-        await axios.get('http://' + ip + ':3003/post/findAll')
+        await axios.get('http://' + ipp + '/post/findAll')
           .then(res => {
             setListPostFromServer(res.data);
-            console.log('listPostFromServer', res.data[4]);
           })
       } catch (error) {
         console.log(error);
@@ -97,11 +97,15 @@ const Home = ({ navigation }) => {
     }
 
 
-    
+    const deletePost=(id) => {
+      setListPostFromServer(listPostFromServer.filter((item) => item._id !== id));
 
-    useEffect(() => {
-      getPosts();
-    }, []);
+    }
+
+    // useEffect(() => {
+    //   getPosts();
+    // }, []);
+    
     useEffect(() => {
     }, [listPostFromServer]);
 
@@ -134,6 +138,8 @@ const Home = ({ navigation }) => {
                 idUser={user?.idUser}
                 idPost={item?._id}
                 idUserCreated={item?.idUser.toString()}
+                deletePost={()=>deletePost(item._id)}
+                getPosts={()=>getPosts()}
               />
             ))
           }
@@ -144,7 +150,7 @@ const Home = ({ navigation }) => {
             user ?
               <WS
                 ref={ref => { this.ws = ref }}
-                url={`wss://${ip}/?idUser=` + user.idUser}
+                url={`wss://${ip}?idUser=` + user.idUser}
 
                 onOpen={() => {
                   console.log('Open!');
@@ -312,6 +318,7 @@ const Home = ({ navigation }) => {
                   }
                   else {
                     if (data.chatId === currentId) {
+                      console.log('data', data);
                       add = dispatch(addChatData(data));
                     }
                     // console.log(data)

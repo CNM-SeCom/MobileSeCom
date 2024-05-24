@@ -12,7 +12,7 @@ export default function App() {
 
   useEffect(() => {
     
-  }, []);
+  }, [checkCall]);
   let [token, setToken] = useState('');
   let [callerId, setCallerId] = useState('');
   let [calleeId, setCalleeId] = useState(''); 
@@ -31,10 +31,8 @@ export default function App() {
       setCallerId(datacallerId);
       setCalleeId(datacalleeId);
       setCheckCall(datacheckCall);
-      console.log("checkCall121211 :"+ checkCall);
       setCalleeName(datacalleeName);
 
-      console.log('checkCall :'+ checkCall);
 
       return data;
     } catch (error) {
@@ -42,8 +40,8 @@ export default function App() {
     }
   }
   getToken();
-    
-
+  
+  const webViewRef = useRef()
 
 
   return (
@@ -53,6 +51,8 @@ export default function App() {
         style={styles.webview}
         javaScriptEnabled={true}
         domStorageEnabled={true} 
+        onContentProcessDidTerminate={() => webViewRef.current.reload()}
+        ref={webViewRef}
         onMessage={(event) => {
           if(event.nativeEvent.data === 'end'){
             navigation.goBack();
@@ -64,7 +64,7 @@ export default function App() {
         var calleeId = 'user'+'${calleeId}'
         var token = '${token}'
         
-         
+
         function settingCallEvent(call1, localVideo, remoteVideo, callButton, answerCallButton, endCallButton, rejectCallButton,calleeName) {
           call1.on('addremotestream', function (stream) {
           // reset srcObject to work around minor bugs in Chrome and Edge.
@@ -153,17 +153,20 @@ export default function App() {
       const makeCall = () => {
           currentCall = new StringeeCall(client, callerId, calleeId, true);
           calleeName.hide();
-        
+
           settingCallEvent(currentCall, localVideo, remoteVideo, callButton, answerCallButton, endCallButton, rejectCallButton, calleeName);
           currentCall.customParameters = {x: true};
            currentCall.makeCall(function(res){
               console.log('+++ call callback: ', res);
               if (res.message === 'SUCCESS')
               {
+
                   document.dispatchEvent(new Event('connect_ok'));
               }
           });
       }
+
+      
 
       if('${checkCall}'==='true'){
         setTimeout(() => {
@@ -288,6 +291,8 @@ export default function App() {
           toggleCameraButton.show();
           toggleMicroOn.show();
           calleeName.show();
+
+
       });
   
   

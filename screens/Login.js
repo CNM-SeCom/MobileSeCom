@@ -138,7 +138,7 @@ const LoginScreen = () => {
               .catch(error => {
                 console.log('Error occurred:', error);
               });
-              navigation.navigate('ConfirmOTP', { email: email, type: 'forgotPass', phone: phone });
+              navigation.navigate('ConfirmOTP', { email:email ? email : '', type: 'forgotPass', phone:email ? phone :null });
           }
           )();
         }

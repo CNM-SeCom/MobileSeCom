@@ -12,6 +12,7 @@ import ip from '../data/ip';
 import RNFetchBlob from 'rn-fetch-blob';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { forEach } from 'core-js/core/array';
+import ipp from '../data/ipPost';
 
 const heigh = Dimensions.get('window').height;
 
@@ -89,7 +90,7 @@ const CreatePost = () => {
     //upload ảnh
     const uploadImage = async (uri) => {
 
-        await RNFetchBlob.fetch('POST', 'http://' + ip + '/uploadImageMessage', {
+        await RNFetchBlob.fetch('POST', 'https://' + ip + '/uploadImageMessage', {
             'Content-Type': 'multipart/form-data',
         },
             [{ name: 'image', filename: 'image.jpg', type: 'image/jpeg', data: RNFetchBlob.wrap(uri) }
@@ -131,7 +132,7 @@ const CreatePost = () => {
             userCreated : user.name,
         }
         try {
-            await axios.post('http://' + ip + ':3003/post/create', data)
+            await axios.post('http://' + ipp + '/post/create', data)
                 .then(res => {
                     console.log(res.data);
                 })

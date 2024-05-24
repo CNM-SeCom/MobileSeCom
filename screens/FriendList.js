@@ -14,6 +14,13 @@ import { faPalette, faRightFromBracket,faBars } from '@fortawesome/free-solid-sv
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Load from '../components/Load';
+import { LogBox } from 'react-native';
+import { useDispatch } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
+import { Provider } from 'react-native-paper';
+
+LogBox.ignoreLogs(['Warning: ...'])
+LogBox.ignoreAllLogs();
 
 
 const FriendList = () => {
@@ -23,13 +30,36 @@ const FriendList = () => {
     const userId = user.idUser;
     const [modalVisible, setModalVisible] = useState(false);
     let [loading, setLoading] = useState(false);
+    const [loadingFriend, setLoadingFriend] = useState(false);
 
     const [friendId, setFriendId] = useState('');
     const blockFriend = (id) => {
         console.log('Chặn' + id)
     }
+    const mode = useSelector((state) => state.mode.mode);
+    const colors = useSelector((state) => {
+        switch (mode) {
+          case 'dark':
+            return state.theme.darkColors;
+          default:
+            return state.theme.lightColors;
+        }
+    });
+
+    useFocusEffect(
+        React.useCallback(() => {
+            setLoadingFriend(true);
+            console.log('Bio Screen focused');
+        }, [])
+    );
+
+    useEffect(() => {
+    },[loadingFriend])
+
+    const dispatch = useDispatch();
     const navigation = useNavigation();
     const reloadUser = async () => {
+        setLoadingFriend(true);
         const idUser = await AsyncStorage.getItem('idUser');
         const userToken = await AsyncStorage.getItem('userToken');
 
@@ -37,10 +67,12 @@ const FriendList = () => {
         .then(res => {
           console.log(res.data);
           dispatch(setUser(res.data.data));
+            setLoadingFriend(false);
         })
     }
     //Danh sach gửi yêu cầu kết bạn
     async function getSentRequestAddFriendByUserId(id) {
+        setLoadingFriend(true);
         const listFriendRequest = listFriendRequest;
         const data={
             idUser: id
@@ -49,6 +81,7 @@ const FriendList = () => {
         console.log(res.data.data);
         setListFriendRequest(res.data.data);
         setLoading(false);
+        setLoadingFriend(false);
         return res.data.data;
     }).catch((err) => {
       console.log(err);
@@ -56,6 +89,7 @@ const FriendList = () => {
     }
     //Danh sách bạn bè
     async function getListFriendByUserId(id) {
+        setLoadingFriend(true);
         const data={
             idUser: id,
             listFriend:listFriend
@@ -63,6 +97,7 @@ const FriendList = () => {
         await axios.post('http://' + ip + '/getListFriendByUserId',data).then((res) => {
         setListFriend(res.data.data);
         setLoading(false);
+        setLoadingFriend(false);
         return res.data.data;
     }).catch((err) => {
       console.log(err);
@@ -80,9 +115,7 @@ const FriendList = () => {
     }
     //Hủy kết bạn
     async function unFriend(idUser,idFriend) {
-
-        console.log('idUser',idUser);
-        console.log('idFriend',idFriend);
+        setLoadingFriend(true);
         const data={
             idUser:idUser,
             friendId:idFriend
@@ -91,6 +124,7 @@ const FriendList = () => {
         getListFriendByUserId(userId);
         reloadUser();
         setLoading(false);
+        setLoadingFriend(false);
         return res.data.data;
     }).catch((err) => {
       console.log(err);
@@ -101,12 +135,13 @@ const FriendList = () => {
         getListFriendByUserId(userId);
     },[]) 
     return (
-        <View style={{backgroundColor:'#C3F8FF',width:'100%',flex:1}}>
+        <Provider>
+            <View style={{backgroundColor:colors.background,width:'100%',flex:1}}>
             <View>
-            <Text style={{justifyContent:'center',alignItems:'center',textAlign:'center',fontSize:20,color:'black', margin:10}}>Yêu cầu kết bạn</Text>
+            <Text style={{justifyContent:'center',alignItems:'center',textAlign:'center',fontSize:20,color:'white', margin:10}}>Yêu cầu kết bạn</Text>
             <FlatList
                 contentContainerStyle={{
-                    paddingBottom: 20,backgroundColor:'#C3F8FF'
+                    paddingBottom: 20,backgroundColor:colors.background
                 }}
                 style={styles.listRequestContainer}
                 data={listFriendRequest}
@@ -153,7 +188,7 @@ const FriendList = () => {
             />
             </View>
             <View>
-                <Text style={{justifyContent:'center',alignItems:'center',textAlign:'center',fontSize:20,color:'black',margin:10}}>Danh sách bạn bè</Text>
+                <Text style={{justifyContent:'center',alignItems:'center',textAlign:'center',fontSize:20,color:'white',margin:10}}>Danh sách bạn bè</Text>
                 <FlatList
                 contentContainerStyle={{
                     paddingBottom: 20,
@@ -241,8 +276,10 @@ const FriendList = () => {
                     </View>
                     )}
                     />
-                    </View>
+                    <Load loading={loadingFriend}/>
+                </View>  
         </View>
+        </Provider>
     )
 }
 export default FriendList;
@@ -268,7 +305,8 @@ const styles = StyleSheet.create({
     listRequestContainer: {
         width: '95%',
         marginLeft:10,
-        borderBottomWidth:1
+        borderBottomWidth:1,
+        borderColor: 'white',
     },
     avatar: {
         width: 50,

@@ -17,10 +17,20 @@ const Notification = () => {
     const user = useSelector((state) => state.user.user);
     let [listRequest, setListRequest] = useState([]);
     let [loading, setLoading] = useState(false);
+    
+    const mode = useSelector((state) => state.mode.mode);
+    const colors = useSelector((state) => {
+        switch (mode) {
+          case 'dark':
+            return state.theme.darkColors;
+          default:
+            return state.theme.lightColors;
+        }
+      });
    
 
     const getListRequestAddFriend = async() => {
-        await axios.post('http://' + ip + '/getRequestAddFriendByUserId', { idUser : user.idUser })
+        await axios.post('https://' + ip + '/getRequestAddFriendByUserId', { idUser : user.idUser })
             .then((response) => {
                 // console.log('++++++++++++++++++');
                 // console.log(response.data);
@@ -83,7 +93,9 @@ const Notification = () => {
                 contentContainerStyle={{
                     paddingBottom: 20,
                 }}
-                style={styles.listRequestContainer}
+                style={[styles.listRequestContainer,{
+                    backgroundColor: colors.background,
+                }]}
                 data={listRequest}
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
@@ -170,7 +182,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     listRequestContainer: {
-        width: '95%',
+        width: '100%',
 
     },
     avatar: {

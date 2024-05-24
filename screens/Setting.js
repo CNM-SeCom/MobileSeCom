@@ -90,7 +90,7 @@ const Setting = () => {
 
 
   const handleLogout = () => {
-    axios.post('http://'+ip+'/logout', { idUser: user.idUser }, config)
+    axios.post('https://'+ip+'/logout', { idUser: user.idUser }, config)
       .then((response) => {
         dispatch(setToken({}));
         dispatch(setUser(null));

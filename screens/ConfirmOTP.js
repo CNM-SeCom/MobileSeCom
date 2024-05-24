@@ -127,7 +127,7 @@ const ForgotPass = () => {
         dob: dob,
       }
       console.log(data);
-      axios.post('http://' + ip + '/create', data)
+      axios.post('https://' + ip + '/create', data)
         .then((response) => {
 
             alert('Tạo tài khoản thành công');
@@ -156,7 +156,7 @@ const ForgotPass = () => {
     const data = {
       email: email,
     }
-    await axios.post('http://' + ip + '/sendOTP', data)
+    await axios.post('https://' + ip + '/sendOTP', data)
       .then(res => {
         if (res.data.success === true) {
           // setIsCorrect(true);
@@ -187,7 +187,7 @@ const ForgotPass = () => {
       otp: otp,
 
     }
-    await axios.post('http://' + ip + '/verifyOTP', data)
+    await axios.post('https://' + ip + '/verifyOTP', data)
       .then(res => {
         if (res.data.success === true) {
           setIsCorrect(true);

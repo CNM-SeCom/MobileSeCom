@@ -71,7 +71,7 @@ const Test = () => {
     }
   };
   const uploadImage = (uri) => {
-    RNFetchBlob.fetch('POST', 'http://' + ip + '/uploadAvatar', {
+    RNFetchBlob.fetch('POST', 'https://' + ip + '/uploadAvatar', {
       'Content-Type': 'multipart/form-data',
     }, [
       { name: 'image', filename: 'image.jpg', type: 'image/jpeg', data: RNFetchBlob.wrap(uri) }
@@ -88,7 +88,7 @@ const Test = () => {
   };
 
   const uploadCoverImage = (uri) => {
-    RNFetchBlob.fetch('POST', 'http://' + ip + '/uploadCoverImage', {
+    RNFetchBlob.fetch('POST', 'https://' + ip + '/uploadCoverImage', {
       'Content-Type': 'multipart/form-data',
     }, [
       { name: 'image', filename: 'image.jpg', type: 'image/jpeg', data: RNFetchBlob.wrap(uri) }

@@ -5,6 +5,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faComment, faShare, faThumbsUp, faHeart,faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import ip from '../data/ip';
+import ipp from '../data/ipPost';
 import axios from 'axios';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Modal from 'react-native-modal';
@@ -37,8 +38,6 @@ const Post = (props) => {
   let [imageShow, setImageShow] = useState([]);
   let [visibleOption, setVisibleOption] = useState(false);
 
-console.log('idUSer', idUserCreated);
-console.log('idUser', user?.idUser);
 
 //check sở hữu bài viết
 const checkOwner = () => {
@@ -52,13 +51,13 @@ useEffect(() => {
   if (props.likes) {
     if (props?.likes.find((like) => like?.userId === user?.idUser)) {
       setIsLike(true);
-      console.log('true' , isLike);
     }
   }
 }, [props.likes]);
 
 const toggleLike = () => {
   setIsLike(!isLike);
+  props.getPosts();
 }
 useEffect(() => {}, [isLike]);
 
@@ -194,10 +193,29 @@ useEffect(() => {}, [isLike]);
     return null; // Trả về null nếu không có images hoặc images không hợp lệ
   };
   
+  const deletePost = async (id) => {
+    
+    props.deletePost()
+
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body : {
+        id: id.toString(),
+      }
+    };
+      await axios.post('https://be-secom-post.onrender.com/post/delete', config.body)
+        .then((response) => {
+          console.log('Xóa bài viết thành công');
+          setVisibleOption(!visibleOption);
+        });
+  }
+
   const likePost = async () => {
     try {
      
-      await axios.post('http://'+ip+':3003/post/like', {
+      await axios.post('http://'+ipp+'/post/like', {
         id: idPost,
         userId: idUser,
       })
@@ -209,16 +227,7 @@ useEffect(() => {}, [isLike]);
       console.log(error);
     }
   }
- 
-  const getPosts = async () => {
-    try {
-      await axios.get('http://' + ip + ':3003/post/findAll')
-        .then(res => {
-        })
-    } catch (error) {
-      console.log(error);
-    }
-  }
+
 
   const renderOptions = () => {
     if (visibleOption === true) {
@@ -237,6 +246,9 @@ useEffect(() => {}, [isLike]);
         }}
       >
           <TouchableOpacity
+            onPress={() => {
+              deletePost(idPost);
+            }}
             style={styles.opionButton}
           >
             <Text
@@ -336,7 +348,6 @@ useEffect(() => {}, [isLike]);
             <View style={styles.unitStatus}>
               <FontAwesomeIcon icon={faThumbsUp} size={25} 
                 color={
-              
                   isLike === true ? 'blue' : '#808080'
                  }
                     
