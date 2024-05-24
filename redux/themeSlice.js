@@ -14,14 +14,13 @@ const initialState = {
   },
   lightColors: {
     primary: 'white',
-    background: '#FFFFFF',
+    background: '#F2F8F8',
     card: 'white',
     text: 'black',
     border: '#CCCCCC',
     icon: 'black',
     iconActive: 'black',
     iconInactive: '#3c3c3c',
-    background:'#C3F8FF'
 
   }
 };

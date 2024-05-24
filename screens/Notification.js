@@ -7,16 +7,16 @@ import axios from 'axios';
 import ip from '../data/ip';
 import { useFocusEffect } from '@react-navigation/native';
 import Load from '../components/Load';
-import { Provider, Portal, Modal, Button } from 'react-native-paper';
+import { Provider} from 'react-native-paper';
+import { set } from 'core-js/core/dict'
 
 
 const Notification = () => {
 
-  
-
     const user = useSelector((state) => state.user.user);
     let [listRequest, setListRequest] = useState([]);
     let [loading, setLoading] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
     
     const mode = useSelector((state) => state.mode.mode);
     const colors = useSelector((state) => {
@@ -28,6 +28,9 @@ const Notification = () => {
         }
       });
    
+      useEffect(() => {
+        getListRequestAddFriend()
+      },[user])
 
     const getListRequestAddFriend = async() => {
         await axios.post('https://' + ip + '/getRequestAddFriendByUserId', { idUser : user.idUser })
@@ -43,42 +46,53 @@ const Notification = () => {
             });
     }
 
-    // getListRequestAddFriend();
-    // hủy lời mời kết bạn
-    async function cancelRequestAddFriend(request) {
-        await axios.post('http://' + ip + '/cancelRequestAddFriend',request).then((res) => {
-        return res.data.data;
-    }).catch((err) => {
-      console.log(err);
-    })
-    }
+
     // let listRequestAddFriend = getListRequestAddFriend();
     useFocusEffect(
         React.useCallback(() => {
             setLoading(true);
             getListRequestAddFriend();
             console.log('Notification Screen focused');
-        }, [])
+        }, [refreshing])
     );
 
+    const handleNotify = (receiverId) => {
+        const data = {
+          receiverId: receiverId,
+          name : ' '
+        }
+
+        console.log('data notify', data);
+        axios.post('https://'+ip+'/ws/sendNotifyAddFriendToUser', data)
+        .then((response) => {
+          console.log("notify")
+          console.log(response.data);
+        })
+      }
 
     const handleAccept = async(item) => {
 
-        await axios.post('http://' + ip + '/acceptRequestAddFriend',  item )
+        await axios.post('https://' + ip + '/acceptRequestAddFriend',  item )
             .then((response) => {
                 console.log(response.data);
                 //ẩn item vừa accept
                 setLoading(false);
+                setRefreshing(!refreshing);
+                handleNotify(item.fromUser);
                 setListRequest(listRequest.filter((request) => request.id !== item.id));
                 return response.data;
             })
     }
 
     const handleDecline = async(item) => {
-
+        console.log(item);
+        const request = item;
+        console.log('fromUser', request.fromUser);
         setLoading(true);
-        await axios.post('http://' + ip + '/cancelRequestAddFriend',request).then((res) => {
+        await axios.post('https://' + ip + '/cancelRequestAddFriend',request).then((res) => {
             setLoading(false);
+            setRefreshing(!refreshing);
+            handleNotify(request.fromUser);
             return res.data.data;
         }).catch((err) => {
           console.log(err);
@@ -126,6 +140,7 @@ const Notification = () => {
                                     onPress={() => 
                                         {
                                             handleAccept(item)
+                                           
                                             setLoading(true)
                                         }
                                     }
@@ -136,7 +151,9 @@ const Notification = () => {
                                     >Xác nhận</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
-                                    onPress={() => {handleDecline(item.id)
+                                    onPress={() => {
+                                        handleDecline(item)
+                                        
                                         setLoading(true)
                                     }}
                                     style={styles.buttonDecline}
@@ -206,7 +223,7 @@ const styles = StyleSheet.create({
     name: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: 'black',
+        color: 'white',
     },
     buttonGroup: {
         justifyContent: 'flex-end',

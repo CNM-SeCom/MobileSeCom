@@ -9,15 +9,20 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useEffect } from 'react';
 import axios from 'axios';
 import ipp from '../data/ipPost'
+import Loading from '../components/Load';
+import { Provider} from 'react-native-paper';
 
 import {useNavigation} from '@react-navigation/native';
 
 import { useSelector } from 'react-redux';
+import Load from '../components/Load'
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
 const Bio = () => {
+
+    const [loading, setLoading] = useState(false);
 
     const mode = useSelector((state) => state.mode.mode);
     const user = useSelector((state) => state.user.user);
@@ -29,10 +34,7 @@ const Bio = () => {
           return state.theme.lightColors;
       }
     });
-    useEffect(() => {
-      // Thực hiện các hành động bạn muốn khi màn hình được focus lại ở đây
-      //load lại user
-    }, [user]);
+   
 
     
     let [listPostFromServer, setListPostFromServer] = useState([]);
@@ -42,7 +44,7 @@ const Bio = () => {
         await axios.get('http://' + ipp + '/post/findAll')
           .then(res => {
             setListPostFromServer(res.data);
-            //nếu 
+            setLoading(false);
           })
       } catch (error) {
         console.log(error);
@@ -58,18 +60,24 @@ const Bio = () => {
     useFocusEffect(
       React.useCallback(() => {
           // setLoading(true);
+          setLoading(true);
+          console.log('loading', loading);
           getPosts();
           console.log('Bio Screen focused');
       }, [])
   );
-    
+  useEffect(() => {
+    // Thực hiện các hành động bạn muốn khi màn hình được focus lại ở đây
+    //load lại user
+  }, [user,loading]);
     useEffect(() => {
     }, [listPostFromServer]);
 
 const navigation = useNavigation();
 
   return (
-    <ScrollView 
+    <Provider>
+      <ScrollView 
     lazyLoad={true}
     scrollEventThrottle={90}
     contentContainerStyle={styles.wrapperPost}
@@ -198,7 +206,9 @@ const navigation = useNavigation();
       </View>:
       null
        }
+       <Load show={loading}/>
     </ScrollView>
+    </Provider>
   )
 }
 

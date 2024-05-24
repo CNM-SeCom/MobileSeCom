@@ -43,9 +43,9 @@ const CreatePost = () => {
         console.log('nội dung đã thay đổi', content);
     }, [content]);
 
-    useEffect(() => {
-        console.log('visible', visible);
-    }, [visible]);
+    // useEffect(() => {
+    //     console.log('visible', visible);
+    // }, [visible]);
 
     const renderListImage = () => {
         //map listImage để hiển thị ảnh đã chọn

@@ -30,6 +30,8 @@ const UpdateInfo = (  ) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const idUser = user.idUser;
 
+  console.log('username', userName);
+
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
   };
@@ -76,21 +78,27 @@ const UpdateInfo = (  ) => {
       idUser: idUser,
       name: newName,
   };
-  if (!regexName.test(newName)) {
-    alert('Chữ cái đầu phải viết hoa');
-  } else {
-    axios.post('http://' + ip + '/changeProfile',params).then((res) => {
-      
-    alert('Cập nhật tên thành công');
-    navigation.goBack();
-
-    }).catch((err) => {
-      console.log(err);
-    })
-    console.log(newName);
-    console.log(idUser);
-  }
+    if(userName === '' || userName === ' '){
+        navigation.goBack();
+    }
+    else {
+      if (!regexName.test(newName)) {
+        alert('Chữ cái đầu phải viết hoa');
+      } 
+      else {
+        axios.post('https://' + ip + '/changeProfile',params).then((res) => {
+          
+        alert('Cập nhật tên thành công');
+        navigation.goBack();
     
+        }).catch((err) => {
+          console.log(err);
+        })
+        console.log(newName);
+        console.log(idUser);
+      }
+        
+    }
   }
 
 

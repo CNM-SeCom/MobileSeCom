@@ -735,12 +735,12 @@ async function typingg(boolean) {
           <TouchableOpacity
             style={styles.sendImageButton}
             onPress={handlePickPicture}>
-            <FontAwesomeIcon icon={faImage} size={20} color="#009688" style={styles.iconHeader} />
+            <FontAwesomeIcon icon={faImage} size={20} color="#00b4d8" style={styles.iconHeader} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.sendImageButton}
             onPress={handlePickPicture}>
-            <FontAwesomeIcon icon={faPaperclip} size={20} color="#009688" style={styles.iconHeader} />
+            <FontAwesomeIcon icon={faPaperclip} size={20} color="#00b4d8" style={styles.iconHeader} />
           </TouchableOpacity>
         </View>
       )
@@ -764,13 +764,13 @@ async function typingg(boolean) {
           <TouchableOpacity
             onPress={() => setImageMessage([])}
           >
-            <FontAwesomeIcon icon={faXmark} size={25} color='#009688' />
+            <FontAwesomeIcon icon={faXmark} size={25} color='#00b4d8' />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleSendMedia}
             style={{ padding: 10 }}
           >
-            <Icon name='send' size={25} color='#009688' />
+            <Icon name='send' size={25} color='#00b4d8' />
           </TouchableOpacity>
 
         </View>
@@ -806,9 +806,24 @@ async function typingg(boolean) {
       )
   }
 
+  const mode = useSelector((state) => state.mode.mode);
+  const colors = useSelector((state) => {
+      switch (mode) {
+        case 'dark':
+          return state.theme.darkColors;
+        default:
+          return state.theme.lightColors;
+      }
+    });
+ 
+
   return (
     <Provider>
-      <View style={styles.container}>
+      <View style={[styles.container,
+        {
+          backgroundColor: colors.background,
+        }
+      ]}>
         <FlatList
           style={{ width: '100%' }}
           data={chatData}
@@ -960,7 +975,7 @@ const styles = StyleSheet.create({
   },
   customHeader: {
     height: 50,
-    backgroundColor: '#009688',
+    backgroundColor: '#00b4d8',
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -1018,7 +1033,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     // marginLeft: 2,
-    backgroundColor: '#009688',
+    backgroundColor: '#00b4d8',
     justifyContent: 'center',
     alignItems: 'center',
     width: 55,
@@ -1027,17 +1042,17 @@ const styles = StyleSheet.create({
     right: 70,
   },
   sendImageButton: {
-    color: '#009688',
+    color: '#00b4d8',
     fontSize: 16,
     marginLeft: 2,
   },
   sendVideoButton: {
-    color: '#009688',
+    color: '#00b4d8',
     fontSize: 16,
     marginLeft: 2,
   },
   sendDocmentButton: {
-    color: '#009688',
+    color: '#00b4d8',
     fontSize: 16,
     marginLeft: 2,
   },

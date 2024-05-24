@@ -117,6 +117,17 @@ const handleAddFriend = async(toIdUser, nameToUser, avatar) => {
   }
 
   
+  const handleNotify = (receiverId) => {
+    const data = {
+      receiverId: receiverId,
+      name : ' '
+    }
+    axios.post('https://'+ip+'/ws/sendNotifyAddFriendToUser', data)
+    .then((response) => {
+      console.log("notify")
+      console.log(response.data);
+    })
+  }
 
   await axios.post('http://'+ip+'/sendRequestAddFriend', data,config)
   .then((response) => {

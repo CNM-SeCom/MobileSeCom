@@ -9,6 +9,9 @@ import { setChatData } from '../redux/chatDataSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPen, faMagnifyingGlass, faUser, faShare } from '@fortawesome/free-solid-svg-icons';
 import { useRoute } from '@react-navigation/native';
+import { addChatData } from '../redux/chatDataSlice';
+import Load from '../components/Load';
+
 
 const ListFriendForward = () => {
 
@@ -18,9 +21,12 @@ console.log('route :', route);
 const user = useSelector((state) => state.user.user);
 const mode = useSelector((state) => state.mode.mode);
 const token = useSelector((state) => state.token.token);
+
+const [show, setShow] = useState(false);
 const [messageData, setMessageData] = useState([]);
 const [chatId, setChatId] = useState('');
 
+const navigation = useNavigation();
 const dispatch = useDispatch();
 const colors = useSelector((state) => {
   switch (mode) {
@@ -39,6 +45,7 @@ const getChatData = async() => {
   .then((response) => {
     console.log(response.data.data);
     setMessageData(response.data.data); 
+    setShow(false);
   })
   .catch((error) => {
     console.log(error);
@@ -66,18 +73,22 @@ const handleForward = async(item) => {
     }
   }
 
-  axios.post('http://' + ip + '/ws/send-message-to-user', config.body)
+  axios.post('https://' + ip + '/ws/send-message-to-user', config.body)
     .then((response) => {
       if(chatData.id == config.body.message.chatId){
         dispatch(addChatData(config.body.message));
-        Alert.alert('Thông báo ', 'Chuyển tiếp thành công')
+        alert('Thông báo ', 'Chuyển tiếp thành công')
+        setShow(false);
+        navigation.goBack();
       }
     }
     )
     .catch((error) => {
       console.log(error);
+      setShow(false);
     });
 
+    navigation.goBack();
 }
 
 const config = {
@@ -89,6 +100,7 @@ const config = {
 
 useFocusEffect(
   React.useCallback(() => {
+    setShow(true);
     getChatData();
     return () => {
       console.log('Screen ListFriendForward was focused');
@@ -136,6 +148,7 @@ useEffect(() => {
                 onPress={() => {
                   handleForward(item);
                   console.log('chatId :', item.id);
+                  setShow(true);
                 }}
             >
                 <FontAwesomeIcon icon={faShare} size={25} color="white" />
@@ -146,11 +159,12 @@ useEffect(() => {
     return null;
   };
 
-const navigation = useNavigation();
 
   return (
     <View
-        style={styles.container}
+        style={[styles.container,{
+            backgroundColor: colors.background,
+        }]}
     >
         <FlatList
             style={styles.wrapper}
@@ -158,6 +172,7 @@ const navigation = useNavigation();
             renderItem={renderItemFriend}
             keyExtractor={item => item.id}
         />
+        <Load show={show}/>
     </View>
   )
 }

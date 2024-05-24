@@ -104,6 +104,17 @@ const Chat = ({ navigation }) => {
   // console.log('chatData', chatData);
 
 
+  const mode = useSelector((state) => state.mode.mode);
+  const colors = useSelector((state) => {
+      switch (mode) {
+        case 'dark':
+          return state.theme.darkColors;
+        default:
+          return state.theme.lightColors;
+      }
+    });
+ 
+
   imageMessage.forEach(element => {
     //nếu đuôi là jpg thì gửi ảnh
     if (element.includes('.jpg' || '.png')) {
@@ -270,42 +281,42 @@ const Chat = ({ navigation }) => {
     } 
     else if ( item.type === 'ADD_MEMBER'){
       return (
-        <View style={{ backgroundColor: 'white', borderRadius: 10, paddingTop: 10 }}>
-          <Text style={{ color: 'black', fontSize: 10, height : 35 }}>{item.text}</Text>
+        <View style={{ backgroundColor: 'white', borderRadius: 10, padding: 5,flex : 1, justifyContent : 'center'  }}>
+          <Text style={{ color: 'black', fontSize: 10, flex : 1, justifyContent : 'center' }}>{item.text}</Text>
         </View>
       );
     }
     else if ( item.type === 'KICKOUT_MEMBER' ){
       return (
-        <View style={{ backgroundColor: 'white', borderRadius: 10, paddingTop: 10 }}>
-          <Text style={{ color: 'black', fontSize: 10, height : 35 }}>{item.text}</Text>
+        <View style={{ backgroundColor: 'white', borderRadius: 10, padding: 5,flex : 1, justifyContent : 'center' }}>
+          <Text style={{ color: 'black', fontSize: 10, flex : 1, justifyContent : 'center'  }}>{item.text}</Text>
         </View>
       );
     }
     else if ( item.type === 'LEAVE_GROUP'){
       return (
-        <View style={{ backgroundColor: 'white', borderRadius: 10, paddingTop: 10 }}>
-          <Text style={{ color: 'black', fontSize: 10, height : 35 }}>{item.text}</Text>
+        <View style={{ backgroundColor: 'white', borderRadius: 10, padding: 5 }}>
+          <Text style={{ color: 'black', fontSize: 10, flex : 1 }}>{item.text}</Text>
         </View>
       );
     }
     else if ( item.type === 'SET_ADMIN'){
       return (
-        <View style={{ backgroundColor: 'white', borderRadius: 10, paddingTop: 10 }}>
-          <Text style={{ color: 'black', fontSize: 10, height : 35 }}>{item.text}</Text>
+        <View style={{ backgroundColor: 'white', borderRadius: 10, padding: 5, flex : 1 }}>
+          <Text style={{ color: 'black', fontSize: 10, flex : 1 }}>{item.text}</Text>
         </View>
       );
     }
     else if ( item.type === 'CHANGE_NAME'){
       return (
-        <View style={{ backgroundColor: 'white', borderRadius: 10, paddingTop: 10 }}>
-          <Text style={{ color: 'black', fontSize: 10, height : 35 }}>{item.text}</Text>
+        <View style={{ backgroundColor: 'white', borderRadius: 10, padding: 5,flex : 1 }}>
+          <Text style={{ color: 'black', fontSize: 10, flex : 1 }}>{item.text}</Text>
         </View>
       );
     }
     else if ( item.type === 'CHANGE_AVATAR'){
       return (
-        <View style={{ backgroundColor: 'white', borderRadius: 10, paddingTop: 10 }}>
+        <View style={{ backgroundColor: 'white', borderRadius: 10, padding: 5 }}>
           <Text style={{ color: 'black', fontSize: 10, height : 35 }}>{item.text}</Text>
         </View>
       );
@@ -354,7 +365,7 @@ const Chat = ({ navigation }) => {
               // Kiểm tra loại file và render hình ảnh tương ứng
               item.text.includes('.doc') || item.text.includes('.docx') ?
                 <View
-                style={{ flexDirection: 'row',alignItems: 'flex-end', backgroundColor: '#fff', borderRadius: 10, marginTop : 15}}
+                style={{ flexDirection: 'row',alignItems: 'flex-end', backgroundColor: '#fff', borderRadius: 10, marginTop : 15, padding : 10}}
                 >
                   <Image source={require('../assets/logo-word.png')} style={{ width: 50, height: 50, borderRadius: 10 }} />
                   <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.text}</Text>
@@ -362,7 +373,7 @@ const Chat = ({ navigation }) => {
               :
                 item.text.includes('.pdf') ?
                   <View
-                    style={{ flexDirection: 'row',alignItems: 'flex-end', backgroundColor: '#fff', borderRadius: 10, marginTop : 15}}
+                    style={{ flexDirection: 'row',alignItems: 'flex-end', backgroundColor: '#fff', borderRadius: 10, marginTop : 15, padding : 10}}
                   >
                     <Image source={require('../assets/logo-pdf.png')} style={{ width: 50, height: 60, borderRadius: 10 }} />
                     <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.text}</Text>
@@ -370,7 +381,7 @@ const Chat = ({ navigation }) => {
                 :
                   item.text.includes('.xlsx') ?
                   <View
-                    style={{ flexDirection: 'row',alignItems: 'flex-end', backgroundColor: '#fff', borderRadius: 10, marginTop : 15}}
+                    style={{ flexDirection: 'row',alignItems: 'flex-end', backgroundColor: '#fff', borderRadius: 10, marginTop : 15, padding : 10}}
                   >
                     <Image source={require('../assets/logo-excel.png')} style={{ width: 50, height: 50, borderRadius: 10 }} />
                     <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.text}</Text>
@@ -378,7 +389,7 @@ const Chat = ({ navigation }) => {
                   :
                     item.text.includes('.ppt') || item.text.includes('.pptx') ?
                     <View
-                      style={{ flexDirection: 'row',alignItems: 'flex-end', backgroundColor: '#fff', borderRadius: 10, marginTop : 15}}
+                      style={{ flexDirection: 'row',alignItems: 'flex-end', backgroundColor: '#fff', borderRadius: 10, marginTop : 15, padding : 10}}
                     >
                       <Image source={require('../assets/logo-ppt.png')} style={{ width: 50, height: 50, borderRadius: 10 }} />
                       <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.text}</Text>
@@ -798,11 +809,13 @@ async function typingg(boolean) {
   }
 
   const handleSendMedia = () => {
+    setShow(true);
     if (imageMessage[0].includes('.jpg' || '.png')) {
       uploadImage(imageMessage[0]);
       setImageMessage([]);
     }
     else {
+      setShow(true);
       uploadVideo(imageMessage[0]);
       setImageMessage([]);
     }
@@ -810,7 +823,9 @@ async function typingg(boolean) {
 
   return (
     <Provider>
-      <View style={styles.container}>
+      <View style={[styles.container,{
+        backgroundColor: colors.background,
+      }]}>
         <FlatList
           style={{ width: '100%' }}
           data={chatData}

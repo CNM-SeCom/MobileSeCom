@@ -109,6 +109,20 @@ const Home = ({ navigation }) => {
     useEffect(() => {
     }, [listPostFromServer]);
 
+    const reloadUser = async () => {
+      const body = {
+        idUser: user.idUser     
+       }
+       console.log('reload', body);
+        await axios.post('https://'+ip+'/reloadUser', body)
+        .then((res) => {
+          dispatch(setUser(res.data.data));
+        })
+        .catch(() => {
+          console.log('Error')
+        })
+    }
+
   return (
 
     <View style={[
@@ -116,7 +130,7 @@ const Home = ({ navigation }) => {
       styles.container]}>
       <View style={styles.scrollContainer}>
         <ScrollView
-          lazyLoad={true}
+          lazyLoad={true}          
           scrollEventThrottle={90}
           contentContainerStyle={styles.wrapperPost}
         >
@@ -162,7 +176,9 @@ const Home = ({ navigation }) => {
                   //ảnh sẽ gắn mặc định
                   // data.user.avatar = require('../assets/logo1.png');
                   if (data.type === 'ADD_FRIEND') {
-                    showToast(data.user.name, data.text);
+                    // showToast(data.user.name, data.text);
+                    // navigation.navigate('Notification');
+                    reloadUser();
                   }
                   else if (data.type === 'ACCEPT_FRIEND') {
                     showToast(data.user.name, data.text);

@@ -31,6 +31,7 @@ const FriendList = () => {
     const [modalVisible, setModalVisible] = useState(false);
     let [loading, setLoading] = useState(false);
     const [loadingFriend, setLoadingFriend] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
     const [friendId, setFriendId] = useState('');
     const blockFriend = (id) => {
@@ -46,6 +47,11 @@ const FriendList = () => {
         }
     });
 
+    useEffect(() => {
+        getListFriendByUserId(user.idUser);
+        getSentRequestAddFriendByUserId(user.idUser);
+    },[user])
+
     useFocusEffect(
         React.useCallback(() => {
             setLoadingFriend(true);
@@ -54,22 +60,47 @@ const FriendList = () => {
     );
 
     useEffect(() => {
+
     },[loadingFriend])
+
+    
 
     const dispatch = useDispatch();
     const navigation = useNavigation();
+
+    const handleNotify = (receiverId) => {
+        const data = {
+          receiverId: receiverId,
+          name : ' '
+        }
+
+        console.log('data notify', data);
+        axios.post('https://'+ip+'/ws/sendNotifyAddFriendToUser', data)
+        .then((response) => {
+          console.log("notify")
+          console.log(response.data);
+        })
+      }
+
     const reloadUser = async () => {
         setLoadingFriend(true);
         const idUser = await AsyncStorage.getItem('idUser');
         const userToken = await AsyncStorage.getItem('userToken');
 
-        await axios.post('http://' + ip + '/checkLoginWithToken', {refreshToken: userToken, idUser: idUser})
+        console.log('idUser', idUser);
+        console.log('userToken', userToken);
+
+        await axios.post('https://' + ip + '/checkLoginWithToken', {refreshToken: userToken, idUser: idUser})
         .then(res => {
           console.log(res.data);
           dispatch(setUser(res.data.data));
             setLoadingFriend(false);
         })
     }
+
+ 
+
+
     //Danh sach gửi yêu cầu kết bạn
     async function getSentRequestAddFriendByUserId(id) {
         setLoadingFriend(true);
@@ -77,7 +108,7 @@ const FriendList = () => {
         const data={
             idUser: id
         }
-    await axios.post('http://' + ip + '/getSentRequestAddFriendByUserId',data).then((res) => {
+    await axios.post('https://' + ip + '/getSentRequestAddFriendByUserId',data).then((res) => {
         console.log(res.data.data);
         setListFriendRequest(res.data.data);
         setLoading(false);
@@ -94,7 +125,7 @@ const FriendList = () => {
             idUser: id,
             listFriend:listFriend
         }
-        await axios.post('http://' + ip + '/getListFriendByUserId',data).then((res) => {
+        await axios.post('https://' + ip + '/getListFriendByUserId',data).then((res) => {
         setListFriend(res.data.data);
         setLoading(false);
         setLoadingFriend(false);
@@ -105,8 +136,9 @@ const FriendList = () => {
     }
     //Huy loi moi ket ban
     async function cancelRequestAddFriend(request) {
-        await axios.post('http://' + ip + '/cancelRequestAddFriend',request).then((res) => {
+        await axios.post('https://' + ip + '/cancelRequestAddFriend',request).then((res) => {
         getSentRequestAddFriendByUserId(userId);
+        handleNotify(request.toUser);
         setLoading(false);
         return res.data.data;
     }).catch((err) => {
@@ -120,8 +152,9 @@ const FriendList = () => {
             idUser:idUser,
             friendId:idFriend
         }
-        await axios.post('http://' + ip + '/unFriend',data).then((res) => {
+        await axios.post('https://' + ip + '/unFriend',data).then((res) => {
         getListFriendByUserId(userId);
+        handleNotify(idFriend);
         reloadUser();
         setLoading(false);
         setLoadingFriend(false);
@@ -276,7 +309,7 @@ const FriendList = () => {
                     </View>
                     )}
                     />
-                    <Load loading={loadingFriend}/>
+                    <Load show={loadingFriend}/>
                 </View>  
         </View>
         </Provider>

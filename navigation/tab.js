@@ -66,7 +66,7 @@ const colors = useSelector((state) => {
                 tabBarIcon: ({ color }) => (
                   <View>
                     <FontAwesomeIcon icon={faComment} size={25} color={color} />
-                    <Badge style={{ position: 'absolute', top: -7, right: -10 }}>3</Badge>
+                    {/* <Badge style={{ position: 'absolute', top: -7, right: -10 }}>3</Badge> */}
                   </View>
                 ),
                 tabBarShowLabel: false,
