@@ -343,13 +343,16 @@ x();
           }}
         >
           <View style={{ 
-            color: 'black', fontSize: 16, backgroundColor : 'white'}}>
+            color: 'black', fontSize: 16, backgroundColor : 'white', borderRadius : 10}}>
             {
               // Sử dụng cú pháp {} để đưa vào mã JavaScript
               // Kiểm tra loại file và render hình ảnh tương ứng
               item.text.includes('.doc') || item.text.includes('.docx') ?
                 <View
-                style={{ flexDirection: 'row',alignItems: 'flex-end', backgroundColor: '#fff', borderRadius: 10, marginTop : 15}}
+                style={{ flexDirection: 'row',alignItems: 'flex-end', 
+                backgroundColor: '#fff', borderRadius: 20, marginTop : 0,
+                padding : 5, overflow : 'hidden'
+              }}
                 >
                   <Image source={require('../assets/logo-word.png')} style={{ width: 50, height: 50, borderRadius: 10 }} />
                   <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.text}</Text>
@@ -357,7 +360,8 @@ x();
               :
                 item.text.includes('.pdf') ?
                   <View
-                    style={{ flexDirection: 'row',alignItems: 'flex-end', backgroundColor: '#fff', borderRadius: 10, marginTop : 15}}
+                    style={{ flexDirection: 'row',alignItems: 'flex-end', backgroundColor: '#fff', borderRadius: 10, marginTop : 0,
+                    padding : 5, overflow : 'hidden'}}
                   >
                     <Image source={require('../assets/logo-pdf.png')} style={{ width: 50, height: 60, borderRadius: 10 }} />
                     <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.text}</Text>
@@ -365,7 +369,8 @@ x();
                 :
                   item.text.includes('.xlsx') ?
                   <View
-                    style={{ flexDirection: 'row',alignItems: 'flex-end', backgroundColor: '#fff', borderRadius: 10, marginTop : 15}}
+                    style={{ flexDirection: 'row',alignItems: 'flex-end', backgroundColor: '#fff', borderRadius: 10, marginTop : 0,
+                    padding : 5, overflow : 'hidden'}}
                   >
                     <Image source={require('../assets/logo-excel.png')} style={{ width: 50, height: 50, borderRadius: 10 }} />
                     <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.text}</Text>
@@ -373,9 +378,11 @@ x();
                   :
                     item.text.includes('.ppt') || item.text.includes('.pptx') ?
                     <View
-                      style={{ flexDirection: 'row',alignItems: 'flex-end', backgroundColor: '#fff', borderRadius: 10, marginTop : 15}}
+                      style={{ flexDirection: 'row',alignItems: 'flex-end', backgroundColor: '#fff', borderRadius: 10, marginTop : 0,
+                      padding : 5, overflow : 'hidden'}}
                     >
-                      <Image source={require('../assets/logo-ppt.png')} style={{ width: 50, height: 50, borderRadius: 10 }} />
+                      <Image source={require('../assets/logo-ppt.png')} style={{ width: 50, height: 50, borderRadius: 10 ,
+                      padding : 5, overflow : 'hidden'}} />
                       <Text style={{ color: 'black', margin: 10, fontWeight: 'bold', fontSize: 15 }}>{item.text}</Text>
                     </View>
                     :

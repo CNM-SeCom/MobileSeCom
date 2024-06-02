@@ -144,7 +144,8 @@ const Register = () => {
                 </TouchableOpacity>
                     {showDatePicker && (
                         <DateTimePicker
-                        value={date}
+                        style={{ backgroundColor: 'black'}}
+                        value={date ? date : new Date()}
                         mode="date"
                         display="spinner"
                         onChange={onChange}

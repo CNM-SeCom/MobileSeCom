@@ -783,10 +783,12 @@ const ManagerGroup = () => {
                                                                 source={{ uri: item.avatar }}
                                                                 style={{ width: 40, height: 40, borderRadius: 20 }}
                                                             />
-                                                            <Text style={[styles.textButton, { marginLeft: 10 }]}>{item.name}</Text>
+                                                            <Text style={[styles.textButton, { marginLeft: 10
+                                                                ,color: item.role === 'admin' ? 'red' : 'black'
+                                                             }]}>{item.name }</Text>
                                                             {
                                                                 handleCheckAddmin() === true ? (
-                                                                    <TouchableOpacity
+                                                            <TouchableOpacity
                                                                 onPress={() => handleRemoveParticipant(item.idUser)}
                                                                 style={{ position: 'absolute', right: 10 }}
                                                             >
